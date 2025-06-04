@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="icon" type="image/png" href="/images/panlog.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <a href="/recipes">
+            <button class="explore-btn">Explore Recipes</button>
+        </a>
+    </section>
+
+    <!-- Search Bar & Sort Options -->
+    <div class="search-wrapper">
+        <div class="search-container">
+            <i class="fa fa-search"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search recipes and more...">
+            <button type="button" id="searchBtn">Search</button>
+        </div>
+    </div>
+
+    <div class="sort-container">
+        <label for="sort-dropdown">Sort by:</label>
+        <select id="sort-dropdown" name="sort-options">
+            <option value="newest">Newest</option>
+            <option value="most-popular">Most Popular</option>
+            <option value="prep-time">Prep Time</option>
+        </select>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="parent-container">
+        <%- include('../partials/sidebar') %>
+        
+        <!-- Recipe Grid -->
+        <div class="recipe-grid">
+            <!-- Left: Featured Recipe Card -->
+            <div class="featured-left">
+                <div id="results"></div>
+                <a href="/chickpea-salad">
+                    <div class="recipe-card-featured">
+                        <img src="/images/fruit-spinach-salad.jpg" alt="Mediterranean Chickpea Salad">
+                        <div class="recipe-content">
+                            <h2>Mediterranean Chickpea Salad</h2>
+                            <p>A vibrant, plant-based dish loaded with nutrients.</p>
+                            <div class="recipe-info">
+                                <div class="info-item">
+                                    <i class="fa fa-users"></i> Serving 2
+                                </div>
+                                <div class="info-item">
+                                    <strong>1h 15m</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        
+            <!-- Right Recipes -->
+            <div class="featured-right">
+                <!-- First Recipe Card -->
+                <a href="/spaghetti-bolognese">
+                    <div class="recipe-card2 black" data-preptime="30" data-popularity="7">
+                        <img src="/images/penne-pasta.jpg" alt="Spaghetti Bolognese">
+                        <div class="recipe-content">
+                            <h2>Spaghetti Bolognese</h2>
+                            <p>Quick and easy pasta with rich tomato sauce. Perfect for a weekday dinner.</p>
+                            <div class="recipe-info">
+                                <div class="info-item"><i class="fa fa-users"></i> 2 Servings</div>
+                                <div class="info-item"><i class="fa fa-clock"></i> 30 min</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+        
+                <!-- Second Recipe Card -->
+                <a href="/brownies">
+                    <div class="recipe-card2" data-preptime="45" data-popularity="10">
+                        <img src="/images/chocolate-cake.jpg" alt="Brownies">
+                        <div class="recipe-content">
+                            <h2>Brownies</h2>
+                            <p>Rich, moist and absolutely decadent — your go-to chocolate dessert!</p>
+                            <div class="recipe-info">
+                                <div class="info-item"><i class="fa fa-users"></i> 4 Servings</div>
+                                <div class="info-item"><i class="fa fa-clock"></i> 45 min</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script src="/js/recipeSort.js"></script>
+    <script src="/js/sidebar.js"></script>
+</body>
+</html>
