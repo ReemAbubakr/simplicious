@@ -11,6 +11,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Routes
 app.use('/', require('./routes/homeRoutes'));
+app.use('/abous', require('./routes/aboutusRoutes'));
 app.use('/recipes', require('./routes/recipeRoutes'));
 // Start Server
 const PORT = 3000;

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About us</title>
+    <link rel="icon" type="image/png" href="/images/panlog.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <!-- Who We Are Section -->
+    <section id="who-we-are">
+        <h2>Who We Are</h2>
+        <p>
+            Simply Recipes is here to help you cook delicious meals with less stress and more joy. We offer recipes and cooking advice 
+            for home cooks, by home cooks. Helping create "kitchen wins" is what we're all about.
+        </p>
+    </section>
+
+    <section id="our-values">
+        <h2>Our Values</h2>
+        <p>Everyone is welcome here at Simply Recipes. We strive to be a resource for every home cook, and we consciously work to make this inclusion felt in every part of the site, from the individuals we work with to the recipes, stories, and traditions that we share.</p>
+
+        <p>We're not perfect, but we hope to get more right than we get wrong. If you have concerns about cultural appropriation, bias, or insensitivity in any of our articles, please let us know via <a href="mailto:<%= contactEmail %>"><%= contactEmail %></a>. Your concern will be reviewed by a member of our editorial team and by a member of our Anti-Bias Review Board. Once the best course of action is determined, we send a reply to your email letting you know how the matter is being addressed</p>
+    </section>
+
+    <section id="contact-us">
+        <h2>Contact Us</h2>
+        <p>Have something you'd like to let us know? Whether you have a comment on a recipe or an idea to share, we would love to hear from you: 
+            <a href="mailto:<%= contactEmail %>"><%= contactEmail %></a>.
+        </p>
+        <p>For press inquiries, email us at 
+            <a href="mailto:<%= pressEmail %>"><%= pressEmail %></a>.
+        </p>
+    </section>
+
+    <%- include('partials/footer') %>
+</body>
+</html>
