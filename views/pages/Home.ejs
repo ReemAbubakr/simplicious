@@ -39,30 +39,51 @@
     <div class="parent-container">
         <%- include('../partials/sidebar') %>
         
-        <!-- Recipe Grid -->
         <div class="recipe-grid">
             <!-- Left: Featured Recipe Card -->
             <div class="featured-left">
                 <div id="results"></div>
-                <a href="/chickpea-salad">
-                    <div class="recipe-card-featured">
-                        <img src="/images/fruit-spinach-salad.jpg" alt="Mediterranean Chickpea Salad">
+                <a href="/chickpea-salad" class="recipe-link" aria-label="<%= recipe.title %> Recipe">
+                    <article class="recipe-card-featured">
+                        <div class="recipe-image-container">
+                            <img src="/images/fruit-spinach-salad.jpg" 
+                                alt="<%= recipe.title %>" 
+                                class="recipe-image"
+                                loading="lazy">
+                            <div class="recipe-badge"><%= recipe.tag %></div>
+                        </div>
+                        
                         <div class="recipe-content">
-                            <h2>Mediterranean Chickpea Salad</h2>
-                            <p>A vibrant, plant-based dish loaded with nutrients.</p>
-                            <div class="recipe-info">
-                                <div class="info-item">
-                                    <i class="fa fa-users"></i> Serving 2
+                            <header>
+                                <h2 class="recipe-title"><%= recipe.heading %></h2>
+                                <p class="recipe-description"><%= recipe.description %></p>
+                            </header>
+                            
+                            <div class="recipe-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-users" aria-hidden="true"></i>
+                                    <span>Serves: <strong><%= recipe.serves %></strong></span>
                                 </div>
-                                <div class="info-item">
-                                    <strong>1h 15m</strong>
+                                <div class="meta-item">
+                                    <i class="fas fa-clock" aria-hidden="true"></i>
+                                    <span>Prep: <strong><%= recipe.prep %></strong></span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-fire" aria-hidden="true"></i>
+                                    <span>Total: <strong><%= recipe.total %></strong></span>
                                 </div>
                             </div>
+                            
+                            <div class="recipe-tags">
+                                <% recipe.tags.forEach(tag => { %>
+                                    <span class="tag <%= tag.toLowerCase().replace(' ', '-') %>"><%= tag %></span>
+                                <% }); %>
+                            </div>
                         </div>
-                    </div>
+                    </article>
                 </a>
             </div>
-        
+            
             <!-- Right Recipes -->
             <div class="featured-right">
                 <!-- First Recipe Card -->
