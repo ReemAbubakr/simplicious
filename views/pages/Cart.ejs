@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><%= title %></title>
+    <link rel="stylesheet" href="/css/book.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/cart.js" defer></script>
+</head>
+<body>
+   <%- include('../partials/header') %>
+
+    <main>
+        <div class="title-section">
+            <h1 class="title">Cooking Books Recommended by Our Chefs</h1>
+        </div>
+        <section class="book-list">
+            <!-- Row 1 -->
+            <div class="book-row">
+                <% books.slice(0, 3).forEach(book => { %>
+                    <div class="book-item">
+                        <h2><%= book.title %></h2>
+                        <img src="<%= book.image %>" alt="<%= book.title %> Cover">
+                        <button class="add-to-cart" data-id="<%= book.id %>">Add to Cart</button>
+                    </div>
+                <% }); %>
+            </div>
+            <!-- Row 2 -->
+            <div class="book-row">
+                <% books.slice(3, 6).forEach(book => { %>
+                    <div class="book-item">
+                        <h2><%= book.title %></h2>
+                        <img src="<%= book.image %>" alt="<%= book.title %> Cover">
+                        <button class="add-to-cart" data-id="<%= book.id %>">Add to Cart</button>
+                    </div>
+                <% }); %>
+            </div>
+        </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>
