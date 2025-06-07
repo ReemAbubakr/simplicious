@@ -35,6 +35,15 @@ app.get('/Cart', (req, res) => {
   res.render('pages/Cart', { title: 'Your Cart',currentPage: 'Cart',books });
 });
 
+app.get('/signup', (req, res) => {
+  res.render('pages/signup', { title: 'Signup page',currentPage: 'signup' }); 
+});
+
+app.get('/login', (req, res) => {
+  res.render('pages/login', { title: 'Login page',currentPage: 'login' }); 
+});
+
+
 // Error handlers (with corrected paths)
 app.use((req, res) => {
   res.status(404).render('pages/404', { title: 'Page Not Found' });
