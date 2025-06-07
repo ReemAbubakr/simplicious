@@ -3,33 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link rel="stylesheet" href="/css/book.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="/js/cart.js" defer></script>
+    <title>Shopping Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .cart-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .cart-item {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .cart-item img {
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
+        }
+        .item-details {
+            flex-grow: 1;
+        }
+        .cart-summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-   <%- include('../partials/header') %>
-
-    <main>
-        <div class="title-section">
-            <h1 class="title">Cooking Books Recommended by Our Chefs</h1>
-        </div>
-      <section class="book-list">
-    <% for(let i = 0; i < books.length; i += 3) { %>
-        <div class="book-row">
-            <% books.slice(i, i+3).forEach(book => { %>
-                <div class="book-item">
-                    <h2><%= book.title %></h2>
-                    <img src="<%= book.imagePath %>" alt="<%= book.altText %>">
-                    <button class="add-to-cart" data-id="<%= book._id %>">Add to Cart</button>
+    <div class="cart-container">
+        <h1>Your Shopping Cart</h1>
+        
+        <div class="cart-items">
+            <!-- Sample Book 1 -->
+            <div class="cart-item">
+                <img src="/images/french-cooking-cover.jpg" alt="Mastering French Cooking">
+                <div class="item-details">
+                    <h3>Mastering the Art of French Cooking</h3>
+                    <p>by Julia Child</p>
+                    <p>$35.99</p>
+                    <div class="quantity">
+                        Quantity: 1
+                    </div>
                 </div>
-            <% }); %>
+            </div>
+            
+            <!-- Sample Book 2 -->
+            <div class="cart-item">
+                <img src="/images/italian-cooking-cover.jpg" alt="Essentials of Italian Cooking">
+                <div class="item-details">
+                    <h3>Essentials of Italian Cooking</h3>
+                    <p>by Marcella Hazan</p>
+                    <p>$29.99</p>
+                    <div class="quantity">
+                        Quantity: 2
+                    </div>
+                </div>
+            </div>
         </div>
-    <% } %>
-</section>
-    </main>
-
-    <%- include('../partials/footer') %>
+        
+        <div class="cart-summary">
+            <h3>Order Summary</h3>
+            <p>Subtotal (3 items): $95.97</p>
+            <p>Shipping: FREE</p>
+            <p><strong>Total: $95.97</strong></p>
+            <button>Proceed to Checkout</button>
+        </div>
+    </div>
 </body>
 </html>
