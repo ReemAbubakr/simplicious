@@ -39,36 +39,57 @@
     <div class="parent-container">
         <%- include('../partials/sidebar') %>
         
-        <!-- Recipe Grid -->
         <div class="recipe-grid">
             <!-- Left: Featured Recipe Card -->
             <div class="featured-left">
                 <div id="results"></div>
-                <a href="/chickpea-salad">
-                    <div class="recipe-card-featured">
-                        <img src="/images/fruit-spinach-salad.jpg" alt="Mediterranean Chickpea Salad">
+                <a href="/chickpea-salad" class="recipe-link" aria-label="<%= recipe.title %> Recipe">
+                    <article class="recipe-card-featured">
+                        <div class="recipe-image-container">
+                            <img src="/images/fruit-spinach-salad.jpg" 
+                                alt="<%= recipe.title %>" 
+                                class="recipe-image"
+                                loading="lazy">
+                            <div class="recipe-badge"><%= recipe.tag %></div>
+                        </div>
+                        
                         <div class="recipe-content">
-                            <h2>Mediterranean Chickpea Salad</h2>
-                            <p>A vibrant, plant-based dish loaded with nutrients.</p>
-                            <div class="recipe-info">
-                                <div class="info-item">
-                                    <i class="fa fa-users"></i> Serving 2
+                            <header>
+                                <h2 class="recipe-title"><%= recipe.heading %></h2>
+                                <p class="recipe-description"><%= recipe.description %></p>
+                            </header>
+                            
+                            <div class="recipe-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-users" aria-hidden="true"></i>
+                                    <span>Serves: <strong><%= recipe.serves %></strong></span>
                                 </div>
-                                <div class="info-item">
-                                    <strong>1h 15m</strong>
+                                <div class="meta-item">
+                                    <i class="fas fa-clock" aria-hidden="true"></i>
+                                    <span>Prep: <strong><%= recipe.prep %></strong></span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-fire" aria-hidden="true"></i>
+                                    <span>Total: <strong><%= recipe.total %></strong></span>
                                 </div>
                             </div>
+                            
+                            <div class="recipe-tags">
+                                <% recipe.tags.forEach(tag => { %>
+                                    <span class="tag <%= tag.toLowerCase().replace(' ', '-') %>"><%= tag %></span>
+                                <% }); %>
+                            </div>
                         </div>
-                    </div>
+                    </article>
                 </a>
             </div>
-        
+            
             <!-- Right Recipes -->
             <div class="featured-right">
                 <!-- First Recipe Card -->
                 <a href="/spaghetti-bolognese">
                     <div class="recipe-card2 black" data-preptime="30" data-popularity="7">
-                        <img src="/images/penne-pasta.jpg" alt="Spaghetti Bolognese">
+                        <img src="./images/Spaghetti.jpg" alt="Spaghetti Bolognese">
                         <div class="recipe-content">
                             <h2>Spaghetti Bolognese</h2>
                             <p>Quick and easy pasta with rich tomato sauce. Perfect for a weekday dinner.</p>
@@ -83,7 +104,7 @@
                 <!-- Second Recipe Card -->
                 <a href="/brownies">
                     <div class="recipe-card2" data-preptime="45" data-popularity="10">
-                        <img src="/images/chocolate-cake.jpg" alt="Brownies">
+                        <img src="./images/brownies.jpg" alt="Brownies">
                         <div class="recipe-content">
                             <h2>Brownies</h2>
                             <p>Rich, moist and absolutely decadent — your go-to chocolate dessert!</p>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title><%= title %></title>
+  <script src="/js/login.js"></script>
+   <link rel="stylesheet" href="/css/signup-login.css">
+</head>
+<body>
+     <%- include('../partials/header') %>
+  <div class="login-container">
+    <h2>Login</h2>
+    <form>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" />
+      </div>
+      <div class="forgot-password">
+        <a href="#">Forgot Password?</a>
+      </div>    
+      <button type="submit" class="login-btn">Login</button>
+      <div id="error-message" style="color: red; margin-top: 10px;"></div>
+    </form>
+    <div class="signup-link">
+        Don't have an account?
+        <a href="/signup">Sign up</a>
+      </div>
+    
+  </div>
+   <%- include('../partials/footer') %>
+</body>
+</html>

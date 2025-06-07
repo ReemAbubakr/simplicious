@@ -1,49 +1,95 @@
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const flash = require('connect-flash');
 require('dotenv').config();
 
-
-
+// Initialize Express app
 const app = express();
-app.listen(5005);
-app.set('views', path.join(__dirname, 'views'));
-// Configuration
+
+// Database Connection
+const DB = process.env.MONGODB_URI.replace('<PASSWORD>', process.env.MONGODB_PASSWORD);
+mongoose.connect(DB)
+  .then(() => console.log('Connected to MongoDB!'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// Import Models
+const Book = require('./models/book');
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}));
+app.use(flash());
+
+// Static Files Configuration
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Routes (with titles and corrected paths)
+// Recipe Generator
+const generateRecipe = require('./recipeGenerator');
+
+// Routes
+
+// Home Route
 app.get('/', (req, res) => {
-  res.render('pages/Home', { title: 'Home Page',currentPage: 'Home' }); // Fixed case + added title
+  res.render('pages/Home', { 
+    title: 'Home Page',
+    currentPage: 'Home', 
+    recipe: generateRecipe() 
+  });
 });
 
+// Random Recipe API
+app.get('/random-recipe', (req, res) => {
+  res.json(generateRecipe());
+});
+
+// About Route
 app.get('/About', (req, res) => {
-  res.render('pages/About', { title: 'About Us',currentPage: 'About',
-      contactEmail: 'support@example.com',  // Replace with actual email
+  res.render('pages/About', { 
+    title: 'About Us',
+    currentPage: 'About',
+    contactEmail: 'support@example.com',
     pressEmail: 'press@example.com'
-   });
+  });
 });
 
-app.get('/Cart', (req, res) => {
-   const books = [
-    { id: 1, title: 'Mastering the Art of French Cooking', image: '/images/book1.jpg' },
-    { id: 2, title: 'The Joy of Cooking', image: '/images/book2.jpg' },
-    { id: 3, title: 'Salt, Fat, Acid, Heat', image: '/images/book3.jpg' },
-    { id: 4, title: 'Essentials of Classic Italian Cooking', image: '/images/book4.jpg' },
-    { id: 5, title: 'On Food and Cooking', image: '/images/book5.jpg' },
-    { id: 6, title: 'The Food Lab', image: '/images/book6.jpg' }
-  ];
-  res.render('pages/Cart', { title: 'Your Cart',currentPage: 'Cart',books });
+const bookRouter = require('./controllers/bookController');
+app.use('/Books', bookRouter);
+// Update cart quantity
+// Simple Cart Route (for viewing only)
+app.get('/cart', (req, res) => {
+    res.render('pages/cart', { 
+        title: 'Your Cart',
+        currentPage: 'Cart'
+    });
 });
 
 // Error handlers (with corrected paths)
 app.use((req, res) => {
-  res.status(404).render('pages/404', { title: 'Page Not Found' });
-});
-
-app.use((err, req, res, next) => {
-  res.status(500).render('pages/500', { 
-    title: 'Server Error', 
-    errorDetails: err.message // Pass the error details
+  res.status(404).render('pages/404', { 
+    title: 'Page Not Found' 
   });
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('pages/500', { 
+    title: 'Server Error', 
+    errorDetails: err.message 
+  });
+});
+
+// Server Startup
+const PORT = process.env.PORT || 5005;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
