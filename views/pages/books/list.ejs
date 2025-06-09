@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Books</title>
+    <link rel="stylesheet" href="/css/book.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+
+    <main>
+        <div class="title-section">
+            <h1 class="title">Cooking Books Recommended by Our Chefs</h1>
+        </div>
+
+        <section class="book-list">
+            <% books.forEach(book => { %>
+                <div class="book-item">
+                    <div class="book-image-container">
+                        <img src="<%= book.imagePath %>" alt="<%= book.altText %>" class="book-image">
+                    </div>
+                    <div class="book-details">
+                        <h2 class="book-title"><%= book.title %></h2>
+                        <div class="book-actions">
+                            <a href="/books/<%= book._id %>" class="details-btn">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+                            <button class="book-action-btn wishlist-btn" data-id="<%= book._id %>">
+                                <i class="far fa-heart"></i> Wishlist
+                            </button>
+                            <button class="book-action-btn add-to-cart-btn" data-id="<%= book._id %>">
+                                <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                            <a href="/cart" class="book-action-btn goto-cart-btn" style="display: none;">
+                                <i class="fas fa-check"></i> View Cart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </section>
+    </main>
+
+    <%- include('../../partials/footer') %>
+
+    <script src="/js/book-list.js"></script>
+</body>
+</html>

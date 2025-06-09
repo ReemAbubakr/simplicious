@@ -1,95 +1,168 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const mongoose = require('mongoose');
 const session = require('express-session');
 const flash = require('connect-flash');
-require('dotenv').config();
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
+const connectDB = require('./config/db');
 
-// Initialize Express app
 const app = express();
 
-// Database Connection
-const DB = process.env.MONGODB_URI.replace('<PASSWORD>', process.env.MONGODB_PASSWORD);
-mongoose.connect(DB)
-  .then(() => console.log('Connected to MongoDB!'))
-  .catch(err => console.error('MongoDB connection error:', err));
+connectDB();
 
-// Import Models
-const Book = require('./models/book');
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(session({
+
+// =============================================
+// Application Middleware
+// =============================================
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Session configuration
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI.replace(
+      '<PASSWORD>', 
+      encodeURIComponent(process.env.MONGODB_PASSWORD)
+    ),
+    dbName: 'codebookDB',
+    ttl: 24 * 60 * 60 // 1 day
+  }),
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: 'lax'
+  }
+};
+
+app.use(session(sessionConfig));
 app.use(flash());
 
-// Static Files Configuration
-app.use(express.static(path.join(__dirname, 'public')));
+// Security headers
+app.use((req, res, next) => {
+  res.removeHeader('X-Powered-By');
+  res.set('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
+// =============================================
+// Static Files and View Engine
+// =============================================
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1y',
+  immutable: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+  }
+}));
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Recipe Generator
+// =============================================
+// Route Imports and Configuration
+// =============================================
 const generateRecipe = require('./recipeGenerator');
+const bookRouter = require('./routes/books');
 
-// Routes
+// Database status endpoint
+app.get('/db-status', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const collections = await db.listCollections().toArray();
+    const booksCount = await db.collection('books').countDocuments();
+    
+    res.json({
+      status: 'connected',
+      database: db.databaseName,
+      collections: collections.map(c => c.name),
+      booksCount,
+      connectionState: mongoose.connection.readyState
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      error: err.message
+    });
+  }
+});
 
 // Home Route
 app.get('/', (req, res) => {
   res.render('pages/Home', { 
     title: 'Home Page',
-    currentPage: 'Home', 
-    recipe: generateRecipe() 
+    currentPage: 'home', 
+    recipe: generateRecipe(),
+    flashMessages: req.flash()
   });
-});
-
-// Random Recipe API
-app.get('/random-recipe', (req, res) => {
-  res.json(generateRecipe());
 });
 
 // About Route
-app.get('/About', (req, res) => {
+app.get('/about', (req, res) => {
   res.render('pages/About', { 
     title: 'About Us',
-    currentPage: 'About',
-    contactEmail: 'support@example.com',
-    pressEmail: 'press@example.com'
+    currentPage: 'about',
+    contactEmail: process.env.CONTACT_EMAIL || 'support@example.com'
   });
 });
 
-const bookRouter = require('./controllers/bookController');
-app.use('/Books', bookRouter);
-// Update cart quantity
-// Simple Cart Route (for viewing only)
+// Book Routes
+app.use('/books', bookRouter);
+
+// Cart Route
 app.get('/cart', (req, res) => {
-    res.render('pages/cart', { 
-        title: 'Your Cart',
-        currentPage: 'Cart'
-    });
+  res.render('pages/cart', { 
+    title: 'Your Cart',
+    currentPage: 'cart',
+    cart: req.session.cart || []
+  });
 });
 
-// Error handlers (with corrected paths)
-app.use((req, res) => {
-  res.status(404).render('pages/404', { 
-    title: 'Page Not Found' 
+// =============================================
+// Error Handlers
+// =============================================
+app.use((req, res, next) => {
+  res.status(404).render('pages/404', {
+    title: 'Page Not Found',
+    currentPage: '',
+    layout: 'error'
   });
 });
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).render('pages/500', { 
-    title: 'Server Error', 
-    errorDetails: err.message 
+  console.error('🚨 Error:', err.stack);
+  res.status(500).render('pages/500', {
+    title: 'Server Error',
+    currentPage: '',
+    errorDetails: process.env.NODE_ENV === 'development' ? err.stack : null,
+    layout: 'error'
   });
 });
 
+// =============================================
 // Server Startup
-const PORT = process.env.PORT || 5005;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// =============================================
+const PORT = process.env.PORT || 4000;
+
+const server = app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 DB Status: http://localhost:${PORT}/db-status`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  server.close(() => {
+    mongoose.connection.close(false, () => {
+      console.log('Server and MongoDB connection closed');
+      process.exit(0);
+    });
+  });
 });

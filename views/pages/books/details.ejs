@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= book.title %></title>
+    <link rel="stylesheet" href="/css/book.css" />
+    <link rel="stylesheet" href="/css/book-details.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+    <%- include('../../partials/header') %>
+
+    <main class="book-detail-container">
+        <div class="book-detail">
+            <div class="book-image-container">
+                <% if (book.imagePath) { 
+                    const isExternal = book.imagePath.startsWith('http');
+                    const imageSrc = isExternal ? book.imagePath : 
+                                   book.imagePath.startsWith('/images/') ? book.imagePath :
+                                   book.imagePath.startsWith('images/') ? '/' + book.imagePath :
+                                   '/images/' + book.imagePath;
+                %>
+                    <img src="<%= imageSrc %>" 
+                         alt="<%= book.altText || book.title %>" 
+                         class="book-image"
+                         onerror="this.onerror=null;this.parentNode.querySelector('.no-image').style.display='block';this.style.display='none';" />
+                    <div class="no-image" style="display: none;">
+                        Image failed to load: <%= imageSrc %>
+                    </div>
+                <% } else { %>
+                    <div class="no-image">No Image Available</div>
+                <% } %>
+                
+                <% if (book.rating) { %>
+                    <div class="rating-badge">
+                        <span><%= Number(book.rating).toFixed(1) %></span>
+                        <i class="fas fa-star"></i>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="book-info">
+                <h1><%= book.title %></h1>
+
+                <!-- Rating Section -->
+                <div class="ratings-section">
+                    <h3>Average Rating: <%= (book.averageRating || (book.rating ? Number(book.rating).toFixed(1) : '0.0')) %>/5</h3>
+                    <div class="stars" aria-label="Book rating">
+                        <% 
+                        const ratingValue = book.averageRating || book.rating;
+                        const numericRating = ratingValue ? Number(ratingValue) : 0;
+                        %>
+                        <% for (let i = 1; i <= 5; i++) { %>
+                            <i class="<%= i <= Math.round(numericRating) ? 'fas' : 'far' %> fa-star" aria-hidden="true"></i>
+                        <% } %>
+                    </div>
+                    <span class="rating-text">(<%= book.ratingCount || 0 %> <%= book.ratingCount === 1 ? 'rating' : 'ratings' %>)</span>
+                </div>
+
+                <!-- Rating Form -->
+                <div class="rating-form">
+                    <form action="/books/<%= book._id %>/rating" method="POST">
+                        <div class="rating-input">
+                            <label for="rating">Rate this book:</label>
+                            <select name="value" id="rating" required>
+                                <option value="">Select rating</option>
+                                <option value="1">1 - Poor</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="3">3 - Good</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="5">5 - Excellent</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="rating-submit">
+                            <i class="fas fa-star"></i> Submit Rating
+                        </button>
+                    </form>
+                </div>
+
+  <!-- Book Actions -->
+<div class="book-actions">
+    <button id="add-to-cart-btn" class="btn btn-primary" data-id="<%= book._id %>" aria-label="Add <%= book.title %> to cart">
+        <i class="fas fa-cart-plus"></i> Add to Cart
+    </button>
+
+    <button id="remove-from-cart-btn" class="btn btn-danger" data-id="<%= book._id %>" style="display: none;" aria-label="Remove <%= book.title %> from cart">
+        <i class="fas fa-trash-alt"></i> Remove from Cart
+    </button>
+
+    <a href="/cart" class="btn btn-success" id="goto-cart-btn" style="display: none;" aria-label="View Cart">
+        <i class="fas fa-check"></i> View Cart
+    </a>
+
+    <button class="wishlist-btn" data-id="<%= book._id %>" aria-pressed="false" aria-label="Add to wishlist">
+        <i class="far fa-heart"></i> Wishlist
+    </button>
+</div>
+
+
+
+                <!-- Book Description -->
+                <div class="book-description">
+                    <h3>Description</h3>
+                    <p><%= book.description %></p>
+                </div>
+
+                <!-- Comments Section with AJAX functionality -->
+                <div class="comments-section" id="comments">
+                    <h3>Customer Reviews <span class="review-count" id="review-count">(<%= book.comments ? book.comments.length : 0 %>)</span></h3>
+                    
+                    <div class="comments-list" id="comments-list">
+                        <% if (book.comments && book.comments.length > 0) { %>
+                            <% book.comments.forEach(comment => { %>
+                                <div class="comment">
+                                    <div class="comment-header">
+                                        <span class="comment-user"><%= comment.user || 'Anonymous' %></span>
+                                        <% if (comment.createdAt) { %>
+                                            <span class="comment-date">
+                                                <%= comment.createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                    <p class="comment-text">"<%= comment.text %>"</p>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="no-comments" id="no-comments">
+                                <i class="far fa-comment-dots"></i>
+                                <p>No reviews yet. Be the first to review!</p>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Comment Form with AJAX submission -->
+                    <form class="comment-form" id="comment-form" method="POST" action="/books/<%= book._id %>/comments">
+                        <h4>Add Your Review</h4>
+                        <div id="comment-error" class="error-message" style="display: none;"></div>
+                        <div class="form-group">
+                            <label for="comment-user">Your Name (optional):</label>
+                            <input type="text" id="comment-user" name="user" placeholder="Anonymous" maxlength="50" />
+                        </div>
+                        <div class="form-group">
+                            <label for="comment-text">Your Review:</label>
+                            <textarea id="comment-text" name="text" placeholder="Share your thoughts about this book..." required maxlength="500"></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-paper-plane"></i> Submit Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer') %>
+
+    <script src="/js/book-details.js"></script>
+
+</body>
+</html>
