@@ -9,18 +9,27 @@ const connectDB = require('./config/db');
 
 const app = express();
 
-connectDB();
+
+//settings logic
+const upload = require('./middleware/SettingsMiddleware'); // Middleware for file uploads
+const settingsController = require('./controllers/settingsController');
 
 
 
-// =============================================
-// Application Middleware
-// =============================================
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// Session configuration
-const sessionConfig = {
+// Database Connection
+const DB = process.env.MONGODB_URI.replace('<PASSWORD>', process.env.MONGODB_PASSWORD);
+mongoose.connect(DB)
+  .then(() => console.log('Connected to MongoDB!'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// Import Models
+const Book = require('./models/book');
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
@@ -38,8 +47,7 @@ const sessionConfig = {
     httpOnly: true,
     sameSite: 'lax'
   }
-};
-
+}));
 app.use(session(sessionConfig));
 app.use(flash());
 
@@ -61,7 +69,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
       res.setHeader('Content-Type', 'text/css');
     }
   }
-}));
+}))
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -145,6 +153,61 @@ app.use((err, req, res, next) => {
     layout: 'error'
   });
 });
+
+
+// SearchBAR Route
+const { searchRecipes } = require('./controllers/SearchController');
+app.get('/search', searchRecipes);
+module.exports = app;
+
+// Manage Recipes Route
+
+app.get('/manage-recipes', recipeController.getAllRecipes);// Show Manage Recipes page
+
+app.post('/recipes/:id/approve', recipeController.approveRecipe);// Approve recipe
+
+app.post('/recipes/:id/delete', recipeController.deleteRecipe);// Delete recipe
+
+app.get('/recipes/:id/edit', recipeController.showEditForm);// Show edit recipe form
+
+app.post('/recipes/:id/edit', recipeController.updateRecipe);// Handle edit recipe form submission
+
+
+// Settings Route
+app.get('/Settings', (req, res) => {
+  res.render('Settings', { settings });
+});
+
+app.get('/Settings', settingsController.getSettingsPage);
+app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
+
+
+// users route
+app.get('/Users', async (req, res) => {
+  try {
+    const users = await User.find(); // fetch all users from MongoDB
+    res.render('Users', { users }); // pass users array to EJS
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.get('/Users', usersController.getUsers);
+app.post('/users/:id/ban', usersController.banUser);
+app.post('/users/:id/unban', usersController.unbanUser);
+app.post('/users/:id/edit', usersController.editUser);
+
+// Admin Dashboard Route
+app.get('/AdminDashboard', async (req, res) => {
+  // Fetch counts dynamically from DB, for example:
+  const totalRecipes = await Recipe.countDocuments();
+  const totalUsers = await User.countDocuments();
+
+  res.render('AdminDashboard', { totalRecipes, totalUsers });
+});
+
+
 
 // =============================================
 // Server Startup
