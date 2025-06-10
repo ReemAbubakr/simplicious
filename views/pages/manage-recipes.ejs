@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Recipes | Admin</title>
+  <link rel="icon" type="image/png" href="/images/panlog.png">
+  <link rel="stylesheet" href="/AdminCSS.css" />
+</head>
+<body>
+  <div class="admin-container">
+    <header class="navbar">
+      <a href="/Home" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo"></a>
+      <h1>Manage Recipes</h1>
+      <nav>
+        <ul>
+          <li><a href="/AdminDashboard">Dashboard</a></li>
+          <li><a href="/manage-recipes" class="active">Manage Recipes</a></li>
+          <li><a href="/Users">Users</a></li>
+          <li><a href="/Settings">Settings</a></li>
+          <li><a href="/Home">Log Out</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="main-content">
+      <section class="table-section">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Recipe Name</th>
+              <th>Category</th>
+              <th>Prep Time</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recipes.forEach(recipe => { %>
+              <tr>
+                <td><%= recipe._id %></td>
+                <td><%= recipe.name %></td>
+                <td><%= recipe.category %></td>
+                <td><%= recipe.prepTime %></td>
+                <td>
+                  <% if (recipe.status === 'Approved') { %>
+                    <span class="badge approved">Approved</span>
+                  <% } else { %>
+                    <span class="badge pending">Pending</span>
+                  <% } %>
+                </td>
+                <td>
+                  <!-- Edit button as a link -->
+                  <a href="/recipes/<%= recipe._id %>/edit"><button class="edit">Edit</button></a>
+
+                  <!-- Delete form -->
+                  <form action="/recipes/<%= recipe._id %>/delete" method="POST" style="display:inline;">
+                      <button class="delete" type="submit" onclick="return confirm('Delete this recipe?');">Delete</button>
+                  </form>
+
+                  <!-- Approve form if not approved -->
+                  <% if (recipe.status !== 'Approved') { %>
+                    <form action="/recipes/<%= recipe._id %>/approve" method="POST" style="display:inline;">
+                      <button class="approve" type="submit">Approve</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+   <%- include('../partials/footer') %>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

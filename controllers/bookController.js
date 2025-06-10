@@ -1,21 +1,122 @@
-const express = require('express');
 const Book = require('../models/book');
-const router = express.Router();
+
+// Helper function to calculate average rating
+const calculateAverageRating = (ratings) => {
+  if (!Array.isArray(ratings) )
+    return 0;
+  const validRatings = ratings.filter(r => typeof r.value === 'number' && r.value >= 1 && r.value <= 5);
+  if (validRatings.length === 0) return 0;
+  const sum = validRatings.reduce((acc, rating) => acc + rating.value, 0);
+  return parseFloat((sum / validRatings.length).toFixed(1));
+};
+
+// Helper function to sort by date (newest first)
+const sortByNewest = (items) => {
+  if (!Array.isArray(items)) return [];
+  return [...items].sort((a, b) => {
+    const dateA = new Date(a.createdAt || 0);
+    const dateB = new Date(b.createdAt || 0);
+    return dateB - dateA;
+  });
+};
 
 // GET all books
 exports.getAllBooks = async (req, res) => {
   try {
-    const books = await Book.find().lean();
-    res.render('pages/book', {
-      title: 'Our Books',
-      currentPage: 'Books',
-      books
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [books, total] = await Promise.all([
+      Book.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Book.countDocuments()
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.render('pages/books/list', {
+      title: 'Book List',
+      books,
+      currentPage: 'books',
+      flashMessages: req.flash(),
+      currentUrl: req.originalUrl,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
     });
   } catch (err) {
     console.error('Error fetching books:', err);
+    req.flash('error', 'Failed to load books');
     res.status(500).render('pages/500', {
       title: 'Server Error',
-      errorDetails: 'Failed to load books'
+      currentPage: '',
+      flashMessages: req.flash(),
+      currentUrl: req.originalUrl,
+      errorDetails: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+  }
+};
+
+// Get single book details with enhanced data processing
+exports.getBookDetails = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id).lean();
+
+    if (!book) {
+      req.flash('error', 'Book not found');
+      return res.status(404).render('pages/404', {
+        title: 'Book Not Found',
+        currentUrl: req.originalUrl,
+        currentPage: '',
+        flashMessages: req.flash()
+      });
+    }
+
+    // Process ratings and comments with additional validation
+    const ratings = Array.isArray(book.ratings) 
+      ? book.ratings.filter(r => r.value && r.value >= 1 && r.value <= 5)
+      : [];
+    
+    const comments = Array.isArray(book.comments) 
+      ? book.comments.filter(c => c.text && c.text.trim().length > 0)
+      : [];
+
+    // Calculate statistics
+    const averageRating = calculateAverageRating(ratings);
+    const sortedComments = sortByNewest(comments);
+    const ratingDistribution = [1, 2, 3, 4, 5].map(star => ({
+      star,
+      count: ratings.filter(r => Math.round(r.value) === star).length,
+      percentage: ratings.length > 0 
+        ? Math.round((ratings.filter(r => Math.round(r.value) === star).length / ratings.length) * 100)
+        : 0
+    }));
+
+    res.render('pages/books/details', {
+      title: book.title,
+      book: {
+        ...book,
+        ratings,
+        comments: sortedComments,
+        averageRating,
+        ratingCount: ratings.length,
+        ratingDistribution
+      },
+      currentPage: 'books',
+      flashMessages: req.flash(),
+      error: req.flash('error')[0] || null,
+      currentUrl: req.originalUrl,
+      // Add this for cart functionality
+      showAddToCart: true
     });
   }
 };

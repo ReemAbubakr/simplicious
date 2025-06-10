@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Site Settings | Admin</title>
+  <link rel="icon" type="image/png" href="/images/panlog.png">
+  <link rel="stylesheet" href="/AdminCSS.css" />
+</head>
+<body>
+  <div class="admin-container">
+    <header class="navbar">
+      <a href="/Home" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo"></a>
+      <h1>Site Settings</h1>
+      <nav>
+        <ul>
+          <li><a href="/AdminDashboard">Dashboard</a></li>
+          <li><a href="/manage-recipes">Manage Recipes</a></li>
+          <li><a href="/Users">Users</a></li>
+          <li><a href="/Settings" class="active">Settings</a></li>
+          <li><a href="/Home">Log Out</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <section class="settings-form">
+        <form action="/save-settings" method="POST" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="site-title">Site Title</label>
+            <input type="text" id="site-title" name="title" placeholder="My Cooking Recipes" value="<%= settings.title %>" />
+          </div>
+
+          <div class="form-group">
+            <label for="site-logo">Logo Upload</label>
+            <input type="file" id="site-logo" name="logo" />
+          </div>
+
+          <div class="form-group">
+            <label for="contact-email">Contact Email</label>
+            <input type="email" id="contact-email" name="email" placeholder="admin@example.com" value="<%= settings.email %>" />
+          </div>
+
+          <div class="form-group">
+            <label for="theme-color">Theme Color</label>
+            <input type="color" id="theme-color" name="themeColor" value="<%= settings.themeColor %>" />
+          </div>
+
+          <button type="submit" class="save">Save Settings</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+    <%- include('../partials/footer') %>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

@@ -1,20 +1,21 @@
+require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const path = require('path');
-const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const cors = require('cors');
-const { protect } = require('./middleware/authMiddleware');
+const flash = require('connect-flash');
 require('dotenv').config();
 
-// Import routes
-const authRoutes = require('./routes/auth.routes');
-const recipeRoutes = require('./routes/recipe.routes');
-const usersRoutes = require('./routes/users');
-
-// Create Express app
+// Initialize Express app
 const app = express();
+
+
+//settings logic
+const upload = require('./middleware/SettingsMiddleware'); // Middleware for file uploads
+const settingsController = require('./controllers/settingsController');
+
+
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -31,88 +32,75 @@ app.use(cors());
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    ttl: 24 * 60 * 60 // 1 day
-  }),
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
-  }
+  saveUninitialized: true,
+  cookie: { secure: false }
 }));
+app.use(flash());
 
-// Set view engine
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-// Serve static files
+// Static Files Configuration
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
-// API routes prefix
-const api = '/api';
+// Recipe Generator
+const generateRecipe = require('./recipeGenerator');
 
-// Auth Routes
-app.use(`${api}/auth`, authRoutes);
+// Routes
 
-// User Routes
-app.use(`${api}/users`, usersRoutes);
-
-// Recipe Routes
-app.use(`${api}/recipes`, recipeRoutes);
-
-// Home Page Route
+// Home Route
 app.get('/', (req, res) => {
-  res.render('pages/Home', {
-    title: 'Home',
-    currentPage: 'home',
-    recipe: {
-      title: 'Sample Recipe',
-      tags: ['Vegan', 'Quick', 'Healthy'],
-      // add other properties as needed
-    }
+  res.render('pages/Home', { 
+    title: 'Home Page',
+    currentPage: 'Home', 
+    recipe: generateRecipe() 
   });
 });
 
-// Login Page Route
-app.get('/login', (req, res) => {
-  res.render('pages/login', {
-    title: 'Login',
-    currentPage: 'login'
+// Random Recipe API
+app.get('/random-recipe', (req, res) => {
+  res.json(generateRecipe());
+});
+
+// About Route
+app.get('/About', (req, res) => {
+  res.render('pages/About', { 
+    title: 'About Us',
+    currentPage: 'About',
+    contactEmail: 'support@example.com',
+    pressEmail: 'press@example.com'
   });
 });
 
-// Signup Page Route
-app.get('/signup', (req, res) => {
-  res.render('pages/signup', {
-    title: 'Sign Up',
-    currentPage: 'signup'
-  });
+const bookRouter = require('./controllers/bookController');
+app.use('/Books', bookRouter);
+// Update cart quantity
+// Simple Cart Route (for viewing only)
+app.get('/cart', (req, res) => {
+    res.render('pages/cart', { 
+        title: 'Your Cart',
+        currentPage: 'Cart'
+    });
 });
 
-// Profile Page Route
-app.get('/about', protect, (req, res) => {
-  res.render('pages/about', {
-    title: 'About',
-    currentPage: 'about'
-  });
-});
-
-// Error handling middleware
-
-
-// 404 handler
+// Error handlers (with corrected paths)
 app.use((req, res) => {
-  res.status(404).render('pages/404', {
-    title: 'Page Not Found',
-    currentPage: '404'
+  res.status(404).render('pages/404', { 
+    title: 'Page Not Found' 
   });
 });
 
-// Start server
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('pages/500', { 
+    title: 'Server Error', 
+    errorDetails: err.message 
+  });
+});
+
+// Server Startup
 const PORT = process.env.PORT || 5005;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 

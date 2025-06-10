@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simplicious Admin</title>
+  <link rel="icon" type="image/png" href="/images/panlog.png" />
+  <link rel="stylesheet" href="/AdminCSS.css" />
+</head>
+<body>
+  <div class="admin-container">
+    <header class="navbar">
+      <a href="/Home" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo" /></a>
+      <h1 class="logo">🛠 Admin</h1>
+      <nav>
+        <ul>
+          <li><a href="/AdminDashboard" class="active">Dashboard</a></li>
+          <li><a href="/manage-recipes">Manage Recipes</a></li>
+          <li><a href="/Users">Users</a></li>
+          <li><a href="/Settings">Settings</a></li>
+          <li><a href="/Home">Log Out</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <section class="dashboard-cards">
+        <div class="card">
+          <h3>📋 Recipes</h3>
+          <p><%= totalRecipes %> Total Recipes</p>
+          <a href="/manage-recipes"><button>Manage</button></a>
+        </div>
+        <div class="card">
+          <h3>👤 Users</h3>
+          <p><%= totalUsers %> Registered</p>
+          <a href="/Users"><button>View</button></a>
+        </div>
+        <div class="card">
+          <h3>⚙️ Settings</h3>
+          <p>Site Configuration</p>
+          <a href="/Settings"><button>Edit</button></a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <script src="/admin.js"></script>
+</body>
+</html>
