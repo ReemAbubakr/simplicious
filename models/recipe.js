@@ -1,74 +1,58 @@
 const mongoose = require('mongoose');
 
-// Recipe Schema
 const recipeSchema = new mongoose.Schema({
-  // Basic recipe information
-  title: {
-    type: String,
-    required: [true, 'Recipe must have a title'],
-    trim: true
+  title: { 
+    type: String, 
+    required: true, 
+    trim: true, 
+    maxlength: 100 
   },
-  subtitle: {
-    type: String,
-    trim: true
+  imagePath: {
+     type: String, 
+     required: true 
+    },
+  altText: { 
+    type: String, 
+    trim: true, 
+    maxlength: 100 
   },
-  
-  // Recipe details
-  ingredients: [{
+  description: {
+     type: String,
+      trim: true,
+       maxlength: 1000
+       },
+  pageLink: {
+     type: String, 
+     trim: true
+     },
+  type: {
     type: String,
-    required: [true, 'Recipe must have ingredients']
-  }],
-  instructions: [{
-    type: String,
-    required: [true, 'Recipe must have instructions']
-  }],
-  
-  // Time and servings
-  prepTime: {
-    type: String,
-    required: [true, 'Recipe must have prep time']
+    required: true,
+    enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'keto', 'cocktails'],
+    lowercase: true,
+    trim: true,
   },
-  totalTime: {
-    type: String,
-    required: [true, 'Recipe must have total time']
-  },
-  serves: {
-    type: String,
-    required: [true, 'Recipe must specify servings']
-  },
-  
-  // Categories and tags
-  tags: [{
-    type: String
-  }],
-  
-  // User relationship
-  createdBy: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'User',
-    required: [true, 'Recipe must belong to a user']
-  },
-  
-  // Favorite status
-  isFavorite: {
-    type: Boolean,
-    default: false
-  },
-  
-  // Timestamps
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   }
 }, {
+  collection: 'recipes',
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Index for better search performance
-recipeSchema.index({ title: 'text', tags: 'text' });
+recipeSchema.virtual('createdAtFormatted').get(function () {
+  return this.createdAt.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+});
 
-// Create Recipe model
-const Recipe = mongoose.model('Recipe', recipeSchema);
+recipeSchema.index({ title: 'text', description: 'text' }); 
+recipeSchema.index({ type: 1 }); 
 
-module.exports = Recipe; 
+recipeSchema.index({ createdAt: -1 });
+
+module.exports = mongoose.model('recipe', recipeSchema);
