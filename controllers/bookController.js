@@ -3,7 +3,7 @@ const Book = require('../models/book');
 const router = express.Router();
 
 // GET all books
-router.get('/', async (req, res) => {
+exports.getAllBooks = async (req, res) => {
   try {
     const books = await Book.find().lean();
     res.render('pages/book', {
@@ -18,6 +18,24 @@ router.get('/', async (req, res) => {
       errorDetails: 'Failed to load books'
     });
   }
-});
+};
 
-module.exports = router;
+// Create a new book
+exports.createBook = async (req, res) => {
+  try {
+    const book = await Book.create(req.body);
+    res.status(201).json({
+      status: 'success',
+      data: {
+        book
+      }
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: err.message
+    });
+  }
+};
+
+module.exports = exports;

@@ -1,34 +1,58 @@
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector("form");
-  const usernameInput = document.getElementById("username");
+  const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
   const errorMessage = document.getElementById("error-message");
 
-  form.addEventListener("submit", function (event) {
+  // Check if user is already logged in
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  
+  if (token && user) {
+    window.location.replace('/');
+    return;
+  }
+
+  form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const username = usernameInput.value.trim();
+    const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
 
     errorMessage.textContent = "";
 
-    if (!username || !password) {
+    if (!email || !password) {
       errorMessage.style.color = "red";
-      errorMessage.textContent = "❌ Please enter both username and password.";
-    } else if (password === "admin1") {
-      errorMessage.style.color = "green";
-      errorMessage.textContent = `✅ Welcome, ${username}! Redirecting to admin dashboard...`;
-      localStorage.setItem("username", username);
-      setTimeout(() => {
-        window.location.href = "adminMain.html";
-      }, 1500);
+      errorMessage.textContent = "❌ Please enter both email and password.";
     } else {
-      errorMessage.style.color = "green";
-      errorMessage.textContent = `✅ Welcome, ${username}! Redirecting...`;
-      localStorage.setItem("username", username);
-      setTimeout(() => {
-        window.location.href = "Home.html";
-      }, 1500);
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Store the token
+          localStorage.setItem('token', data.token);
+          // Store user data
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          // Redirect to home page
+          window.location.replace('/');
+        } else {
+          errorMessage.textContent = data.message || 'Login failed';
+          errorMessage.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        errorMessage.textContent = 'An error occurred. Please try again.';
+        errorMessage.style.display = 'block';
+      }
     }
   });
 });
