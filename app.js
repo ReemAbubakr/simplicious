@@ -10,26 +10,14 @@ const connectDB = require('./config/db');
 const app = express();
 
 
-//settings logic
-const upload = require('./middleware/SettingsMiddleware'); // Middleware for file uploads
-const settingsController = require('./controllers/settingsController');
-
-
-
-
 // Database Connection
 const DB = process.env.MONGODB_URI.replace('<PASSWORD>', process.env.MONGODB_PASSWORD);
 mongoose.connect(DB)
   .then(() => console.log('Connected to MongoDB!'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Import Models
-const Book = require('./models/book');
-
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(session({
+// Session Configuration
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
@@ -47,20 +35,50 @@ app.use(session({
     httpOnly: true,
     sameSite: 'lax'
   }
-}));
+};
+
+// ========== MIDDLEWARE SETUP ========== //
+
+// Standard middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Session middleware (must come before any middleware that uses session)
 app.use(session(sessionConfig));
+
+// Flash messages
 app.use(flash());
+
+// Cart initialization (must come after session middleware)
+app.use((req, res, next) => {
+  req.session.cart = req.session.cart || {
+    items: [],
+    totalQty: 0,
+    totalPrice: 0
+  };
+  next();
+});
+
+// Make flash messages available to all views
+app.use((req, res, next) => {
+  res.locals.flashMessages = {
+    error: req.flash('error'),
+    success: req.flash('success'),
+    info: req.flash('info')
+  };
+  next();
+});
 
 // Security headers
 app.use((req, res, next) => {
   res.removeHeader('X-Powered-By');
   res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'DENY');
+  res.set('X-XSS-Protection', '1; mode=block');
   next();
 });
 
-// =============================================
-// Static Files and View Engine
-// =============================================
+// Static files
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1y',
   immutable: true,
@@ -69,16 +87,30 @@ app.use(express.static(path.join(__dirname, 'public'), {
       res.setHeader('Content-Type', 'text/css');
     }
   }
-}))
+}));
 
+// View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// =============================================
-// Route Imports and Configuration
-// =============================================
+// ========== ROUTE IMPORTS ========== //
 const generateRecipe = require('./recipeGenerator');
+
 const bookRouter = require('./routes/books');
+const { searchRecipes } = require('./controllers/SearchController');
+const upload = require('./middleware/SettingsMiddleware');
+const cartController = require('./controllers/cartController');
+const settingsController = require('./controllers/settingsController');
+const recipeController = require('./controllers/recipeController');
+const usersController = require('./controllers/usersController');
+const checkoutController = require('./controllers/checkoutController');
+const User = require('./models/user');
+const Recipe = require('./models/Recipe');
+const Order = require('./models/order');
+
+
+
+// ========== ROUTES ========== //
 
 // Database status endpoint
 app.get('/db-status', async (req, res) => {
@@ -107,8 +139,7 @@ app.get('/', (req, res) => {
   res.render('pages/Home', { 
     title: 'Home Page',
     currentPage: 'home', 
-    recipe: generateRecipe(),
-    flashMessages: req.flash()
+    recipe: generateRecipe()
   });
 });
 
@@ -124,18 +155,103 @@ app.get('/about', (req, res) => {
 // Book Routes
 app.use('/books', bookRouter);
 
-// Cart Route
-app.get('/cart', (req, res) => {
-  res.render('pages/cart', { 
-    title: 'Your Cart',
-    currentPage: 'cart',
-    cart: req.session.cart || []
-  });
+// Cart Routes
+app.get('/cart/status/:bookId', (req, res) => {
+  try {
+    const bookId = req.params.bookId;
+    const inCart = req.session.cart.items.some(item => 
+      item.bookId.toString() === bookId
+    ) || false;
+    
+    res.json({ inCart });
+  } catch (err) {
+    console.error('Error checking cart status:', err);
+    res.status(500).json({ error: 'Error checking cart status' });
+  }
 });
 
-// =============================================
-// Error Handlers
-// =============================================
+app.get('/cart', cartController.getCartDetails);
+app.post('/cart/add/:bookId', cartController.addToCart);
+app.post('/cart/update/:bookId', cartController.updateCartItem);
+app.post('/cart/remove/:bookId', cartController.removeFromCart);
+app.post('/cart/clear', cartController.clearCart);
+
+
+app.get('/checkout', checkoutController.getCheckoutPage);
+
+app.post('/checkout', checkoutController.processCheckout);
+app.get('/order-confirmation/:orderId', checkoutController.getOrderConfirmation);
+
+app.get('/api/orders/:orderId', checkoutController.getOrderDetails);
+
+app.post('/cart/apply-coupon', cartController.getCart, cartController.applyCoupon);
+app.delete('/cart/remove-coupon', cartController.getCart, cartController.removeCoupon);
+
+
+
+// Order confirmation
+app.get('/order-confirmation/:orderId', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId)
+      .populate('user', 'name email')
+      .populate('items.book', 'title coverImage');
+
+    if (!order) {
+      req.flash('error', 'Order not found');
+      return res.redirect('/');
+    }
+    
+    res.render('pages/orderConfirmation', {
+      title: 'Order Confirmation',
+      currentPage: '',
+      order
+    });
+  } catch (err) {
+    console.error('Order confirmation error:', err);
+    req.flash('error', 'Error retrieving order details');
+    res.redirect('/');
+  }
+});
+
+
+// Search Route
+app.get('/search', searchRecipes);
+
+// Recipe Management Routes
+app.get('/manage-recipes', recipeController.getAllRecipes);
+app.post('/recipes/:id/approve', recipeController.approveRecipe);
+app.post('/recipes/:id/delete', recipeController.deleteRecipe);
+app.get('/recipes/:id/edit', recipeController.showEditForm);
+app.post('/recipes/:id/edit', recipeController.updateRecipe);
+
+// Settings Route
+app.get('/Settings', settingsController.getSettingsPage);
+app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
+
+// Users Route
+app.get('/Users', usersController.getUsers);
+app.post('/users/:id/ban', usersController.banUser);
+app.post('/users/:id/unban', usersController.unbanUser);
+app.post('/users/:id/edit', usersController.editUser);
+
+// Admin Dashboard Route
+app.get('/AdminDashboard', async (req, res) => {
+  try {
+    const totalRecipes = await Recipe.countDocuments();
+    const totalUsers = await User.countDocuments();
+    res.render('AdminDashboard', { 
+      totalRecipes, 
+      totalUsers,
+      title: 'Admin Dashboard',
+      currentPage: 'admin'
+    });
+  } catch (err) {
+    req.flash('error', 'Failed to load dashboard data');
+    res.redirect('/');
+  }
+});
+
+// ========== ERROR HANDLERS ========== //
 app.use((req, res, next) => {
   res.status(404).render('pages/404', {
     title: 'Page Not Found',
@@ -154,65 +270,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-// SearchBAR Route
-const { searchRecipes } = require('./controllers/SearchController');
-app.get('/search', searchRecipes);
-module.exports = app;
-
-// Manage Recipes Route
-
-app.get('/manage-recipes', recipeController.getAllRecipes);// Show Manage Recipes page
-
-app.post('/recipes/:id/approve', recipeController.approveRecipe);// Approve recipe
-
-app.post('/recipes/:id/delete', recipeController.deleteRecipe);// Delete recipe
-
-app.get('/recipes/:id/edit', recipeController.showEditForm);// Show edit recipe form
-
-app.post('/recipes/:id/edit', recipeController.updateRecipe);// Handle edit recipe form submission
-
-
-// Settings Route
-app.get('/Settings', (req, res) => {
-  res.render('Settings', { settings });
-});
-
-app.get('/Settings', settingsController.getSettingsPage);
-app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
-
-
-// users route
-app.get('/Users', async (req, res) => {
-  try {
-    const users = await User.find(); // fetch all users from MongoDB
-    res.render('Users', { users }); // pass users array to EJS
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
-  }
-});
-
-app.get('/Users', usersController.getUsers);
-app.post('/users/:id/ban', usersController.banUser);
-app.post('/users/:id/unban', usersController.unbanUser);
-app.post('/users/:id/edit', usersController.editUser);
-
-// Admin Dashboard Route
-app.get('/AdminDashboard', async (req, res) => {
-  // Fetch counts dynamically from DB, for example:
-  const totalRecipes = await Recipe.countDocuments();
-  const totalUsers = await User.countDocuments();
-
-  res.render('AdminDashboard', { totalRecipes, totalUsers });
-});
-
-
-
-// =============================================
-// Server Startup
-// =============================================
-const PORT = process.env.PORT || 4000;
+// ========== SERVER STARTUP ========== //
+const PORT = process.env.PORT || 5555
+;
 
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
@@ -229,3 +289,5 @@ process.on('SIGTERM', () => {
     });
   });
 });
+
+module.exports = app;
