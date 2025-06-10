@@ -20,7 +20,7 @@ const sortByNewest = (items) => {
   });
 };
 
-// Get all books with pagination
+// GET all books
 exports.getAllBooks = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -39,7 +39,7 @@ exports.getAllBooks = async (req, res) => {
     const totalPages = Math.ceil(total / limit);
 
     res.render('pages/books/list', {
-      title: 'Book List',
+      title: 'All ',
       books,
       currentPage: 'books',
       flashMessages: req.flash(),
@@ -118,154 +118,25 @@ exports.getBookDetails = async (req, res) => {
       // Add this for cart functionality
       showAddToCart: true
     });
-  } catch (err) {
-    console.error('Error in getBookDetails:', err);
-    req.flash('error', 'Error loading book details');
-    res.status(500).render('pages/500', { 
-      title: 'Server Error',
-      currentPage: '',
-      flashMessages: req.flash(),
-      currentUrl: req.originalUrl,
-      errorDetails: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
   }
 };
-// Get books for cart (used when displaying cart items)
-exports.getBooksForCart = async (req, res) => {
+
+// Create a new book
+exports.createBook = async (req, res) => {
   try {
-    const { bookIds } = req.query;
-    
-    if (!bookIds || !Array.isArray(bookIds)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid book IDs' 
-      });
-    }
-
-    const books = await Book.find({
-      _id: { $in: bookIds }
-    }).select('title imagePath price');
-
-    res.json({ 
-      success: true, 
-      books 
-    });
-  } catch (err) {
-    console.error('Error getting books for cart:', err);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error getting books for cart' 
-    });
-  }
-};
-// Add rating to a book with enhanced validation
-exports.addRating = async (req, res) => {
-  try {
-    const { value } = req.body;
-    const ratingValue = parseFloat(value);
-
-    // Enhanced validation
-    if (isNaN(ratingValue)) {
-      req.flash('error', 'Invalid rating format');
-      return res.redirect(`/books/${req.params.id}#ratings`);
-    }
-
-    if (ratingValue < 1 || ratingValue > 5) {
-      req.flash('error', 'Rating must be between 1 and 5');
-      return res.redirect(`/books/${req.params.id}#ratings`);
-    }
-
-    // Find and update in one operation with atomic updates
-    const updatedBook = await Book.findOneAndUpdate(
-      { _id: req.params.id },
-      { 
-        $push: { 
-          ratings: { 
-            value: ratingValue,
-            createdAt: new Date()
-          } 
-        }
-      },
-      { 
-        new: true, 
-        runValidators: true,
-        projection: { ratings: 1 } // Only return ratings to save bandwidth
+    const book = await Book.create(req.body);
+    res.status(201).json({
+      status: 'success',
+      data: {
+        book
       }
-    );
-
-    if (!updatedBook) {
-      req.flash('error', 'Book not found');
-      return res.redirect('/books');
-    }
-
-    // Recalculate average rating
-    const averageRating = calculateAverageRating(updatedBook.ratings);
-    await Book.updateOne(
-      { _id: req.params.id },
-      { $set: { averageRating } }
-    );
-
-    req.flash('success', 'Thank you for your rating!');
-    res.redirect(`/books/${req.params.id}#ratings`);
+    });
   } catch (err) {
-    console.error('Error in addRating:', err);
-    req.flash('error', err.name === 'ValidationError' 
-      ? 'Invalid rating value' 
-      : 'Failed to add rating');
-    res.redirect(`/books/${req.params.id}#ratings`);
+    res.status(400).json({
+      status: 'error',
+      message: err.message
+    });
   }
 };
 
-// Add comment to a book with enhanced validation and sanitization
-exports.addComment = async (req, res) => {
-    try {
-        const { text } = req.body;
-        
-        if (!text || text.trim().length < 3) {
-            if (req.accepts('json')) {
-                return res.status(400).json({ error: 'Comment must be at least 3 characters long' });
-            }
-            req.flash('error', 'Comment must be at least 3 characters long');
-            return res.redirect(`/books/${req.params.id}#comments`);
-        }
-
-        const user = req.session.userName || 'Anonymous';  // Example: get username from session
-
-        const newComment = {
-            text: text.trim().substring(0, 500),
-            user: user.substring(0, 50),
-            createdAt: new Date()
-        };
-
-        const updatedBook = await Book.findByIdAndUpdate(
-            req.params.id,
-            { $push: { comments: newComment } },
-            { new: true }
-        );
-
-        if (!updatedBook) {
-            if (req.accepts('json')) {
-                return res.status(404).json({ error: 'Book not found' });
-            }
-            req.flash('error', 'Book not found');
-            return res.redirect('/books');
-        }
-
-        if (req.accepts('json')) {
-            return res.json({ 
-                success: true,
-                comment: newComment
-            });
-        }
-
-        req.flash('success', 'Your review has been added!');
-        res.redirect(`/books/${req.params.id}#comments`);
-    } catch (err) {
-        console.error('Error in addComment:', err);
-        if (req.accepts('json')) {
-            return res.status(500).json({ error: 'Failed to add comment' });
-        }
-        req.flash('error', 'Failed to add comment');
-        res.redirect(`/books/${req.params.id}#comments`);
-    }
-};
+module.exports = exports;

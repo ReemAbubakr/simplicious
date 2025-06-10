@@ -1,207 +1,222 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Elements
+    // Cart buttons and notification
     const addToCartBtn = document.getElementById('add-to-cart-btn');
     const removeFromCartBtn = document.getElementById('remove-from-cart-btn');
     const gotoCartBtn = document.getElementById('goto-cart-btn');
-    const wishlistBtn = document.querySelector('.wishlist-btn');
-    const commentForm = document.getElementById('comment-form');
-    const commentsList = document.getElementById('comments-list');
-    const noCommentsDiv = document.getElementById('no-comments');
-    const reviewCountSpan = document.getElementById('review-count');
-    
-    // Create and insert notification container
-    let notification = document.createElement('div');
-    notification.id = 'cart-notification';
-    notification.style.position = 'fixed';
-    notification.style.top = '10px';
-    notification.style.right = '10px';
-    notification.style.padding = '10px 20px';
-    notification.style.backgroundColor = '#333';
-    notification.style.color = 'white';
-    notification.style.borderRadius = '5px';
-    notification.style.display = 'none';
-    notification.style.zIndex = '1000';
-    document.body.appendChild(notification);
+    const cartNotification = document.getElementById('cart-notification');
 
-    // Show notification helper
-    const showNotification = (message) => {
-        notification.textContent = message;
-        notification.style.display = 'block';
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000);
-    };
-
-    // Get bookId from data attribute (try addToCart or removeFromCart)
-    const bookId = addToCartBtn?.getAttribute('data-id') || removeFromCartBtn?.getAttribute('data-id');
-
-    // Update cart buttons visibility based on localStorage cart contents
-    const updateCartButtons = () => {
-        if (!bookId) return;
-        let cart = [];
+    // Check initial cart status
+    async function checkCartStatus() {
         try {
-            cart = JSON.parse(localStorage.getItem('cart')) || [];
-        } catch {
-            cart = [];
-        }
+            const bookId = addToCartBtn?.dataset.id;
+            if (!bookId) return;
 
-        if (cart.includes(bookId)) {
-            addToCartBtn.style.display = 'none';
-            removeFromCartBtn.style.display = 'inline-block';
-            gotoCartBtn.style.display = 'inline-block';
-        } else {
-            addToCartBtn.style.display = 'inline-block';
-            removeFromCartBtn.style.display = 'none';
-            gotoCartBtn.style.display = 'none';
+            const response = await fetch(`/cart/status/${bookId}`);
+            const data = await response.json();
+
+            if (data.inCart) {
+                addToCartBtn.style.display = 'none';
+                removeFromCartBtn.style.display = 'inline-block';
+                gotoCartBtn.style.display = 'inline-block';
+            }
+        } catch (err) {
+            console.error('Error checking cart status:', err);
         }
-    };
+    }
+
+    // Show notification
+    function showCartNotification(message) {
+        if (cartNotification) {
+            cartNotification.textContent = message;
+            cartNotification.style.display = 'block';
+            setTimeout(() => {
+                cartNotification.style.display = 'none';
+            }, 3000);
+        }
+    }
 
     // Add to cart handler
     if (addToCartBtn) {
-        addToCartBtn.addEventListener('click', () => {
-            if (!bookId) return;
-
-            let cart = [];
+        checkCartStatus(); // Initial check
+        
+        addToCartBtn.addEventListener('click', async () => {
+            const bookId = addToCartBtn.dataset.id;
             try {
-                cart = JSON.parse(localStorage.getItem('cart')) || [];
-            } catch {
-                cart = [];
-            }
-            if (!cart.includes(bookId)) {
-                cart.push(bookId);
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartButtons();
-                showNotification('Added to cart!');
-                document.dispatchEvent(new CustomEvent('cartUpdated', { detail: { bookId } }));
+                const response = await fetch(`/cart/add/${bookId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ quantity: 1 })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showCartNotification('Added to cart!');
+                    addToCartBtn.style.display = 'none';
+                    removeFromCartBtn.style.display = 'inline-block';
+                    gotoCartBtn.style.display = 'inline-block';
+                }
+            } catch (err) {
+                console.error('Error adding to cart:', err);
+                showCartNotification('Failed to add to cart');
             }
         });
     }
 
     // Remove from cart handler
     if (removeFromCartBtn) {
-        removeFromCartBtn.addEventListener('click', () => {
-            if (!bookId) return;
-
-            let cart = [];
+        removeFromCartBtn.addEventListener('click', async () => {
+            const bookId = removeFromCartBtn.dataset.id;
             try {
-                cart = JSON.parse(localStorage.getItem('cart')) || [];
-            } catch {
-                cart = [];
-            }
-            if (cart.includes(bookId)) {
-                cart = cart.filter(id => id !== bookId);
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartButtons();
-                showNotification('Removed from cart!');
-                document.dispatchEvent(new CustomEvent('cartUpdated', { detail: { bookId } }));
+                const response = await fetch(`/cart/remove/${bookId}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showCartNotification('Removed from cart!');
+                    addToCartBtn.style.display = 'inline-block';
+                    removeFromCartBtn.style.display = 'none';
+                    gotoCartBtn.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Error removing from cart:', err);
+                showCartNotification('Failed to remove from cart');
             }
         });
     }
+    // === Wishlist Functionality ===
+    const wishlistBtn = document.querySelector('.wishlist-btn');
+    const wishlistNotification = document.getElementById('wishlist-notification');
 
-    // Wishlist toggle button handler
+    const showWishlistNotification = (added) => {
+        if (wishlistNotification) {
+            wishlistNotification.textContent = added ? 'Added to wishlist!' : 'Removed from wishlist!';
+            wishlistNotification.style.display = 'block';
+            clearTimeout(showWishlistNotification.timeout);
+            showWishlistNotification.timeout = setTimeout(() => {
+                wishlistNotification.style.display = 'none';
+            }, 3000);
+        }
+    };
+
     if (wishlistBtn) {
-        wishlistBtn.addEventListener('click', () => {
-            // Toggle aria-pressed attribute and icon style
-            const pressed = wishlistBtn.getAttribute('aria-pressed') === 'true';
-            wishlistBtn.setAttribute('aria-pressed', !pressed);
+        const bookId = wishlistBtn.dataset.id;
+        if (bookId) {
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
 
-            const icon = wishlistBtn.querySelector('i');
-            if (!pressed) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                wishlistBtn.setAttribute('aria-label', 'Remove from wishlist');
-                showNotification('Added to wishlist!');
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                wishlistBtn.setAttribute('aria-label', 'Add to wishlist');
-                showNotification('Removed from wishlist!');
+            if (wishlist.includes(bookId)) {
+                wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> In Wishlist';
+                wishlistBtn.classList.add('active');
+                wishlistBtn.setAttribute('aria-pressed', 'true');
             }
-        });
+
+            wishlistBtn.addEventListener('click', function () {
+                let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+                const isInWishlist = wishlist.includes(bookId);
+
+                if (isInWishlist) {
+                    wishlist = wishlist.filter(id => id !== bookId);
+                    this.innerHTML = '<i class="far fa-heart"></i> Wishlist';
+                    this.classList.remove('active');
+                    this.setAttribute('aria-pressed', 'false');
+                    showWishlistNotification(false);
+                } else {
+                    wishlist.push(bookId);
+                    this.innerHTML = '<i class="fas fa-heart"></i> In Wishlist';
+                    this.classList.add('active');
+                    this.setAttribute('aria-pressed', 'true');
+                    showWishlistNotification(true);
+                }
+
+                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+
+                document.dispatchEvent(new CustomEvent('wishlistUpdated', {
+                    detail: { bookId, added: !isInWishlist }
+                }));
+            });
+        }
     }
 
-    // Handle comment form submission with AJAX
+    // === Review/Comment Functionality ===
+    const commentForm = document.getElementById('comment-form');
+    const commentText = document.getElementById('comment-text');
+    const commentsList = document.getElementById('comments-list');
+    const reviewCount = document.getElementById('review-count');
+    const noComments = document.getElementById('no-comments');
+    const commentError = document.getElementById('comment-error');
+
     if (commentForm) {
         commentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const text = commentText.value.trim();
 
-            const userInput = commentForm.querySelector('input[name="user"]');
-            const textInput = commentForm.querySelector('textarea[name="text"]');
-            const errorDiv = document.getElementById('comment-error');
-            errorDiv.style.display = 'none';
-            errorDiv.textContent = '';
-
-            const user = userInput.value.trim() || 'Anonymous';
-            const text = textInput.value.trim();
-
-            if (!text) {
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = 'Review text cannot be empty.';
+            if (!text || text.length < 3) {
+                commentError.textContent = 'Review must be at least 3 characters long.';
+                commentError.style.display = 'block';
                 return;
             }
 
+            commentError.style.display = 'none';
+
             try {
-                const response = await fetch(commentForm.action, {
+                const bookId = document.querySelector('.add-to-cart')?.dataset.bookId;
+                const response = await fetch(`/books/${bookId}/comments`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ user, text }),
+                    body: JSON.stringify({ text })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.statusText}`);
-                }
+                const data = await response.json();
 
-                const newComment = await response.json();
+                if (response.ok && data.success) {
+                    if (noComments) noComments.style.display = 'none';
 
-                // Add new comment to the comments list
-                const commentHTML = `
-                    <div class="comment">
+                    const newComment = document.createElement('div');
+                    newComment.classList.add('comment');
+                    newComment.innerHTML = `
                         <div class="comment-header">
-                            <span class="comment-user">${escapeHTML(newComment.user || 'Anonymous')}</span>
-                            <span class="comment-date">${new Date(newComment.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                            <span class="comment-user">Anonymous</span>
+                            <span class="comment-date">${new Date(data.comment.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}</span>
                         </div>
-                        <p class="comment-text">"${escapeHTML(newComment.text)}"</p>
-                    </div>
-                `;
+                        <p class="comment-text">"${data.comment.text}"</p>
+                    `;
+                    commentsList.appendChild(newComment);
 
-                if (noCommentsDiv) noCommentsDiv.style.display = 'none';
-                commentsList.insertAdjacentHTML('afterbegin', commentHTML);
+                    if (reviewCount) {
+                        const count = parseInt(reviewCount.textContent.match(/\d+/)) || 0;
+                        reviewCount.textContent = `(${count + 1})`;
+                    }
 
-                // Update review count
-                if (reviewCountSpan) {
-                    let currentCount = parseInt(reviewCountSpan.textContent.replace(/\D/g, '')) || 0;
-                    reviewCountSpan.textContent = `(${currentCount + 1})`;
+                    commentText.value = '';
+                } else {
+                    commentError.textContent = data.error || 'Failed to add review.';
+                    commentError.style.display = 'block';
                 }
-
-                // Clear inputs
-                userInput.value = '';
-                textInput.value = '';
-
-                showNotification('Review submitted successfully!');
-            } catch (err) {
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = `Failed to submit review: ${err.message}`;
+            } catch (error) {
+                commentError.textContent = 'Failed to add review.';
+                commentError.style.display = 'block';
+                console.error('Error adding review:', error);
             }
         });
     }
 
-    // Escape HTML utility function to avoid XSS in injected HTML
-    function escapeHTML(str) {
-        return str.replace(/[&<>"']/g, (match) => {
-            const escapeMap = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            };
-            return escapeMap[match];
+    // === Keyboard Accessibility ===
+    const interactiveButtons = document.querySelectorAll('button, [role="button"], [tabindex="0"]');
+    interactiveButtons.forEach(button => {
+        button.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                button.click();
+            }
         });
-    }
-
-    // Initial setup
-    updateCartButtons();
+    });
 });

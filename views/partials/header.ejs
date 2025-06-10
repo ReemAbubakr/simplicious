@@ -9,11 +9,33 @@
             <li><a href="/recipes" class="<%= currentPage === 'recipes' ? 'active' : '' %>">Recipes</a></li>
             <li><a href="/features" class="<%= currentPage === 'features' ? 'active' : '' %>">Features</a></li>
             <li><a href="/about" class="<%= currentPage === 'about' ? 'active' : '' %>">About Us</a></li>
-            <li><a href="/Books" class="<%= currentPage === 'books' ? 'active' : '' %>">Shop</a></li>
+            <li><a href="/books" class="<%= currentPage === 'books' ? 'active' : '' %>">Shop</a></li>
         </ul>
     </nav>
-    <div class="auth-buttons">
+    <div class="auth-buttons" id="authButtons">
         <a href="/login"><button class="login">Login</button></a>
         <a href="/signup"><button class="signup">Sign Up</button></a>
     </div>
 </header>
+
+<script>
+// Check authentication status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+    const authButtons = document.getElementById('authButtons');
+    
+    if (token && user) {
+        authButtons.innerHTML = `
+            <span class="welcome-text">Welcome, ${user.username}</span>
+            <button class="logout" onclick="logout()">Logout</button>
+        `;
+    }
+});
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/';
+}
+</script>

@@ -1,4 +1,4 @@
-const Recipe = require('../models/Recipes');
+const Recipe = require('../models/recipes');
 
 // Get all recipes (for manage-recipes page)
 exports.getAllRecipes = async (req, res) => {
@@ -68,3 +68,4 @@ exports.updateRecipe = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+>>>>>>> 5bccfc545b59e2cc4b3544cf518f8deaf8e6e346

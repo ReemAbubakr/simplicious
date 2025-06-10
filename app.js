@@ -1,12 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const flash = require('connect-flash');
-const mongoose = require('mongoose');
-const MongoStore = require('connect-mongo');
-const connectDB = require('./config/db');
+require('dotenv').config();
 
+// Initialize Express app
 const app = express();
 
 
@@ -14,10 +14,7 @@ const app = express();
 const upload = require('./middleware/SettingsMiddleware'); // Middleware for file uploads
 const settingsController = require('./controllers/settingsController');
 
-const usersController = require('./controllers/usersController');
-const recipeController = require('./controllers/recipeController');
-const User = require('./models/user'); // Needed for /Users route
-const Recipe = require('./models/Recipes'); // Needed for /AdminDashboard
+
 
 
 // Database Connection
@@ -53,6 +50,26 @@ app.use(session({
 }));
 //app.use(session(sessionConfig)); ////////////////////undo comment here this line shouldn't be a comment
 app.use(flash());
+
+// Cart initialization (must come after session middleware)
+app.use((req, res, next) => {
+  req.session.cart = req.session.cart || {
+    items: [],
+    totalQty: 0,
+    totalPrice: 0
+  };
+  next();
+});
+
+// Make flash messages available to all views
+app.use((req, res, next) => {
+  res.locals.flashMessages = {
+    error: req.flash('error'),
+    success: req.flash('success'),
+    info: req.flash('info')
+  };
+  next();
+});
 
 // Security headers
 app.use((req, res, next) => {
@@ -115,12 +132,18 @@ app.get('/', (req, res) => {
   });
 });
 
+// Random Recipe API
+app.get('/random-recipe', (req, res) => {
+  res.json(generateRecipe());
+});
+
 // About Route
-app.get('/about', (req, res) => {
+app.get('/About', (req, res) => {
   res.render('pages/About', { 
     title: 'About Us',
-    currentPage: 'about',
-    contactEmail: process.env.CONTACT_EMAIL || 'support@example.com'
+    currentPage: 'About',
+    contactEmail: 'support@example.com',
+    pressEmail: 'press@example.com'
   });
 });
 
@@ -200,12 +223,10 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('🚨 Error:', err.stack);
-  res.status(500).render('pages/500', {
-    title: 'Server Error',
-    currentPage: '',
-    errorDetails: process.env.NODE_ENV === 'development' ? err.stack : null,
-    layout: 'error'
+  console.error(err.stack);
+  res.status(500).render('pages/500', { 
+    title: 'Server Error', 
+    errorDetails: err.message 
   });
 });
 

@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
-const validator = require('validator'); // For email validation
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  name: {
+  username: {
     type: String,
-    required: [true, 'Please tell us your name']
+    required: [true, 'Please tell us your username']
   },
   email: {
     type: String,
@@ -19,15 +20,45 @@ const userSchema = new mongoose.Schema({
     minlength: 8,
     select: false
   },
+  passwordConfirm: {
+    type: String,
+    required: [true, 'Please confirm your password'],
+    validate: {
+      validator: function(el) {
+        return el === this.password;
+      },
+      message: 'Passwords do not match!'
+    }
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
   }
 });
 
-// Add any additional methods or middleware you need
-userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
-  // Your password comparison logic
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = undefined; // Don't persist to DB
+  next();
+});
+
+// Method to compare passwords
+userSchema.methods.correctPassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);
