@@ -14,7 +14,10 @@ const app = express();
 const upload = require('./middleware/SettingsMiddleware'); // Middleware for file uploads
 const settingsController = require('./controllers/settingsController');
 
-
+const usersController = require('./controllers/usersController');
+const recipeController = require('./controllers/recipeController');
+const User = require('./models/user'); // Needed for /Users route
+const Recipe = require('./models/Recipes'); // Needed for /AdminDashboard
 
 
 // Database Connection
@@ -48,7 +51,7 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
-app.use(session(sessionConfig));
+//app.use(session(sessionConfig)); ////////////////////undo comment here this line shouldn't be a comment
 app.use(flash());
 
 // Security headers
@@ -133,6 +136,58 @@ app.get('/cart', (req, res) => {
   });
 });
 
+
+// SearchBAR Route
+const { searchRecipes } = require('./controllers/SearchController');
+app.get('/search', searchRecipes);
+module.exports = app;
+
+// routes
+// Admin Dashboard Route (updated)
+app.get('/AdminDashboard', async (req, res) => {
+  const [totalRecipes, totalUsers] = await Promise.all([
+    Recipe.countDocuments(),
+    User.countDocuments()
+  ]);
+  res.render('pages/AdminDashboard', {  // Note: 'pages/AdminDashboard'
+    totalRecipes, 
+    totalUsers 
+  });
+});
+
+// Manage Recipes Route
+
+app.get('/manage-recipes', recipeController.getAllRecipes);// Show Manage Recipes page
+
+app.post('/recipes/:id/approve', recipeController.approveRecipe);// Approve recipe
+
+app.post('/recipes/:id/delete', recipeController.deleteRecipe);// Delete recipe
+
+app.get('/recipes/:id/edit', recipeController.showEditForm);// Show edit recipe form
+
+app.post('/recipes/:id/edit', recipeController.updateRecipe);// Handle edit recipe form submission
+
+
+// Settings Route
+app.get('/Settings', settingsController.getSettingsPage);
+app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
+
+// Users Route (updated)
+app.get('/Users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.render('pages/Users', { users });  // Note: 'pages/Users'
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.post('/Users/:id/ban', usersController.banUser);
+app.post('/Users/:id/unban', usersController.unbanUser);
+app.post('/Users/:id/edit', usersController.editUser);
+
+
 // =============================================
 // Error Handlers
 // =============================================
@@ -154,58 +209,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-// SearchBAR Route
-const { searchRecipes } = require('./controllers/SearchController');
-app.get('/search', searchRecipes);
-module.exports = app;
-
-// Manage Recipes Route
-
-app.get('/manage-recipes', recipeController.getAllRecipes);// Show Manage Recipes page
-
-app.post('/recipes/:id/approve', recipeController.approveRecipe);// Approve recipe
-
-app.post('/recipes/:id/delete', recipeController.deleteRecipe);// Delete recipe
-
-app.get('/recipes/:id/edit', recipeController.showEditForm);// Show edit recipe form
-
-app.post('/recipes/:id/edit', recipeController.updateRecipe);// Handle edit recipe form submission
-
-
-// Settings Route
-app.get('/Settings', (req, res) => {
-  res.render('Settings', { settings });
-});
-
-app.get('/Settings', settingsController.getSettingsPage);
-app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
-
-
-// users route
-app.get('/Users', async (req, res) => {
-  try {
-    const users = await User.find(); // fetch all users from MongoDB
-    res.render('Users', { users }); // pass users array to EJS
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
-  }
-});
-
-app.get('/Users', usersController.getUsers);
-app.post('/users/:id/ban', usersController.banUser);
-app.post('/users/:id/unban', usersController.unbanUser);
-app.post('/users/:id/edit', usersController.editUser);
-
-// Admin Dashboard Route
-app.get('/AdminDashboard', async (req, res) => {
-  // Fetch counts dynamically from DB, for example:
-  const totalRecipes = await Recipe.countDocuments();
-  const totalUsers = await User.countDocuments();
-
-  res.render('AdminDashboard', { totalRecipes, totalUsers });
-});
 
 
 
