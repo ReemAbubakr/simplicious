@@ -7,34 +7,42 @@ const recipeSchema = new mongoose.Schema({
     trim: true, 
     maxlength: 100 
   },
-  imagePath: {
-     type: String, 
-     required: true 
-    },
+  imagePath: { 
+    type: String, 
+    required: true 
+  },
   altText: { 
     type: String, 
     trim: true, 
     maxlength: 100 
   },
   description: {
-     type: String,
-      trim: true,
-       maxlength: 1000
-       },
+    type: String,
+    trim: true,
+    maxlength: 1000
+  },
   pageLink: {
-     type: String, 
-     trim: true
-     },
+    type: String, 
+    trim: true
+  },
   type: {
     type: String,
     required: true,
     enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'keto', 'cocktails'],
     lowercase: true,
-    trim: true,
+    trim: true
+  },
+  ingredients: {
+    type: [String],
+
+  },
+  instructions: {
+    type: [String],
+    
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   }
 }, {
   collection: 'recipes',
@@ -52,7 +60,6 @@ recipeSchema.virtual('createdAtFormatted').get(function () {
 
 recipeSchema.index({ title: 'text', description: 'text' }); 
 recipeSchema.index({ type: 1 }); 
-
 recipeSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('recipe', recipeSchema);

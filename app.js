@@ -176,6 +176,16 @@ const { searchRecipes } = require('./controllers/SearchController');
 app.get('/search', searchRecipes);
 module.exports = app;
 
+// Show categories
+app.get('/recipes', recipeController.showCategories);
+
+// Show recipes for a category
+app.get('/recipes/category/:type', recipeController.showRecipesByCategory);
+
+// Show individual recipe detail
+app.get('/recipes/:id', recipeController.showRecipeDetails);
+
+
 // Manage Recipes Route
 
 app.get('/manage-recipes', recipeController.getAllRecipes);// Show Manage Recipes page
@@ -187,6 +197,9 @@ app.post('/recipes/:id/delete', recipeController.deleteRecipe);// Delete recipe
 app.get('/recipes/:id/edit', recipeController.showEditForm);// Show edit recipe form
 
 app.post('/recipes/:id/edit', recipeController.updateRecipe);// Handle edit recipe form submission
+
+
+
 
 
 // Settings Route

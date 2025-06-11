@@ -1,6 +1,5 @@
-<<<<<<< HEAD
-=======
-const Recipe = require('../models/Recipe');
+
+const Recipe = require('../models/recipe');
 
 // Get all recipes (for manage-recipes page)
 exports.getAllRecipes = async (req, res) => {
@@ -69,5 +68,32 @@ exports.updateRecipe = async (req, res) => {
     console.error(err);
     res.status(500).send('Server Error');
   }
+};// Show category selection page
+exports.showCategories = (req, res) => {
+  const categories = ['breakfast', 'lunch', 'dinner', 'dessert', 'keto', 'cocktails'];
+  res.render('pages/recipes/categories', { categories });
 };
->>>>>>> 5bccfc545b59e2cc4b3544cf518f8deaf8e6e346
+
+// Show recipes by category (e.g., Breakfast)
+exports.showRecipesByCategory = async (req, res) => {
+  try {
+    const type = req.params.type;
+    const recipes = await Recipe.find({ type });
+    res.render('pages/recipes/recipesByCategory', { type, recipes });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading category');
+  }
+};
+
+// Show individual recipe details
+exports.showRecipeDetails = async (req, res) => {
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) return res.status(404).send('Recipe not found');
+    res.render('pages/recipes/recipeDetail', { recipe });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading recipe');
+  }
+};

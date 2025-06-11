@@ -12,6 +12,11 @@ router.get('/', recipeController.getAllRecipes);
 router.get('/random', recipeController.getRandomRecipe);
 router.post('/', recipeController.saveRecipe);
 router.get('/favorites', recipeController.getFavoriteRecipes);
+// Category pages (e.g., /recipes/breakfast)
+router.get('/:type', recipeController.getRecipesByType);
+router.get('/:type/:id', recipeController.getRecipeDetails);
+
+
 
 // Recipe routes with ID
 router.patch('/:id', recipeController.updateRecipe);
