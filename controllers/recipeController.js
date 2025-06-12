@@ -97,3 +97,80 @@ exports.showRecipeDetails = async (req, res) => {
     res.status(500).send('Error loading recipe');
   }
 };
+
+// Create recipe
+exports.saveRecipe = async (req, res) => {
+  try {
+    // Use only req.body for recipe data
+    const recipeData = req.body;
+    // Create new recipe
+    const recipe = await Recipe.create(recipeData);
+    // Send response
+    res.status(201).json({
+      status: 'success',
+      message: 'Recipe saved successfully',
+      recipe
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: 'Error saving recipe'
+    });
+  }
+};
+
+// Toggle favorite status
+exports.toggleFavorite = async (req, res) => {
+  try {
+    // Find recipe by ID
+    const recipe = await Recipe.findById(req.params.id);
+    
+    // Check if recipe exists
+    if (!recipe) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Recipe not found'
+      });
+    }
+    
+    // Toggle favorite status
+    recipe.isFavorite = !recipe.isFavorite;
+    await recipe.save();
+    
+    // Send response
+    res.status(200).json({
+      status: 'success',
+      message: recipe.isFavorite ? 'Recipe added to favorites' : 'Recipe removed from favorites',
+      recipe
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: 'Error updating favorite status'
+    });
+  }
+};
+
+// Get user's favorite recipes
+exports.getFavoriteRecipes = async (req, res) => {
+  try {
+    // Find user's favorite recipes
+    const recipes = await Recipe.find({
+      createdBy: req.user.id,
+      isFavorite: true
+    });
+    
+    // Send response
+    res.status(200).json({
+      status: 'success',
+      message: 'Favorite recipes retrieved successfully',
+      count: recipes.length,
+      recipes
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: 'Error retrieving favorite recipes'
+    });
+  }
+}; 

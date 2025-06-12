@@ -14,14 +14,39 @@ const createToken = (userId) => {
 // @access  Public
 exports.signup = async (req, res) => {
     try {
-        // Get user data from request
-        const { username, email, password, passwordConfirm } = req.body;
+        // Debug: Log the request body
+        console.log('🚀 Signup function called');
+        console.log('📦 Request body:', req.body);
+        console.log('📦 Content-Type:', req.headers['content-type']);
+
+        // Check if req.body exists
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'No data received. Please check your request format.'
+            });
+        }
+
+        // Get user data from request with fallback
+        const { 
+            username = req.body.name, // fallback to 'name' if 'username' not found
+            email, 
+            password, 
+            passwordConfirm = req.body.confirmPassword // fallback to 'confirmPassword'
+        } = req.body;
 
         // Basic validation
         if (!username || !email || !password || !passwordConfirm) {
             return res.status(400).json({
                 status: 'error',
-                message: 'Please provide all required fields'
+                message: 'Please provide all required fields',
+                received: {
+                    username: !!username,
+                    email: !!email,
+                    password: !!password,
+                    passwordConfirm: !!passwordConfirm
+                },
+                bodyKeys: Object.keys(req.body)
             });
         }
 
@@ -64,9 +89,11 @@ exports.signup = async (req, res) => {
             }
         });
     } catch (err) {
+        console.error('Signup error:', err);
         res.status(400).json({
             status: 'error',
-            message: err.message
+            message: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
         });
     }
 };
@@ -76,6 +103,18 @@ exports.signup = async (req, res) => {
 // @access  Public
 exports.login = async (req, res) => {
     try {
+        // Debug: Log the request body
+        console.log('🔐 Login function called');
+        console.log('📦 Request body:', req.body);
+
+        // Check if req.body exists
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'No data received. Please check your request format.'
+            });
+        }
+
         // Get login data
         const { email, password } = req.body;
 
@@ -83,7 +122,12 @@ exports.login = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({
                 status: 'error',
-                message: 'Please provide email and password'
+                message: 'Please provide email and password',
+                received: {
+                    email: !!email,
+                    password: !!password
+                },
+                bodyKeys: Object.keys(req.body)
             });
         }
 
@@ -122,9 +166,11 @@ exports.login = async (req, res) => {
             }
         });
     } catch (err) {
+        console.error('Login error:', err);
         res.status(400).json({
             status: 'error',
-            message: err.message
+            message: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
         });
     }
 };
@@ -178,4 +224,4 @@ exports.protect = async (req, res, next) => {
             message: 'Please log in again'
         });
     }
-}; 
+};
