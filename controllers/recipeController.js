@@ -71,7 +71,7 @@ exports.updateRecipe = async (req, res) => {
 };// Show category selection page
 exports.showCategories = (req, res) => {
   const categories = ['breakfast', 'lunch', 'dinner', 'dessert', 'keto', 'cocktails'];
-  res.render('pages/recipes/categories', { categories });
+  res.render('pages/RECIPES/recipebycat', { categories });
 };
 
 // Show recipes by category (e.g., Breakfast)

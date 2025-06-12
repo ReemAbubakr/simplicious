@@ -11,11 +11,6 @@ const recipeSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  altText: { 
-    type: String, 
-    trim: true, 
-    maxlength: 100 
-  },
   description: {
     type: String,
     trim: true,

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore a variety of delicious recipes including breakfast, lunch, dinner, and desserts. Perfect lazy days!">
+    <meta name="keywords" content="recipes, breakfast, lunch, dinner, desserts, cooking, food, easy recipes, healthy recipes, cooking ideas, meal prep">
+    <meta name="author" content="Simplicious">
+   <title><%= title %></title>
+    <link rel="icon" type="image/png" href="/images/panlog.png">
+    <link rel="stylesheet" href="/css/RecipeCSS.css">
+</head>
+<body>
+   <%- include('../partials/header') %>
+
+  <section>
+    <div class="carousel">
+      <div class="carousel-images" id="carouselImages">
+        <img src="/images/burger(recipe).jpg" alt="burger">
+        <img src="/images/quesadeila(recipe).jpg" alt="quesadilla">
+        <img src="/images/pasta(recipe).jpg" alt="pasta">
+      </div>
+      <div class="dots-container" id="dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  
+    <h2>Explore Recipes</h2>
+  
+    <div class="grid">
+        <a href="/breakfast" class="nav-card">
+          <img src="/images/breakfast(recipe).jpg" alt="Breakfast">
+          <button>Breakfast</button>
+        </a>
+        <a href="/lunch" class="nav-card">
+          <img src="/images/lunch(recipe).jpg" alt="Lunch">
+          <button>Lunch</button>
+        </a>
+        <a href="/dinner" class="nav-card">
+          <img src="/images/dinner(recipe).jpg" alt="Dinner">        
+          <button>Dinner</button>
+        </a>
+        <a href="/desserts" class="nav-card">
+          <img src="/images/desserts(recipe).jpg" alt="Desserts">        
+          <button>Desserts</button>
+        </a>
+    </div>
+  </section>
+  
+  <script src="/js/RecipeMain.js"></script>
+
+ <%- include('../partials/footer') %>
+
+</body>
+</html>

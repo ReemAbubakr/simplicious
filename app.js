@@ -18,6 +18,7 @@ const Book = require('./models/book');
 const Recipe = require('./models/recipe');
 const User = require('./models/user');
 
+
 const app = express();
 
 // 1. MIDDLEWARE FIRST (before any routes)
@@ -150,6 +151,13 @@ app.get('/cart', (req, res) => {
     title: 'Your Cart',
     currentPage: 'cart',
     cart: req.session.cart || []
+  });
+});
+
+app.get('/recipes', (req, res) => {
+  res.render('pages/recipezizi', {
+    title: 'Recipes',
+    currentPage: 'recipes'
   });
 });
 
