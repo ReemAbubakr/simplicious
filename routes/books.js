@@ -15,7 +15,7 @@ router.delete('/cart/:bookId', cartController.removeFromCart);
 router.delete('/cart', cartController.clearCart);
 
 // API endpoint to get books for cart
-router.get('/api/books/cart', bookController.getBooksForCart);
+//router.get('/api/books/cart', bookController.getBooksForCart);
 
 
 // --- Book routes (static first, then dynamic) ---
@@ -25,7 +25,7 @@ router.get('/', bookController.getAllBooks);
 
 // Dynamic route for book details MUST come after more specific routes like '/cart'
 router.get('/:id', bookController.getBookDetails); 
-router.post('/:id/rating', bookController.addRating);
-router.post('/:id/comments', bookController.addComment);
+//router.post('/:id/rating', bookController.addRating);
+//router.post('/:id/comments', bookController.addComment);
 
 module.exports = router;

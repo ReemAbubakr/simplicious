@@ -81,16 +81,14 @@ exports.getBookDetails = async (req, res) => {
       });
     }
 
-    // Process ratings and comments with additional validation
     const ratings = Array.isArray(book.ratings) 
       ? book.ratings.filter(r => r.value && r.value >= 1 && r.value <= 5)
       : [];
-    
+
     const comments = Array.isArray(book.comments) 
       ? book.comments.filter(c => c.text && c.text.trim().length > 0)
       : [];
 
-    // Calculate statistics
     const averageRating = calculateAverageRating(ratings);
     const sortedComments = sortByNewest(comments);
     const ratingDistribution = [1, 2, 3, 4, 5].map(star => ({
@@ -115,11 +113,21 @@ exports.getBookDetails = async (req, res) => {
       flashMessages: req.flash(),
       error: req.flash('error')[0] || null,
       currentUrl: req.originalUrl,
-      // Add this for cart functionality
       showAddToCart: true
+    });
+  } catch (err) {
+    console.error('Error fetching book details:', err);
+    req.flash('error', 'Failed to load book details');
+    res.status(500).render('pages/500', {
+      title: 'Server Error',
+      currentPage: 'books',
+      currentUrl: req.originalUrl,
+      flashMessages: req.flash(),
+      errorDetails: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 };
+
 
 // Create a new book
 exports.createBook = async (req, res) => {

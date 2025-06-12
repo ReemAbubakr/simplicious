@@ -62,4 +62,4 @@ recipeSchema.index({ title: 'text', description: 'text' });
 recipeSchema.index({ type: 1 }); 
 recipeSchema.index({ createdAt: -1 });
 
-module.exports = mongoose.model('recipe', recipeSchema);
+module.exports = mongoose.models.recipe || mongoose.model('recipe', recipeSchema);
