@@ -10,9 +10,17 @@ require('dotenv').config();
 const app = express();
 
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
+//settings logic
+const upload = require('./middleware/SettingsMiddleware'); // Middleware for file uploads
+const settingsController = require('./controllers/settingsController');
+
+
+
+
+// Database Connection
+const DB = process.env.MONGODB_URI.replace('<PASSWORD>', process.env.MONGODB_PASSWORD);
+mongoose.connect(DB)
+  .then(() => console.log('Connected to MongoDB!'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Import Models
@@ -40,7 +48,7 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
-app.use(session(sessionConfig));
+//app.use(session(sessionConfig)); ////////////////////undo comment here this line shouldn't be a comment
 app.use(flash());
 
 // Cart initialization (must come after session middleware)
@@ -150,6 +158,58 @@ app.get('/cart', (req, res) => {
     cart: req.session.cart || []
   });
 });
+
+
+// SearchBAR Route
+const { searchRecipes } = require('./controllers/SearchController');
+app.get('/search', searchRecipes);
+module.exports = app;
+
+// routes
+// Admin Dashboard Route (updated)
+app.get('/AdminDashboard', async (req, res) => {
+  const [totalRecipes, totalUsers] = await Promise.all([
+    Recipe.countDocuments(),
+    User.countDocuments()
+  ]);
+  res.render('pages/AdminDashboard', {  // Note: 'pages/AdminDashboard'
+    totalRecipes, 
+    totalUsers 
+  });
+});
+
+// Manage Recipes Route
+
+app.get('/manage-recipes', recipeController.getAllRecipes);// Show Manage Recipes page
+
+app.post('/recipes/:id/approve', recipeController.approveRecipe);// Approve recipe
+
+app.post('/recipes/:id/delete', recipeController.deleteRecipe);// Delete recipe
+
+app.get('/recipes/:id/edit', recipeController.showEditForm);// Show edit recipe form
+
+app.post('/recipes/:id/edit', recipeController.updateRecipe);// Handle edit recipe form submission
+
+
+// Settings Route
+app.get('/Settings', settingsController.getSettingsPage);
+app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
+
+// Users Route (updated)
+app.get('/Users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.render('pages/Users', { users });  // Note: 'pages/Users'
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.post('/Users/:id/ban', usersController.banUser);
+app.post('/Users/:id/unban', usersController.unbanUser);
+app.post('/Users/:id/edit', usersController.editUser);
+
 
 // =============================================
 // Error Handlers
