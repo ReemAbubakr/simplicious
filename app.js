@@ -6,7 +6,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const MongoStore = require('connect-mongo');
 
-const upload = require('./middleware/SettingsMiddleware');
+// const upload = require('./middleware/SettingsMiddleware');
 const settingsController = require('./controllers/settingsController');
 const recipeController = require('./controllers/recipeController');
 const usersController = require('./controllers/usersController');
@@ -23,7 +23,7 @@ const app = express();
 
 //settings logic
 const upload = require('./middleware/SettingsMiddleware'); // Middleware for file uploads
-const settingsController = require('./controllers/settingsController');
+// const settingsController = require('./controllers/settingsController');
 
 
 
@@ -35,7 +35,7 @@ mongoose.connect(DB)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Import Models
-const Book = require('./models/book');
+// const Book = require('./models/book');
 
 // Middleware
 app.use(express.json());
@@ -56,6 +56,27 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
+
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI.replace(
+      '<PASSWORD>', 
+      encodeURIComponent(process.env.MONGODB_PASSWORD)
+    ),
+    dbName: 'codebookDB',
+    ttl: 24 * 60 * 60 // 1 day
+  }),
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: 'lax'
+  }
+};
+
 app.use(session(sessionConfig));
 app.use(flash());
 
@@ -85,8 +106,8 @@ app.set('view engine', 'ejs');
 // =============================================
 // Route Imports and Configuration
 // =============================================
-const generateRecipe = require('./recipeGenerator');
-const bookRouter = require('./routes/books');
+// const generateRecipe = require('./recipeGenerator');
+// const bookRouter = require('./routes/books');
 
 // Database status endpoint
 app.get('/db-status', async (req, res) => {
@@ -161,7 +182,7 @@ app.use((err, req, res, next) => {
 
 
 // SearchBAR Route
-const { searchRecipes } = require('./controllers/SearchController');
+// const { searchRecipes } = require('./controllers/SearchController');
 app.get('/search', searchRecipes);
 module.exports = app;
 

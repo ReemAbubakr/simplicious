@@ -36,11 +36,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const bookId = addToCartBtn?.getAttribute('data-id') || removeFromCartBtn?.getAttribute('data-id');
 
     // Update cart buttons visibility based on localStorage cart contents
-    const updateCartButtons = () => {
+    const updateCartButtons = async () => {
         if (!bookId) return;
         let cart = [];
         try {
-            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart = await JSON.parse(localStorage.getItem('cart')) || [];
         } catch {
             cart = [];
         }

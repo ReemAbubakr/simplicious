@@ -10,10 +10,10 @@ router.get('/', bookController.getAllBooks);
 router.get('/:id', bookController.getBookDetails);
 
 // Add rating
-router.post('/:id/rating', bookController.addRating);
+// router.post('/:id/rating', bookController.addRating);
 
 // Add comment
-router.post('/:id/comments', bookController.addComment);
+// router.post('/:id/comments', bookController.addComment);
 router.get('/cart', cartController.getCartDetails);
 router.post('/cart/add/:bookId', cartController.addToCart);
 router.put('/cart/:bookId', cartController.updateCartItem);
