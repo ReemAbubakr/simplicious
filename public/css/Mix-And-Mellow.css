@@ -1,0 +1,181 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #fdf3c1;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #3e2c00;
+    font-size: 2.5rem;
+}
+
+.meal-selection {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.meal-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    width: 180px;
+    text-align: center;
+    cursor: grab;
+    margin: 10px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.meal-card:hover {
+    background-color: #ffeeba;
+    transform: scale(1.05);
+}
+
+.meal-card p {
+    margin: 10px 0;
+}
+
+.meal-planner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.meal-slot {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #ccc;
+    text-align: center;
+    min-height: 150px;
+    transition: 0.3s;
+}
+
+.meal-slot:hover {
+    background-color: #ffeeba;
+}
+
+.meal-slot label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: #ffbf33;
+    border-radius: 0 0 20px 20px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+header:hover {
+    background-color: #ff6600;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.logo:hover {
+    color: #fff;
+}
+
+
+/* Navigation styles */
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    background-color: #fff;
+    padding: 10px 20px;
+    border-radius: 25px;
+    /* Rounded corners */
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    /* 3D effect */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+nav ul li:hover {
+    transform: translateY(-3px);
+    /* Lift effect */
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #ff6600;
+}
+
+
+/* Auth button styles */
+
+.auth-buttons button {
+    padding: 8px 15px;
+    margin-left: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.auth-buttons button:hover {
+    background-color: #ff6600;
+    transform: scale(1.1);
+}
+
+
+/* Drag & Drop Styles */
+
+.meal-slot {
+    min-height: 120px;
+    border: 2px dashed #ccc;
+    transition: all 0.3s;
+}
+
+.meal-slot.drop-highlight {
+    border-color: #ff9a76;
+    background-color: #fff5f1;
+}
+
+.planned-meal {
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Error States */
+
+.error {
+    color: #ff4d4f;
+    font-size: 0.9em;
+}
