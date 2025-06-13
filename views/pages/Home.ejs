@@ -19,11 +19,12 @@
 
     <!-- Search Bar & Sort Options -->
     <div class="search-wrapper">
-        <div class="search-container">
+        <div class="search-container" style="position: relative;">
             <i class="fa fa-search"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search recipes and more...">
-            <button type="button" id="searchBtn">Search</button>
+        <input type="text" id="homeCategorySearch" class="search-input" placeholder="Search categories (e.g. breakfast, lunch)">
         </div>
+        <div id="homeSearchResults" class="search-results-container"></div>
+
     </div>
 
     <div class="sort-container">
@@ -122,5 +123,12 @@
     <%- include('../partials/footer') %>
     <script src="/js/recipeSort.js"></script>
     <script src="/js/sidebar.js"></script>
+    <script src="/js/HomeSearchBar.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        setupCategorySearch('homeCategorySearch', 'homeSearchResults');
+    });
+    </script>
+
 </body>
 </html>

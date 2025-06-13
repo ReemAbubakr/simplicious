@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, shrink-to-fit=no, viewport-fit=cover">
   <title>Edit Book | Admin</title>
   <link rel="icon" type="image/png" href="/images/panlog.png" />
   <link rel="stylesheet" href="/css/admin.css">
@@ -24,7 +24,21 @@
       </nav>
     </header>
     <main class="main-content">
-      <form action="/books/<%= book?._id %>/update" method="POST" class="add-book-form">
+
+        <form action="/books/<%= book?._id %>/update" method="POST" enctype="multipart/form-data" class="add-book-form">
+            <div class="form-group">
+        <label>Current Cover Image</label>
+        <% if (book.imagePath) { %>
+            <img src="/<%= book.imagePath %>" alt="Book cover" style="max-width: 200px; display: block; margin-bottom: 1rem;">
+        <% } else { %>
+            <p>No image uploaded</p>
+        <% } %>
+        </div>
+        <div class="form-group">
+        <label for="image">Update Cover Image</label>
+        <input type="file" name="image" id="image" accept="image/*">
+        <small>Leave blank to keep current image</small>
+        </div>
         <label for="title">Title</label>
         <input type="text" name="title" id="title" value="<%= book?.title %>" required>
 

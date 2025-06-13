@@ -1,23 +1,38 @@
-async function searchRecipes(inputId, resultContainerId) {
-  const query = document.getElementById(inputId).value;
+function setupLiveSearch(inputId, resultContainerId) {
+  const input = document.getElementById(inputId);
+  const resultContainer = document.getElementById(resultContainerId);
 
-  try {
-    const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
-    const data = await res.json();
+  if (!input || !resultContainer) return;
 
-    const resultContainer = document.getElementById(resultContainerId);
+  input.addEventListener('input', async () => {
+    const query = input.value.trim();
     resultContainer.innerHTML = '';
 
-    data.forEach(recipe => {
-      const card = document.createElement('div');
-      card.classList.add('recipe-card');
-      card.innerHTML = `
-        <h2>${recipe.title}</h2>
-        <p>${recipe.description}</p>
-      `;
-      resultContainer.appendChild(card);
-    });
-  } catch (err) {
-    console.error('Error fetching recipes:', err);
-  }
+    if (query.length === 0) return;
+
+    try {
+      const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      if (data.length === 0) {
+        resultContainer.innerHTML = '<p>No results found.</p>';
+        return;
+      }
+
+      data.forEach(recipe => {
+        const card = document.createElement('div');
+        card.classList.add('recipe-search-card');
+        card.innerHTML = `
+          <a href="/recipes/${recipe._id}">
+            <strong>${recipe.title}</strong><br>
+            <small>${recipe.description?.slice(0, 60) || ''}...</small>
+          </a>
+        `;
+        resultContainer.appendChild(card);
+      });
+    } catch (err) {
+      console.error('Error fetching recipes:', err);
+      resultContainer.innerHTML = '<p>Error fetching results.</p>';
+    }
+  });
 }
