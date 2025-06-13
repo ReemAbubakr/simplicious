@@ -4,7 +4,7 @@ const User = require('../models/user');
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find();
-    res.render('Users', { users });
+    res.render('pages/Users', { users });
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).send('Server Error');
@@ -14,7 +14,7 @@ exports.getUsers = async (req, res) => {
 // Ban user
 exports.banUser = async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.params.id, { status: 'Banned' });
+    await User.findByIdAndUpdate(req.params.id, { active: false });
     res.redirect('/Users');
   } catch (error) {
     res.status(500).send('Failed to ban user');
@@ -24,7 +24,7 @@ exports.banUser = async (req, res) => {
 // Unban user
 exports.unbanUser = async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.params.id, { status: 'Active' });
+    await User.findByIdAndUpdate(req.params.id, { active: true });
     res.redirect('/Users');
   } catch (error) {
     res.status(500).send('Failed to unban user');

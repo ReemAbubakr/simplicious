@@ -144,7 +144,9 @@ app.get('/About', (req, res) => {
   });
 });
 
-app.use('/books', bookRouter);
+// manage books also
+app.use('/books', bookRouter); 
+app.use('/', bookRouter); 
 
 app.get('/cart', (req, res) => {
   res.render('pages/cart', {
@@ -187,7 +189,7 @@ app.get('/Settings', settingsController.getSettingsPage);
 app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
 
 // Users Routes
-app.get('/Users', usersController.getUsers);
+app.get('/users', usersController.getUsers);
 app.post('/users/:id/ban', usersController.banUser);
 app.post('/users/:id/unban', usersController.unbanUser);
 app.post('/users/:id/edit', usersController.editUser);

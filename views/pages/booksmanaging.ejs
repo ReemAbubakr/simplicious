@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Books | Admin</title>
+  <link rel="icon" type="image/png" href="/images/panlog.png">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="navbar">
+      <a href="/" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo"></a>
+      <h1>Manage Books</h1>
+      <nav>
+        <ul>
+          <li><a href="/AdminDashboard">Dashboard</a></li>
+          <li><a href="/manage-recipes">Manage Recipes</a></li>
+          <li><a href="/Users">Users</a></li>
+          <li><a href="/booksmanaging" class="active">Books</a></li>
+          <li><a href="/Settings">Settings</a></li>
+          <li><a href="/">Log Out</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="main-content">
+      <section class="table-section">
+        <h2>Add New Book</h2>
+        <form action="/books" method="POST" class="add-book-form">
+          <input type="text" name="title" placeholder="Book Title" required>
+          <input type="text" name="imagePath" placeholder="Image Path" required>
+          <input type="text" name="altText" placeholder="Alt Text">
+          <input type="text" name="price" placeholder="Price" required>
+          <textarea name="description" placeholder="Description" rows="4"></textarea>
+          <button type="submit" class="approve">Add Book</button>
+        </form>
+
+        <h2>All Books</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Price</th>
+              <th>Rating</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% books.forEach(book => { %>
+              <tr>
+                <td><%= book?.title   %></td>
+                <td><%= book?.price   %></td>
+                <td><%= book?.averageRating   %> ⭐</td>
+                <td>
+                  <!-- Edit link -->
+                  <a href="/books/<%= book?._id %>/edit"><button class="edit">Edit</button></a>
+
+                  <!-- Delete form -->
+                  <form action="/books/<%= book?._id %>/delete" method="POST" style="display:inline;">
+                    <button class="delete" type="submit" onclick="return confirm('Delete this book?');">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+   <%- include('../partials/footer') %>
+
+</body>
+</html>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Simplicious Admin</title>
   <link rel="icon" type="image/png" href="/images/panlog.png" />
-  <link rel="stylesheet" href="/css/AdminCSS.css">
+  <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
   <div class="admin-container">
@@ -17,6 +17,7 @@
           <li><a href="/AdminDashboard" class="active">Dashboard</a></li>
           <li><a href="/manage-recipes">Manage Recipes</a></li>
           <li><a href="/Users">Users</a></li>
+          <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings">Settings</a></li>
           <li><a href="/">Log Out</a></li>
         </ul>
@@ -37,6 +38,11 @@
           <a href="/Users"><button>View</button></a>
         </div>
         <div class="card">
+          <h3>📚 Books</h3>
+          <p>Modifications</p>
+          <a href="/booksmanaging"><button>Manage</button></a>
+        </div>
+        <div class="card">
           <h3>⚙️ Settings</h3>
           <p>Site Configuration</p>
           <a href="/Settings"><button>Edit</button></a>
@@ -47,6 +53,5 @@
 
   <%- include('../partials/footer') %>
 
-  <script src="/admin.js"></script>
 </body>
 </html>
