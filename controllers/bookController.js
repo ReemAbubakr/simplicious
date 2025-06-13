@@ -39,7 +39,7 @@ exports.getAllBooks = async (req, res) => {
     const totalPages = Math.ceil(total / limit);
 
     res.render('pages/books/list', {
-      title: 'All ',
+      title: 'Book List',
       books,
       currentPage: 'books',
       flashMessages: req.flash(),

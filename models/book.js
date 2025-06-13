@@ -53,18 +53,6 @@ const bookSchema = new mongoose.Schema({
     trim: true,
     maxlength: 2000 
   },
-  price: {
-    type: String,
-    required: true,
-    trim: true,
-    validate: {
-      validator: function(v) {
-        // Validate that the string can be parsed to a number
-        return !isNaN(parseFloat(v)) && isFinite(v);
-      },
-      message: props => `${props.value} is not a valid price!`
-    }
-  },
   ratingCount: { 
     type: Number, 
     default: 0 
@@ -81,25 +69,19 @@ const bookSchema = new mongoose.Schema({
     type: Date, 
     default: Date.now 
   }
-}, {
-  collection: 'books',  // Correct place to set collection name
+}, { 
+  collection: 'books',
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
 // Virtual for formatted creation date
 bookSchema.virtual('createdAtFormatted').get(function() {
-  if (!this.createdAt) return '';
   return this.createdAt.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
-});
-
-// Virtual for parsed price (number)
-bookSchema.virtual('priceNumber').get(function() {
-  return parseFloat(this.price);
 });
 
 // Calculate average rating when ratings change

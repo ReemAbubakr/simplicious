@@ -12,13 +12,6 @@ const cartItemSchema = new mongoose.Schema({
     min: 1,
     default: 1
   },
-  appliedCoupon: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' },
-couponCode: String,
-discountAmount: { type: Number, default: 0 },
-  priceAtAddition: {  // Add this new required field
-    type: Number,
-    required: true
-  },
   addedAt: {
     type: Date,
     default: Date.now
@@ -26,8 +19,6 @@ discountAmount: { type: Number, default: 0 },
 });
 
 const cartSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  
   sessionId: {
     type: String,
     required: true,

@@ -2,30 +2,26 @@ const express = require('express');
 const router = express.Router();
 const bookController = require('../controllers/bookController');
 const cartController = require('../controllers/cartController');
+router.use(cartController.getCart)
+// Get all books
+router.get('/', bookController.getAllBooks);
 
-// Apply cart middleware to all routes that need it
-router.use(cartController.getCart);
+// Get single book details
+router.get('/:id', bookController.getBookDetails);
 
-// --- Static routes should come BEFORE dynamic routes ---
+// Add rating
+router.post('/:id/rating', bookController.addRating);
 
-// Cart routes
+// Add comment
+router.post('/:id/comments', bookController.addComment);
 router.get('/cart', cartController.getCartDetails);
 router.post('/cart/add/:bookId', cartController.addToCart);
+router.put('/cart/:bookId', cartController.updateCartItem);
 router.delete('/cart/:bookId', cartController.removeFromCart);
 router.delete('/cart', cartController.clearCart);
 
 // API endpoint to get books for cart
 //router.get('/api/books/cart', bookController.getBooksForCart);
 
-
-// --- Book routes (static first, then dynamic) ---
-
-// This handles the root of the router, e.g., GET /books/
-router.get('/', bookController.getAllBooks); 
-
-// Dynamic route for book details MUST come after more specific routes like '/cart'
-router.get('/:id', bookController.getBookDetails); 
-//router.post('/:id/rating', bookController.addRating);
-//router.post('/:id/comments', bookController.addComment);
 
 module.exports = router;

@@ -1,514 +1,297 @@
 const Cart = require('../models/cart');
 const Book = require('../models/book');
-const Coupon = require('../models/coupon');
-const AppError = require('../utils/AppError');
 const mongoose = require('mongoose');
 
-class CartController {
-  // Middleware to get or create cart
- static async getCart(req, res, next) {
+// Middleware to get or create cart
+exports.getCart = async (req, res, next) => {
   try {
-    const filter = { sessionId: req.sessionID };
-    let cart;
-
-    if (req.user) {
-      filter.$or = [
-        { sessionId: req.sessionID },
-        { userId: req.user._id }
-      ];
-
-      cart = await Cart.findOne({ sessionId: req.sessionID });
-      if (cart && !cart.userId) {
-        cart.userId = req.user._id;
-        await cart.save();
+    const sessionId = req.sessionID;
+    
+    // Atomic operation to find or create cart
+    let cart = await Cart.findOneAndUpdate(
+      { sessionId },
+      { 
+        $setOnInsert: { 
+          items: [], 
+          createdAt: new Date() 
+        } 
+      },
+      { 
+        upsert: true, 
+        new: true,
+        populate: 'items.bookId',
+        // Prevent adding userId field accidentally
+        projection: { userId: 0 } 
       }
-    }
-
-    cart = await Cart.findOne(filter).populate({
-      path: 'items.bookId',
-      select: 'title price coverImage stockCount'
-    });
-
-    if (!cart) {
-      cart = new Cart({ 
-        sessionId: req.sessionID,
-        userId: req.user?._id,
-        items: [] 
-      });
-      await cart.save();
-    }
-
-    req.cart = cart;
+    ).lean().exec();
+    
+    // Convert back to Mongoose document if needed for modifications
+    req.cart = cart ? new Cart(cart) : cart;
     next();
   } catch (err) {
-    console.error('Error in getCart:', err); // <— ADD THIS to debug the real issue
-    next(new AppError('Failed to retrieve shopping cart', 500));
+    console.error('Error getting cart:', err);
+    if (err.code === 11000) {
+      // Handle duplicate key error gracefully
+      const existingCart = await Cart.findOne({ sessionId }).populate('items.bookId');
+      if (existingCart) {
+        req.cart = existingCart;
+        return next();
+      }
+    }
+    next(err);
   }
-}
+};
 
+// Add item to cart
+exports.addToCart = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
+  try {
+    const { bookId } = req.params;
+    let { quantity = 1 } = req.body;
 
-  // Add item to cart
-  static async addToCart(req, res, next) {
-    const session = await mongoose.startSession();
-    try {
-        await session.withTransaction(async () => {
-            const { bookId } = req.params;
-            const { quantity = 1 } = req.body;
-
-            // Validate book ID
-            if (!mongoose.Types.ObjectId.isValid(bookId)) {
-                throw new AppError('Invalid book ID', 400);
-            }
-
-            // Validate quantity
-            const parsedQuantity = parseInt(quantity);
-            if (isNaN(parsedQuantity) || parsedQuantity < 1) {
-                throw new AppError('Quantity must be a positive number', 400);
-            }
-
-            // Find book with price validation
-            const book = await Book.findById(bookId)
-                .select('title price priceNumber coverImage stockCount')
-                .session(session);
-            
-            if (!book) {
-                throw new AppError('Book not found', 404);
-            }
-            
-            if (!book.price || isNaN(parseFloat(book.price))) {
-                throw new AppError('Invalid book price', 400);
-            }
-
-            // Check stock availability
-            if (book.stockCount < parsedQuantity) {
-                throw new AppError(`Only ${book.stockCount} items available in stock`, 400);
-            }
-
-            // Get or create cart
-            let cart = await Cart.findOne({
-                $or: [
-                    { sessionId: req.sessionID },
-                    { userId: req.user?._id }
-                ]
-            }).session(session);
-
-            if (!cart) {
-                cart = new Cart({
-                    sessionId: req.sessionID,
-                    userId: req.user?._id,
-                    items: [],
-                    totalItems: 0,
-                    totalPrice: 0
-                });
-            }
-
-            // Find existing item or add new one
-            const existingItemIndex = cart.items.findIndex(
-                item => item.bookId && item.bookId.toString() === bookId
-            );
-
-            if (existingItemIndex >= 0) {
-                const newQuantity = cart.items[existingItemIndex].quantity + parsedQuantity;
-                if (book.stockCount < newQuantity) {
-                    throw new AppError(`Only ${book.stockCount} items available in stock`, 400);
-                }
-                cart.items[existingItemIndex].quantity = newQuantity;
-            } else {
-                cart.items.push({
-                    bookId,
-                    quantity: parsedQuantity,
-                    priceAtAddition: book.priceNumber || parseFloat(book.price),
-                    addedAt: new Date()
-                });
-            }
-
-            // Recalculate totals
-            cart.totalItems = cart.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-            cart.totalPrice = cart.items.reduce(
-                (sum, item) => sum + ((item.priceAtAddition || 0) * (item.quantity || 0)), 
-                0
-            );
-
-            await cart.save({ session });
-
-            // Update book stock
-            if (book.stockCount !== undefined) {
-                book.stockCount -= parsedQuantity;
-                await book.save({ session });
-            }
-        });
-
-        // After transaction succeeds, get populated cart for response
-        const cart = await Cart.findOne({
-            $or: [
-                { sessionId: req.sessionID },
-                { userId: req.user?._id }
-            ]
-        }).populate({
-            path: 'items.bookId',
-            select: 'title price priceNumber coverImage'
-        });
-
-        res.status(200).json({
-            status: 'success',
-            data: {
-                cart: {
-                    ...cart.toObject(),
-                    items: cart.items.map(item => ({
-                        ...item,
-                        book: item.bookId.toObject(),
-                        bookId: undefined
-                    }))
-                },
-                totalItems: cart.totalItems,
-                totalPrice: cart.totalPrice
-            }
-        });
-
-    } catch (err) {
-        console.error('Error in addToCart:', err);
-        next(err instanceof AppError ? err : new AppError('Failed to add item to cart', 500));
-    } finally {
-        session.endSession();
-    }
-}
-
-static async updateCartItem(req, res, next) {
-    const session = await mongoose.startSession();
-    try {
-        await session.withTransaction(async () => {
-            const { bookId } = req.params;
-            const { quantity } = req.body;
-
-            if (!mongoose.Types.ObjectId.isValid(bookId)) {
-                throw new AppError('Invalid book ID', 400);
-            }
-
-            const parsedQuantity = parseInt(quantity);
-            if (isNaN(parsedQuantity) || parsedQuantity < 1) {
-                throw new AppError('Quantity must be at least 1', 400);
-            }
-
-            const book = await Book.findById(bookId).session(session);
-            if (!book) {
-                throw new AppError('Book not found', 404);
-            }
-
-            const cart = await Cart.findOne({ 
-                $or: [
-                    { sessionId: req.sessionID },
-                    { userId: req.user?._id }
-                ]
-            }).session(session);
-            
-            if (!cart) {
-                throw new AppError('Cart not found', 404);
-            }
-
-            const itemIndex = cart.items.findIndex(
-                item => item.bookId.toString() === bookId
-            );
-
-            if (itemIndex === -1) {
-                throw new AppError('Item not found in cart', 404);
-            }
-
-            // Calculate stock difference
-            const currentQuantity = cart.items[itemIndex].quantity;
-            const quantityDifference = parsedQuantity - currentQuantity;
-
-            if (book.stockCount < quantityDifference) {
-                throw new AppError(`Only ${book.stockCount + currentQuantity} items available in stock`, 400);
-            }
-
-            // Update cart item
-            cart.items[itemIndex].quantity = parsedQuantity;
-            
-            // Recalculate totals
-            cart.totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-            cart.totalPrice = cart.items.reduce(
-                (sum, item) => sum + (item.priceAtAddition * item.quantity), 
-                0
-            );
-
-            // Reapply coupon if exists
-            if (cart.appliedCoupon) {
-                const coupon = await Coupon.findById(cart.appliedCoupon).session(session);
-                if (coupon) {
-                    let discountAmount;
-                    if (coupon.discountType === 'percentage') {
-                        discountAmount = (cart.totalPrice * coupon.discountValue) / 100;
-                    } else {
-                        discountAmount = coupon.discountValue;
-                    }
-                    cart.discountAmount = discountAmount;
-                }
-            }
-
-            // Update book stock
-            if (book.stockCount !== undefined) {
-                book.stockCount -= quantityDifference;
-                await book.save({ session });
-            }
-
-            await cart.save({ session });
-        });
-
-        // After transaction succeeds, get updated cart
-        const cart = await Cart.findOne({
-            $or: [
-                { sessionId: req.sessionID },
-                { userId: req.user?._id }
-            ]
-        }).populate({
-            path: 'items.bookId',
-            select: 'title price coverImage'
-        });
-
-        res.status(200).json({
-            status: 'success',
-            data: {
-                cart,
-                totalItems: cart.totalItems,
-                totalPrice: cart.totalPrice
-            }
-        });
-
-    } catch (err) {
-        console.error('Error in updateCartItem:', err);
-        next(err instanceof AppError ? err : new AppError('Failed to update cart item', 500));
-    } finally {
-        session.endSession();
-    }
-}
-
-  // Remove item from cart
-  static async removeFromCart(req, res, next) {
-    try {
-      const { bookId } = req.params;
-
-      if (!mongoose.Types.ObjectId.isValid(bookId)) {
-        return next(new AppError('Invalid book ID', 400));
-      }
-
-      const cart = req.cart || await Cart.findOne({ sessionId: req.sessionID });
-      if (!cart) {
-        return next(new AppError('Cart not found', 404));
-      }
-
-      const initialLength = cart.items.length;
-      cart.items = cart.items.filter(
-        item => item.bookId.toString() !== bookId
-      );
-
-      if (cart.items.length === initialLength) {
-        return next(new AppError('Item not found in cart', 404));
-      }
-
-      // Recalculate totals
-      cart.totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-      cart.totalPrice = cart.items.reduce(
-        (sum, item) => sum + (item.priceAtAddition * item.quantity), 
-        0
-      );
-
-      // Reapply coupon if exists
-      if (cart.appliedCoupon) {
-        const coupon = await Coupon.findById(cart.appliedCoupon);
-        if (coupon) {
-          let discountAmount;
-          if (coupon.discountType === 'percentage') {
-            discountAmount = (cart.totalPrice * coupon.discountValue) / 100;
-          } else {
-            discountAmount = coupon.discountValue;
-          }
-          cart.discountAmount = discountAmount;
-        }
-      }
-
-      await cart.save();
-
-      res.status(200).json({
-        status: 'success',
-        data: {
-          cart,
-          totalItems: cart.totalItems,
-          totalPrice: cart.totalPrice
-        }
+    // Validate inputs
+    quantity = parseInt(quantity);
+    if (isNaN(quantity) || quantity < 1) {
+      await session.abortTransaction();
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Quantity must be at least 1' 
       });
-    } catch (err) {
-      next(new AppError('Failed to remove item from cart', 500));
     }
+
+    // Validate book exists and is available
+    const book = await Book.findById(bookId).session(session);
+    if (!book || !book.available) {
+      await session.abortTransaction();
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Book not available' 
+      });
+    }
+
+    // Check stock if applicable
+    if (book.stockQuantity && quantity > book.stockQuantity) {
+      await session.abortTransaction();
+      return res.status(400).json({ 
+        success: false, 
+        message: `Only ${book.stockQuantity} items available` 
+      });
+    }
+
+    // Find existing item index
+    const existingItemIndex = req.cart.items.findIndex(
+      item => item.bookId.toString() === bookId
+    );
+
+    if (existingItemIndex >= 0) {
+      // Update quantity if already in cart
+      req.cart.items[existingItemIndex].quantity += quantity;
+    } else {
+      // Add new item to cart
+      req.cart.items.push({ 
+        bookId, 
+        quantity,
+        addedAt: new Date()
+      });
+    }
+
+    // Save with transaction
+    await req.cart.save({ session });
+    await session.commitTransaction();
+    
+    // Return updated cart with populated data
+    const updatedCart = await Cart.findById(req.cart._id)
+      .populate('items.bookId')
+      .lean();
+
+    res.json({ 
+      success: true, 
+      cart: updatedCart,
+      totalItems: updatedCart.items.reduce((sum, item) => sum + item.quantity, 0)
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    console.error('Error adding to cart:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error adding to cart',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  } finally {
+    session.endSession();
   }
+};
 
-  // Get cart details
-  static async getCartDetails(req, res, next) {
-    try {
-      const cart = req.cart || await Cart.findOne({ sessionId: req.sessionID })
-        .populate({
-          path: 'items.bookId',
-          select: 'title price coverImage slug'
-        });
+// Update cart item quantity
+exports.updateCartItem = async (req, res) => {
+  try {
+    const { bookId } = req.params;
+    let { quantity } = req.body;
 
-      const cartData = cart || { items: [], totalItems: 0, totalPrice: 0 };
-
-      res.status(200).render('pages/cart', {
-        title: 'Your Shopping Cart',
-        cart: cartData,
-        currentPage: 'cart'
+    // Validate inputs
+    quantity = parseInt(quantity);
+    if (isNaN(quantity) || quantity < 1) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Quantity must be a number at least 1' 
       });
-    } catch (err) {
-      next(new AppError('Failed to retrieve cart details', 500));
     }
-  }
 
-  // Clear cart
-  static async clearCart(req, res, next) {
-    try {
-      const cart = req.cart || await Cart.findOne({ sessionId: req.sessionID });
-      if (!cart) {
-        return next(new AppError('Cart not found', 404));
-      }
-
-      cart.items = [];
-      cart.totalItems = 0;
-      cart.totalPrice = 0;
-      cart.appliedCoupon = null;
-      cart.couponCode = null;
-      cart.discountAmount = 0;
-
-      await cart.save();
-
-      res.status(200).json({
-        status: 'success',
-        message: 'Cart cleared successfully',
-        data: {
-          cart,
-          totalItems: 0,
-          totalPrice: 0
-        }
+    // Check book availability
+    const book = await Book.findById(bookId);
+    if (!book || !book.available) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Book not available' 
       });
-    } catch (err) {
-      next(new AppError('Failed to clear cart', 500));
     }
-  }
 
-  // Get cart status for a specific book
-  static async getCartStatus(req, res, next) {
-    try {
-      const { bookId } = req.params;
-
-      if (!mongoose.Types.ObjectId.isValid(bookId)) {
-        return next(new AppError('Invalid book ID', 400));
-      }
-
-      const cart = req.cart || await Cart.findOne({ sessionId: req.sessionID });
-      
-      const inCart = cart?.items.some(item => 
-        item.bookId.toString() === bookId
-      ) || false;
-
-      res.status(200).json({
-        status: 'success',
-        data: { inCart }
+    // Check stock if applicable
+    if (book.stockQuantity && quantity > book.stockQuantity) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Only ${book.stockQuantity} items available` 
       });
-    } catch (err) {
-      next(new AppError('Failed to check cart status', 500));
     }
-  }
 
-  // Apply coupon to cart
-  static async applyCoupon(req, res, next) {
-    try {
-      const { couponCode } = req.body;
-      
-      if (!couponCode) {
-        return next(new AppError('Coupon code is required', 400));
-      }
+    // Find and update item
+    const itemIndex = req.cart.items.findIndex(
+      item => item.bookId.toString() === bookId
+    );
 
-      const cart = req.cart || await Cart.findOne({ sessionId: req.sessionID });
-      if (!cart) {
-        return next(new AppError('Cart not found', 404));
-      }
-
-      if (cart.appliedCoupon) {
-        return next(new AppError('A coupon is already applied to this cart', 400));
-      }
-
-      const coupon = await Coupon.findOne({ 
-        code: couponCode,
-        validFrom: { $lte: Date.now() },
-        validUntil: { $gte: Date.now() }
+    if (itemIndex === -1) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Item not found in cart' 
       });
-
-      if (!coupon) {
-        return next(new AppError('Invalid or expired coupon code', 400));
-      }
-
-      if (cart.totalPrice < coupon.minimumCartValue) {
-        return next(new AppError(`Coupon requires minimum cart value of ${coupon.minimumCartValue}`, 400));
-      }
-
-      let discountAmount;
-      if (coupon.discountType === 'percentage') {
-        discountAmount = (cart.totalPrice * coupon.discountValue) / 100;
-      } else {
-        discountAmount = coupon.discountValue;
-      }
-
-      cart.appliedCoupon = coupon._id;
-      cart.couponCode = coupon.code;
-      cart.discountAmount = discountAmount;
-      cart.totalPrice -= discountAmount;
-
-      await cart.save();
-
-      res.status(200).json({
-        status: 'success',
-        message: 'Coupon applied successfully',
-        data: {
-          cart,
-          discountAmount,
-          totalPrice: cart.totalPrice
-        }
-      });
-    } catch (err) {
-      next(new AppError('Failed to apply coupon', 500));
     }
+
+    req.cart.items[itemIndex].quantity = quantity;
+    await req.cart.save();
+
+    // Get fresh cart data
+    const updatedCart = await Cart.findById(req.cart._id)
+      .populate('items.bookId')
+      .lean();
+
+    res.json({ 
+      success: true, 
+      cart: updatedCart,
+      totalItems: updatedCart.items.reduce((sum, item) => sum + item.quantity, 0),
+      totalPrice: updatedCart.items.reduce(
+        (sum, item) => sum + (item.bookId.price * item.quantity), 0
+      )
+    });
+  } catch (err) {
+    console.error('Error updating cart:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error updating cart',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
+};
 
-  // Remove coupon from cart
-  static async removeCoupon(req, res, next) {
-    try {
-      const cart = req.cart || await Cart.findOne({ sessionId: req.sessionID });
-      if (!cart) {
-        return next(new AppError('Cart not found', 404));
-      }
+// Remove item from cart
+exports.removeFromCart = async (req, res) => {
+  try {
+    const { bookId } = req.params;
 
-      if (!cart.appliedCoupon) {
-        return next(new AppError('No coupon applied to this cart', 400));
-      }
+    // Filter out the item
+    req.cart.items = req.cart.items.filter(
+      item => item.bookId.toString() !== bookId
+    );
 
-      // Restore original total price
-      cart.totalPrice += cart.discountAmount;
-      cart.appliedCoupon = null;
-      cart.couponCode = null;
-      cart.discountAmount = 0;
+    await req.cart.save();
 
-      await cart.save();
+    // Get fresh cart data
+    const updatedCart = await Cart.findById(req.cart._id)
+      .populate('items.bookId')
+      .lean();
 
-      res.status(200).json({
-        status: 'success',
-        message: 'Coupon removed successfully',
-        data: {
-          cart,
-          totalPrice: cart.totalPrice
-        }
-      });
-    } catch (err) {
-      next(new AppError('Failed to remove coupon', 500));
+    res.json({ 
+      success: true, 
+      cart: updatedCart,
+      totalItems: updatedCart.items.reduce((sum, item) => sum + item.quantity, 0),
+      totalPrice: updatedCart.items.reduce(
+        (sum, item) => sum + (item.bookId.price * item.quantity), 0
+      )
+    });
+  } catch (err) {
+    console.error('Error removing from cart:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error removing from cart',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+};
+
+// Get cart details (for rendering view)
+exports.getCartDetails = async (req, res) => {
+  try {
+    const cart = await Cart.findById(req.cart._id)
+      .populate({
+        path: 'items.bookId',
+        select: 'title price imageUrl slug', // Only select needed fields
+        options: { lean: true }
+      })
+      .lean();
+
+    if (!cart) {
+      req.flash('error', 'Your cart is empty');
+      return res.redirect('/books');
     }
-  }
-}
 
-module.exports = CartController;
+    res.render('pages/cart/view', {
+      title: 'Your Shopping Cart',
+      cart,
+      currentPage: 'cart',
+      flashMessages: req.flash(),
+      currentUrl: req.originalUrl,
+      // Calculate totals
+      totalItems: cart.items.reduce((sum, item) => sum + item.quantity, 0),
+      totalPrice: cart.items.reduce(
+        (sum, item) => sum + (item.bookId.price * item.quantity), 0
+      )
+    });
+  } catch (err) {
+    console.error('Error getting cart details:', err);
+    req.flash('error', 'Error loading your cart');
+    res.redirect('/');
+  }
+};
+
+// Clear cart
+exports.clearCart = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    req.cart.items = [];
+    await req.cart.save({ session });
+    await session.commitTransaction();
+    
+    res.json({ 
+      success: true, 
+      message: 'Cart cleared successfully',
+      cart: {
+        items: [],
+        totalItems: 0,
+        totalPrice: 0
+      }
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    console.error('Error clearing cart:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error clearing cart',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  } finally {
+    session.endSession();
+  }
+};

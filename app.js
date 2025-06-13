@@ -20,28 +20,26 @@ const User = require('./models/user');
 
 const app = express();
 
-// 1. MIDDLEWARE FIRST (before any routes)
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Debug: Log all incoming requests
-app.use((req, res, next) => {
-  console.log(`📝 ${req.method} ${req.originalUrl}`);
-  next();
-});
+//settings logic
+const upload = require('./middleware/SettingsMiddleware'); // Middleware for file uploads
+const settingsController = require('./controllers/settingsController');
 
-// 2. THEN ROUTES (after middleware)
-const authRoutes = require('./routes/auth.routes');
-app.use('/api/auth', authRoutes);
 
-// Debug: Log when routes are mounted
-console.log('✅ Auth routes mounted at /api/auth');
 
-// 3. Database Connection (can be anywhere)
-const DB = process.env.MONGODB_URI.replace('<PASSWORD>', encodeURIComponent(process.env.MONGODB_PASSWORD));
+
+// Database Connection
+const DB = process.env.MONGODB_URI.replace('<PASSWORD>', process.env.MONGODB_PASSWORD);
 mongoose.connect(DB)
   .then(() => console.log('Connected to MongoDB!'))
   .catch(err => console.error('MongoDB connection error:', err));
+
+// Import Models
+const Book = require('./models/book');
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
@@ -58,23 +56,8 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
+app.use(session(sessionConfig));
 app.use(flash());
-
-// Cart initialization
-app.use((req, res, next) => {
-  req.session.cart = req.session.cart || { items: [], totalQty: 0, totalPrice: 0 };
-  next();
-});
-
-// Make flash messages available to all views
-app.use((req, res, next) => {
-  res.locals.flashMessages = {
-    error: req.flash('error'),
-    success: req.flash('success'),
-    info: req.flash('info')
-  };
-  next();
-});
 
 // Security headers
 app.use((req, res, next) => {
@@ -83,7 +66,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// =============================================
 // Static Files and View Engine
+// =============================================
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1y',
   immutable: true,
@@ -92,17 +77,18 @@ app.use(express.static(path.join(__dirname, 'public'), {
       res.setHeader('Content-Type', 'text/css');
     }
   }
-}));
+}))
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Routes
-//app.post('/api/auth/signup', authController.signup);
-//app.post('/api/auth/login', authController.login);
-app.post('/api/recipes', authController.protect, recipeController.saveRecipe);
-app.patch('/api/recipes/:id/favorite', authController.protect, recipeController.toggleFavorite);
-app.get('/api/recipes/favorites', authController.protect, recipeController.getFavoriteRecipes);
+// =============================================
+// Route Imports and Configuration
+// =============================================
+const generateRecipe = require('./recipeGenerator');
+const bookRouter = require('./routes/books');
 
+// Database status endpoint
 app.get('/db-status', async (req, res) => {
   try {
     const db = mongoose.connection.db;
@@ -124,7 +110,7 @@ app.get('/db-status', async (req, res) => {
 app.get('/', (req, res) => {
   res.render('pages/Home', {
     title: 'Home Page',
-    currentPage: 'home',
+    currentPage: 'home', 
     recipe: generateRecipe(),
     flashMessages: req.flash()
   });
@@ -145,62 +131,19 @@ app.get('/About', (req, res) => {
 
 app.use('/books', bookRouter);
 
+// Cart Route
 app.get('/cart', (req, res) => {
-  res.render('pages/cart', {
+  res.render('pages/cart', { 
     title: 'Your Cart',
     currentPage: 'cart',
     cart: req.session.cart || []
   });
 });
 
-app.get('/search', searchRecipes);
-
-// Admin Dashboard
-app.get('/AdminDashboard', async (req, res) => {
-  const [totalRecipes, totalUsers] = await Promise.all([
-    Recipe.countDocuments(),
-    User.countDocuments()
-  ]);
-  res.render('pages/AdminDashboard', { totalRecipes, totalUsers });
-});
-
-// Recipe Routes
-app.get('/recipes', recipeController.showCategories);
-app.get('/recipes/category/:type', recipeController.showRecipesByCategory);
-app.get('/recipes/:id', recipeController.showRecipeDetails);
-app.get('/manage-recipes', recipeController.getAllRecipes);
-app.post('/recipes/:id/approve', recipeController.approveRecipe);
-app.post('/recipes/:id/delete', recipeController.deleteRecipe);
-app.get('/recipes/:id/edit', recipeController.showEditForm);
-app.post('/recipes/:id/edit', recipeController.updateRecipe);
-
-// Settings Routes
-app.get('/Settings', settingsController.getSettingsPage);
-app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
-
-// Users Routes
-app.get('/Users', usersController.getUsers);
-app.post('/users/:id/ban', usersController.banUser);
-app.post('/users/:id/unban', usersController.unbanUser);
-app.post('/users/:id/edit', usersController.editUser);
-
-//auth pages
-// Page routes (for rendering forms)
-app.get('/login', (req, res) => {
-  res.render('pages/login', {
-    title: 'Login',
-    currentPage: 'login'
-  });
-});
-
-app.get('/signup', (req, res) => {
-  res.render('pages/signup', {
-    title: 'Sign Up',
-    currentPage: 'signup'
-  });
-});
+// =============================================
 // Error Handlers
-app.use((req, res) => {
+// =============================================
+app.use((req, res, next) => {
   res.status(404).render('pages/404', {
     title: 'Page Not Found',
     currentPage: '',
@@ -216,8 +159,66 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
+
+// SearchBAR Route
+const { searchRecipes } = require('./controllers/SearchController');
+app.get('/search', searchRecipes);
+module.exports = app;
+
+// Manage Recipes Route
+
+app.get('/manage-recipes', recipeController.getAllRecipes);// Show Manage Recipes page
+
+app.post('/recipes/:id/approve', recipeController.approveRecipe);// Approve recipe
+
+app.post('/recipes/:id/delete', recipeController.deleteRecipe);// Delete recipe
+
+app.get('/recipes/:id/edit', recipeController.showEditForm);// Show edit recipe form
+
+app.post('/recipes/:id/edit', recipeController.updateRecipe);// Handle edit recipe form submission
+
+
+// Settings Route
+app.get('/Settings', (req, res) => {
+  res.render('Settings', { settings });
+});
+
+app.get('/Settings', settingsController.getSettingsPage);
+app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
+
+
+// users route
+app.get('/Users', async (req, res) => {
+  try {
+    const users = await User.find(); // fetch all users from MongoDB
+    res.render('Users', { users }); // pass users array to EJS
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.get('/Users', usersController.getUsers);
+app.post('/users/:id/ban', usersController.banUser);
+app.post('/users/:id/unban', usersController.unbanUser);
+app.post('/users/:id/edit', usersController.editUser);
+
+// Admin Dashboard Route
+app.get('/AdminDashboard', async (req, res) => {
+  // Fetch counts dynamically from DB, for example:
+  const totalRecipes = await Recipe.countDocuments();
+  const totalUsers = await User.countDocuments();
+
+  res.render('AdminDashboard', { totalRecipes, totalUsers });
+});
+
+
+
+// =============================================
+// Server Startup
+// =============================================
 const PORT = process.env.PORT || 4000;
+
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -233,4 +234,3 @@ process.on('SIGTERM', () => {
     });
   });
 });
-
