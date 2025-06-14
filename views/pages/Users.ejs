@@ -13,7 +13,7 @@
       <h1>Manage Users</h1>
       <nav>
         <ul>
-          <li><a href="/admin-dashboard">Dashboard</a></li>
+          <li><a href="/AdminDashboard">Dashboard</a></li>
           <li><a href="/manage-recipes">Manage Recipes</a></li>
           <li><a href="/Users" class="active">Users</a></li>
           <li><a href="/Settings">Settings</a></li>
@@ -65,8 +65,8 @@
                   </form>
                 </td>
                 <td>
-                  <span class="badge <%= user.status.toLowerCase() %>">
-                    <%= user.status %>
+                  <span class="badge <%= (user.status || 'inactive').toLowerCase() %>">
+                    <%= user.status || 'Inactive' %>
                   </span>
                 </td>
                 <td class="action-buttons">

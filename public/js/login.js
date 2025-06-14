@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
   if (token && user) {
     if (user.isAdmin) {
-      window.location.replace('/admin-dashboard');
+      window.location.replace('/AdminDashboard');
     } else {
       window.location.replace('/');
     }
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
           
           // Redirect based on user role
           if (data.user.isAdmin) {
-            window.location.replace('/admin-dashboard');
+            window.location.replace('/AdminDashboard');
           } else {
             window.location.replace('/');
           }
