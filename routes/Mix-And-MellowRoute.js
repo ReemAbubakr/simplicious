@@ -1,15 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const { protect } = require('../middleware/authMiddleware');
 const {
     getRecipes,
-    getUserMealPlans,
-    saveMealPlan
+    generateMealPlan
 } = require('../controllers/Mix-And-MellowController');
 
 // Display planner
-router.get('/', protect, async(req, res) => {
+router.get('/', async(req, res) => {
     try {
         const meals = await mongoose.model('recipe').aggregate([
             { $match: { type: { $in: ['breakfast', 'lunch', 'dinner'] } } },
@@ -17,20 +15,18 @@ router.get('/', protect, async(req, res) => {
         ]);
         res.render('pages/Mix-And-Mellow', {
             title: 'Mix & Mellow',
-            meals,
-            days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-            mealTypes: ['Breakfast', 'Lunch', 'Dinner'],
-            user: req.user
+            meals
         });
-    } catch (err) {
-        res.status(500).render('error');
+    } catch (error) {
+        res.status(500).render('pages/500', {
+            title: 'Server Error',
+            errorDetails: error.message
+        });
     }
 });
 
-// Get user's saved meal plans
-router.get('/plans', protect, getUserMealPlans);
-
-// Save plan
-router.post('/save', protect, saveMealPlan);
+// API Routes
+router.get('/recipes', getRecipes);
+router.post('/generate-plan', generateMealPlan);
 
 module.exports = router;
