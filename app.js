@@ -129,7 +129,7 @@ app.use('/cart', cartRoutes);
 // API Endpoints
 app.post('/api/auth/signup', authController.signup);
 app.post('/api/auth/login', authController.login);
-app.post('/api/recipes', authController.protect, recipeController.saveRecipe);
+app.post('/recipes', recipeController.saveRecipe);
 app.patch('/api/recipes/:id/favorite', authController.protect, recipeController.toggleFavorite);
 app.get('/api/recipes/favorites', authController.protect, recipeController.getFavoriteRecipes);
 
@@ -285,10 +285,9 @@ app.get('/AdminDashboard', async (req, res) => {
 app.get('/recipes/category/:type', recipeController.showRecipesByCategory);
 app.get('/recipes/:id', recipeController.showRecipeDetails);
 app.get('/manage-recipes', recipeController.getAllRecipes);
-app.post('/recipes/:id/approve', recipeController.approveRecipe);
 app.post('/recipes/:id/delete', recipeController.deleteRecipe);
-app.get('/recipes/:id/edit', recipeController.showEditForm);
-app.post('/recipes/:id/edit', recipeController.updateRecipe);
+app.get('/recipes/:id/edit-recipe', recipeController.showEditForm);
+app.post('/recipes/:id/edit-recipe', recipeController.updateRecipe);
 
 // Settings Routes
 app.get('/Settings', settingsController.getSettingsPage);

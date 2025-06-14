@@ -26,11 +26,11 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <section class="settings-form">
+      <section class="add-book-form">
         <form action="/save-settings" method="POST" enctype="multipart/form-data">
           <div class="form-group">
             <label for="site-title">Site Title</label>
-            <input type="text" id="site-title" name="title" placeholder="My Cooking Recipes" value="<%= settings.title %>" />
+            <input type="text" id="site-title" name="title" placeholder="My Cooking Recipes" value="<%= settings?.title %>" />
           </div>
 
           <div class="form-group">
@@ -40,15 +40,15 @@
 
           <div class="form-group">
             <label for="contact-email">Contact Email</label>
-            <input type="email" id="contact-email" name="email" placeholder="admin@example.com" value="<%= settings.email %>" />
+            <input type="email" id="contact-email" name="email" placeholder="admin@example.com" value="<%= settings?.email %>" />
           </div>
 
           <div class="form-group">
             <label for="theme-color">Theme Color</label>
-            <input type="color" id="theme-color" name="themeColor" value="<%= settings.themeColor %>" />
+            <input type="color" id="theme-color" name="themeColor" value="<%= settings?.themeColor %>" />
           </div>
 
-          <button type="submit" class="save">Save Settings</button>
+          <button type="submit" class="add-book-form">Save Settings</button>
         </form>
       </section>
     </main>
