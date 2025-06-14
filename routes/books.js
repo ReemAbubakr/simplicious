@@ -3,6 +3,7 @@ const router = express.Router();
 const bookController = require('../controllers/bookController');
 const cartController = require('../controllers/cartController');
 const Book = require('../models/book');
+const upload = require('../middleware/SettingsMiddleware');
 // Apply cart middleware to all routes that need it
 router.use(cartController.getCart);
 
@@ -24,31 +25,37 @@ router.delete('/cart', cartController.clearCart);
 // This handles the root of the router, e.g., GET /books/
 router.get('/', bookController.getAllBooks); 
 
-
-// Render the booksmanaging page
-router.get('/booksmanaging', async (req, res) => {
-  try {
-    const books = await Book.find(); // fetch books from MongoDB
-    res.render('pages/booksmanaging', { books }); // PASS books to the EJS file
-  } catch (error) {
-    console.error('Error loading books:', error);
-    res.status(500).send('Server Error');
-  }
-});
-
 // GET Edit Page
-router.get('/books/:id/edit', async (req, res) => {
+router.get('/:id/edit', async (req, res) => {
   const book = await Book.findById(req.params.id);
   if (!book) return res.status(404).send('Book not found');
   res.render('pages/edit-book', { book });
 });
 
 // POST Update Book
-router.post('/books/:id/update', async (req, res) => {
+router.post('/:id/update', async (req, res) => {
   const { title, price } = req.body;
   await Book.findByIdAndUpdate(req.params.id, { title, price });
   res.redirect('/booksmanaging');
 });
+
+router.post('/:id/update', upload.single('image'), async (req, res) => {
+  try {
+    const { title, price } = req.body;
+    const updateData = { title, price };
+
+    if (req.file) {
+      updateData.imagePath = req.file.filename;
+    }
+
+    await Book.findByIdAndUpdate(req.params.id, updateData);
+    res.redirect('/booksmanaging');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
 
 // Dynamic route for book details MUST come after more specific routes like '/cart'
 router.get('/:id', bookController.getBookDetails); 

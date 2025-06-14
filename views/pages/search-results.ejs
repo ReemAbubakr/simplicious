@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Simplicious</title>
+    <link rel="icon" type="image/png" href="/images/panlog.png" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="search-header">
+                <h1>Search Results</h1>
+                <% if (query) { %>
+                    <p>Found <%= totalResults %> recipe<%= totalResults !== 1 ? 's' : '' %> for "<%= query %>"</p>
+                <% } else { %>
+                    <p>Showing all recipes</p>
+                <% } %>
+            </div>
+
+            <div class="search-again">
+                <form class="search-form" method="GET" action="/search">
+                    <input type="text" name="q" value="<%= query %>" placeholder="Search recipes..." class="search-input">
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </form>
+            </div>
+
+            <div class="results-section">
+                <% if (recipes && recipes.length > 0) { %>
+                    <div class="recipes-grid">
+                        <% recipes.forEach(recipe => { %>
+                            <div class="recipe-card">
+                                <a href="/recipes/<%= recipe._id %>" class="recipe-link">
+                                    <div class="recipe-image">
+                                        <img src="/images/<%= recipe.imagePath || 'CoverIMG.png' %>" alt="<%= recipe.title %>">
+                                    </div>
+                                    <div class="recipe-content">
+                                        <h3 class="recipe-title"><%= recipe.title %></h3>
+                                        <p class="recipe-description">
+                                            <%= recipe.description ? recipe.description.substring(0, 100) + '...' : 'A delicious recipe' %>
+                                        </p>
+                                        <div class="recipe-meta">
+                                            <span class="recipe-type">
+                                                <i class="fas fa-tag"></i> <%= recipe.type ? recipe.type.charAt(0).toUpperCase() + recipe.type.slice(1) : 'Recipe' %>
+                                            </span>
+                                            <% if (recipe.ingredients && recipe.ingredients.length) { %>
+                                                <span class="ingredient-count">
+                                                    <i class="fas fa-list"></i> <%= recipe.ingredients.length %> ingredients
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>No recipes found</h3>
+                        <% if (query) { %>
+                            <p>We couldn't find any recipes matching "<%= query %>"</p>
+                            <p>Try searching with different keywords or browse our categories.</p>
+                        <% } else { %>
+                            <p>No recipes available at the moment.</p>
+                        <% } %>
+                        <a href="/recipes" class="btn btn-primary">Browse All Recipes</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+    <style>
+        .search-header {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .search-header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .search-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .search-again {
+            margin: 2rem 0;
+        }
+        
+        .search-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 0.5rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .search-btn {
+            padding: 0.8rem 1.5rem;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .search-btn:hover {
+            background: #c0392b;
+        }
+        
+        .results-section {
+            margin: 3rem 0;
+        }
+        
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .recipe-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .recipe-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .recipe-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .recipe-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .recipe-content {
+            padding: 1.5rem;
+        }
+        
+        .recipe-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .recipe-description {
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #95a5a6;
+            font-size: 0.9rem;
+        }
+        
+        .recipe-type, .ingredient-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #7f8c8d;
+        }
+        
+        .no-results i {
+            font-size: 4rem;
+            color: #95a5a6;
+            margin-bottom: 1rem;
+        }
+        
+        .no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .no-results p {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #c0392b;
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+                max-width: 100%;
+            }
+            
+            .recipes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html> 

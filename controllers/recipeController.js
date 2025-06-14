@@ -79,7 +79,12 @@ exports.showRecipesByCategory = async (req, res) => {
   try {
     const type = req.params.type;
     const recipes = await Recipe.find({ type });
-    res.render('pages/recipes/recipesByCategory', { type, recipes });
+    res.render('pages/recipes/recipesByCategory', { 
+      type, 
+      recipes, 
+      currentPage: 'recipes',
+      title: `${type.charAt(0).toUpperCase() + type.slice(1)} Recipes`
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send('Error loading category');
@@ -91,7 +96,11 @@ exports.showRecipeDetails = async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
     if (!recipe) return res.status(404).send('Recipe not found');
-    res.render('pages/recipes/recipeDetail', { recipe });
+    res.render('pages/recipes/recipeDetail', { 
+      recipe,
+      currentPage: 'recipes',
+      title: recipe.title
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send('Error loading recipe');
