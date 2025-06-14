@@ -60,12 +60,27 @@ app.use(session({
   }
 }));
 app.use(flash());
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI.replace(
+      '<PASSWORD>', 
+      encodeURIComponent(process.env.MONGODB_PASSWORD)
+    ),
+    dbName: 'codebookDB',
+    ttl: 24 * 60 * 60 // 1 day
+  }),
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: 'lax'
+  }
+};
 
-// Cart initialization
-app.use((req, res, next) => {
-  req.session.cart = req.session.cart || { items: [], totalQty: 0, totalPrice: 0 };
-  next();
-});
+
 
 // Make flash messages available to all views
 app.use((req, res, next) => {
@@ -98,8 +113,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // Routes
-//app.post('/api/auth/signup', authController.signup);
-//app.post('/api/auth/login', authController.login);
+app.post('/api/auth/signup', authController.signup);
+app.post('/api/auth/login', authController.login);
 app.post('/api/recipes', authController.protect, recipeController.saveRecipe);
 app.patch('/api/recipes/:id/favorite', authController.protect, recipeController.toggleFavorite);
 app.get('/api/recipes/favorites', authController.protect, recipeController.getFavoriteRecipes);
@@ -146,15 +161,12 @@ app.get('/About', (req, res) => {
 
 // manage books also
 app.use('/books', bookRouter); 
-app.use('/', bookRouter); 
+const cartRoutes = require('./routes/cart');
+app.use('/cart', cartRoutes);
 
-app.get('/cart', (req, res) => {
-  res.render('pages/cart', {
-    title: 'Your Cart',
-    currentPage: 'cart',
-    cart: req.session.cart || []
-  });
-});
+
+
+
 
 app.get('/recipes', (req, res) => {
   res.render('pages/recipezizi', {
@@ -227,7 +239,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 7000;
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);

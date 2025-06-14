@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const commentSchema = new mongoose.Schema({
-  userName: { 
+  user: { 
     type: String, 
-    required: true,
+    required: false,
     trim: true,
     maxlength: 50 
   },
@@ -80,6 +80,10 @@ const bookSchema = new mongoose.Schema({
   createdAt: { 
     type: Date, 
     default: Date.now 
+  },
+  commentCount: {
+    type: Number,
+    default: 0
   }
 }, {
   collection: 'books',  // Correct place to set collection name
@@ -121,3 +125,4 @@ bookSchema.index({ averageRating: -1 });
 bookSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Book', bookSchema);
+

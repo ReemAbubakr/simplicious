@@ -1,61 +1,95 @@
 const mongoose = require('mongoose');
-
-const cartItemSchema = new mongoose.Schema({
-  bookId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Book',
-    required: true
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 1,
-    default: 1
-  },
-  appliedCoupon: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' },
-couponCode: String,
-discountAmount: { type: Number, default: 0 },
-  priceAtAddition: {  // Add this new required field
-    type: Number,
-    required: true
-  },
-  addedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+const bookSchema=require('./book'); // Assuming book.js is in the same directory
 
 const cartSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    default: null ,
+    required: false,
+
+  },
   
   sessionId: {
     type: String,
     required: true,
-    unique: true // Keep this unique for session-based carts
+    unique: true
   },
-  items: [cartItemSchema],
+  
+  // books: [{
+  //   book: {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'Book',
+  //     required: true
+  //   },
+  //    imagePath: { 
+  //   type: String, 
+  //   required: true 
+  //   },
+  //   quantity: {
+  //     type: Number,
+  //     required: true,
+  //     min: 1,
+  //     default: 1
+  //   },
+  //   addedAt: {
+  //     type: Date,
+  //     default: Date.now
+  //   }
+  // }],
+  books:[{book:{
+   type:String,
+    required: true
+
+  },
+    imagePath: { 
+      type: String, 
+      required: true 
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    },
+    price: {
+      type: String,
+      required: true,
+     
+    }
+  }],
+  
+  
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 86400 // Cart expires after 1 day (in seconds)
+    expires: 9000000000
   }
-}, {
+}, 
+{
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
-    strict: 'throw'
+  strict: 'throw'
 });
 
 // Virtual for total items in cart
 cartSchema.virtual('totalItems').get(function() {
-  return this.items.reduce((total, item) => total + item.quantity, 0);
+  return this.books.reduce((total, bookItem) => total + bookItem.quantity, 0);
 });
 
-// Virtual for total price (requires population of book details)
+// Virtual for total price
 cartSchema.virtual('totalPrice').get(function() {
-  if (!this.items || this.items.length === 0) return 0;
-  return this.items.reduce((total, item) => {
-    // Make sure to populate bookId.price before using this virtual
-    return total + (item.bookId.price * item.quantity);
+  if (!this.books || this.books.length === 0) return 0;
+  
+
+  
+  return this.books.reduce((total, bookItem) => {
+    const price = parseFloat(Number(bookItem.price));
+    return total + (price * bookItem.quantity);
   }, 0);
 });
 

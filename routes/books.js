@@ -1,58 +1,93 @@
 const express = require('express');
 const router = express.Router();
-const bookController = require('../controllers/bookController');
-const cartController = require('../controllers/cartController');
+const BookController = require('../controllers/bookController');
 const Book = require('../models/book');
-// Apply cart middleware to all routes that need it
-router.use(cartController.getCart);
-
-// --- Static routes should come BEFORE dynamic routes ---
-
-// Cart routes
-router.get('/cart', cartController.getCartDetails);
-router.post('/cart/add/:bookId', cartController.addToCart);
-router.delete('/cart/:bookId', cartController.removeFromCart);
-router.delete('/cart', cartController.clearCart);
-
-// API endpoint to get books for cart
-//router.get('/api/books/cart', bookController.getBooksForCart);
 
 
-// --- Book routes (static first, then dynamic) ---
+// Get all books
+router.get('/', BookController.getAllBooks);
+
+// Get single book details
+router.get('/:id', BookController.getBookDetails);
 
 
-// This handles the root of the router, e.g., GET /books/
-router.get('/', bookController.getAllBooks); 
 
+// POST /books/:id/comments - Add a new comment
+router.post('/:id/comments', async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.id);
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
 
-// Render the booksmanaging page
-router.get('/booksmanaging', async (req, res) => {
+        const { user, text } = req.body;
+        
+        if (!text) {
+            return res.status(400).json({ message: 'Comment text is required' });
+        }
+
+        const newComment = {
+            user: user?user : 'Guest', // Default to 'Guest' if no user provided
+            text,
+            createdAt: new Date()
+        };
+
+        book.comments.unshift(newComment); // Add to beginning of array
+        await book.save();
+
+        res.status(201).json({ 
+            message: 'Comment added successfully',
+            comment: newComment
+        });
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).json({ message: 'Server error while adding comment' });
+    }
+});
+
+// POST a new rating
+router.post('/:id/ratings', async (req, res) => {
   try {
-    const books = await Book.find(); // fetch books from MongoDB
-    res.render('pages/booksmanaging', { books }); // PASS books to the EJS file
-  } catch (error) {
-    console.error('Error loading books:', error);
-    res.status(500).send('Server Error');
+    const { value } = req.body;
+    const book = await Book.findById(req.params.id);
+
+    if (!book) {
+      return res.status(404).json({ error: 'Book not found' });
+    }
+
+    // Add the new rating (your schema enforces min/max values)
+    book.ratings.push({ value });
+    await book.save(); // This triggers your `pre('save')` hook to update averageRating
+
+    res.json({
+      success: true,
+      averageRating: book.averageRating,
+      ratingCount: book.ratingCount
+    });
+
+  } catch (err) {
+    console.error('Error adding rating:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// GET Edit Page
-router.get('/books/:id/edit', async (req, res) => {
-  const book = await Book.findById(req.params.id);
-  if (!book) return res.status(404).send('Book not found');
-  res.render('pages/edit-book', { book });
-});
+module.exports = router;
+router.post('/:id/rating', BookController.addRating);
 
-// POST Update Book
-router.post('/books/:id/update', async (req, res) => {
-  const { title, price } = req.body;
-  await Book.findByIdAndUpdate(req.params.id, { title, price });
-  res.redirect('/booksmanaging');
-});
 
-// Dynamic route for book details MUST come after more specific routes like '/cart'
-router.get('/:id', bookController.getBookDetails); 
-//router.post('/:id/rating', bookController.addRating);
-//router.post('/:id/comments', bookController.addComment);
+// Add rating
+//  router.post('/:id/rating', bookController.addRating);
+
+// // Add comment
+// // router.post('/:id/comments', bookController.addComment);
+// router.get('/cart', cartController.getCartDetails);
+// router.post('/cart/add/:bookId', cartController.addToCart);
+// router.put('/cart/:bookId', cartController.updateCartItem);
+// router.delete('/cart/:bookId', cartController.removeFromCart);
+// router.delete('/cart', cartController.clearCart);
+
+// // API endpoint to get books for cart
+// //router.get('/api/books/cart', bookController.getBooksForCart);
+
 
 module.exports = router;
