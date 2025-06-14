@@ -5,7 +5,7 @@
     </a>
     <nav>
         <ul>
-           <li><a href="/" class="<%= currentPage === 'home' ? 'active' : '' %>">Home</a></li>
+            <li><a href="/" class="<%= currentPage === 'home' ? 'active' : '' %>">Home</a></li>
             <li><a href="/recipes" class="<%= currentPage === 'recipes' ? 'active' : '' %>">Recipes</a></li>
             <li><a href="/features" class="<%= currentPage === 'features' ? 'active' : '' %>">Features</a></li>
             <li><a href="/about" class="<%= currentPage === 'about' ? 'active' : '' %>">About Us</a></li>
@@ -19,23 +19,23 @@
 </header>
 
 <script>
-// Check authentication status on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user'));
-    const authButtons = document.getElementById('authButtons');
-    
-    if (token && user) {
-        authButtons.innerHTML = `
+    // Check authentication status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        const authButtons = document.getElementById('authButtons');
+
+        if (token && user) {
+            authButtons.innerHTML = `
             <span class="welcome-text">Welcome, ${user.username}</span>
             <button class="logout" onclick="logout()">Logout</button>
         `;
-    }
-});
+        }
+    });
 
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/';
-}
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+    }
 </script>
