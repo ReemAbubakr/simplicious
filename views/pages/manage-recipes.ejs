@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Manage Recipes | Admin</title>
   <link rel="icon" type="image/png" href="/images/panlog.png">
-  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/AdminCSS.css" />
 </head>
 <body>
   <div class="admin-container">
@@ -14,10 +14,9 @@
       <h1>Manage Recipes</h1>
       <nav>
         <ul>
-          <li><a href="/AdminDashboard">Dashboard</a></li>
+          <li><a href="/admin-dashboard">Dashboard</a></li>
           <li><a href="/manage-recipes" class="active">Manage Recipes</a></li>
           <li><a href="/Users">Users</a></li>
-          <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings">Settings</a></li>
           <li><a href="/">Log Out</a></li>
         </ul>
@@ -77,5 +76,6 @@
 
    <%- include('../partials/footer') %>
 
+  <script src="/admin.js"></script>
 </body>
 </html>

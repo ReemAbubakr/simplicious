@@ -87,12 +87,8 @@ app.use((req, res, next) => {
 // Static Files and View Engine
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1y',
-  immutable: true,
-  setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
+  immutable: true
+  // Remove the setHeaders function to let Express auto-detect MIME types
 }));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -146,7 +142,7 @@ app.get('/About', (req, res) => {
 
 // manage books also
 app.use('/books', bookRouter); 
-app.use('/', bookRouter); 
+//app.use('/', bookRouter); 
 
 app.get('/cart', (req, res) => {
   res.render('pages/cart', {
@@ -156,11 +152,75 @@ app.get('/cart', (req, res) => {
   });
 });
 
-app.get('/recipes', (req, res) => {
-  res.render('pages/recipezizi', {
-    title: 'Recipes',
-    currentPage: 'recipes'
-  });
+app.get('/recipes', async (req, res) => {
+  try {
+    console.log('Loading recipes page...');
+    
+    // Get all recipes
+    const allRecipes = await Recipe.find().select('title description type imagePath ingredients');
+    
+    // Get all unique recipe types from database
+    const recipeTypes = await Recipe.distinct('type');
+    console.log('Recipe types found:', recipeTypes);
+    
+    // Get total count of recipes
+    const totalRecipes = await Recipe.countDocuments();
+    console.log('Total recipes:', totalRecipes);
+    
+    // Get recipe count by category
+    const categoryStats = await Recipe.aggregate([
+      { $group: { _id: '$type', count: { $sum: 1 } } }
+    ]);
+    console.log('Category stats:', categoryStats);
+    
+    // Create category mapping with proper images and stats
+    const categoryImageMap = {
+      'breakfast': 'breakfast(recipe).jpg',
+      'lunch': 'lunch(recipe).jpg', 
+      'dinner': 'dinner(recipe).jpg',
+      'dessert': 'desserts(recipe).jpg',
+      'cocktails': 'cocktails.jpeg.jpg',
+      'keto': 'keto icon.png'
+    };
+    
+    // Build dynamic categories with real data
+    const categories = recipeTypes.map(type => {
+      const stats = categoryStats.find(stat => stat._id === type);
+      return {
+        name: type.charAt(0).toUpperCase() + type.slice(1),
+        type: type,
+        image: categoryImageMap[type] || 'CoverIMG.png', // fallback image
+        recipeCount: stats ? stats.count : 0
+      };
+    });
+    
+    console.log('Categories built:', categories);
+    
+    const renderData = {
+      title: 'Recipes',
+      currentPage: 'recipes',
+      categories: categories || [],
+      allRecipes: allRecipes || [],
+      totalRecipes: totalRecipes || 0
+    };
+    
+    console.log('Rendering with data:', Object.keys(renderData));
+    
+    res.render('pages/RecipesMain', renderData);
+  } catch (error) {
+    console.error('Error loading recipes page:', error);
+    
+    // Fallback data if database fails
+    const fallbackData = {
+      title: 'Recipes',
+      currentPage: 'recipes',
+      categories: [],
+      allRecipes: [],
+      totalRecipes: 0
+    };
+    
+    res.render('pages/RecipesMain', fallbackData);
+  }
 });
 
 app.get('/search', searchRecipes);

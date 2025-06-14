@@ -6,6 +6,7 @@
     <title><%= title %></title>
     <link rel="icon" type="image/png" href="/images/panlog.png">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/book.css">
 </head>
 <body>
     <%- include('../partials/header') %>
@@ -19,11 +20,12 @@
 
     <!-- Search Bar & Sort Options -->
     <div class="search-wrapper">
-        <div class="search-container">
+        <div class="search-container" style="position: relative;">
             <i class="fa fa-search"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search recipes and more...">
-            <button type="button" id="searchBtn">Search</button>
+        <input type="text" id="homeCategorySearch" class="search-input" placeholder="Search categories (e.g. breakfast, lunch)">
         </div>
+        <div id="homeSearchResults" class="search-results-container"></div>
+
     </div>
 
     <div class="sort-container">

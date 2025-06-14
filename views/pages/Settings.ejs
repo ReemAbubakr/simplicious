@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Site Settings | Admin</title>
   <link rel="icon" type="image/png" href="/images/panlog.png">
-  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/AdminCSS.css">
 </head>
 <body>
   <div class="admin-container">
@@ -14,10 +14,9 @@
       <h1>Site Settings</h1>
       <nav>
         <ul>
-          <li><a href="/AdminDashboard">Dashboard</a></li>
+          <li><a href="/admin-dashboard">Dashboard</a></li>
           <li><a href="/manage-recipes">Manage Recipes</a></li>
           <li><a href="/Users">Users</a></li>
-          <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings" class="active">Settings</a></li>
           <li><a href="/">Log Out</a></li>
         </ul>
@@ -26,7 +25,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <section class="add-book-form">
+      <section class="settings-form">
         <form action="/save-settings" method="POST" enctype="multipart/form-data">
           <div class="form-group">
             <label for="site-title">Site Title</label>
@@ -48,7 +47,7 @@
             <input type="color" id="theme-color" name="themeColor" value="<%= settings.themeColor %>" />
           </div>
 
-          <button type="submit" class="add-book-form">Save Settings</button>
+          <button type="submit" class="save">Save Settings</button>
         </form>
       </section>
     </main>
@@ -56,5 +55,6 @@
 
     <%- include('../partials/footer') %>
 
+  <script src="/admin.js"></script>
 </body>
 </html>
