@@ -5,45 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, shrink-to-fit=no, viewport-fit=cover">
   <title>Edit Recipe | Admin</title>
   <link rel="icon" type="image/png" href="/images/panlog.png" />
-  <link rel="stylesheet" href="/AdminCSS.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
 </head>
 <body>
   <div class="admin-container">
     <header class="navbar">
-      <a href="/Home" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo" /></a>
+      <a href="/" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo" /></a>
       <h1>Edit Recipe</h1>
       <nav>
         <ul>
           <li><a href="/AdminDashboard">Dashboard</a></li>
           <li><a href="/manage-recipes">Manage Recipes</a></li>
           <li><a href="/Users">Users</a></li>
+          <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings">Settings</a></li>
-          <li><a href="/Home">Log Out</a></li>
+          <li><a href="/">Log Out</a></li>
         </ul>
       </nav>
     </header>
 
     <main class="main-content">
       <section class="form-section">
-        <form action="/recipes/<%= recipe._id %>/edit" method="POST" class="admin-form">
+        <form action="/recipes/<%= recipe?._id %>/edit" method="POST" class="admin-form">
           <div class="form-group">
             <label for="title">Recipe Name:</label>
-            <input type="text" id="title" name="title" value="<%= recipe.title %>" required />
+            <input type="text" id="title" name="title" value="<%= recipe?.title %>" required />
           </div>
 
           <div class="form-group">
             <label for="description">Description:</label>
-            <textarea id="description" name="description" rows="4" required><%= recipe.description %></textarea>
+            <textarea id="description" name="description" rows="4" required><%= recipe?.description %></textarea>
           </div>
 
           <div class="form-group">
             <label for="ingredients">Ingredients (comma separated):</label>
-            <input type="text" id="ingredients" name="ingredients" value="<%= recipe.ingredients.join(', ') %>" required />
+            <input type="text" id="ingredients" name="ingredients" value="<%= recipe?.ingredients.join(', ') %>" required />
           </div>
 
           <div class="form-group">
             <label for="steps">Steps (comma separated):</label>
-            <input type="text" id="steps" name="steps" value="<%= recipe.steps.join(', ') %>" required />
+            <input type="text" id="steps" name="steps" value="<%= recipe?.steps.join(', ') %>" required />
           </div>
 
           <button class="save" type="submit">Save Changes</button>
@@ -54,6 +55,5 @@
 
   <%- include('../partials/footer') %>
 
-  <script src="/admin.js"></script>
 </body>
 </html>

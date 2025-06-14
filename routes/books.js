@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const BookController = require('../controllers/bookController');
 const Book = require('../models/book');
+const upload = require('../middleware/SettingsMiddleware');
 
 
 // Get all books
@@ -68,6 +69,37 @@ router.post('/:id/ratings', async (req, res) => {
   } catch (err) {
     console.error('Error adding rating:', err);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET Edit Page
+router.get('/:id/edit', async (req, res) => {
+  const book = await Book.findById(req.params.id);
+  if (!book) return res.status(404).send('Book not found');
+  res.render('pages/edit-book', { book });
+});
+
+// POST Update Book
+router.post('/:id/update', async (req, res) => {
+  const { title, price } = req.body;
+  await Book.findByIdAndUpdate(req.params.id, { title, price });
+  res.redirect('/booksmanaging');
+});
+
+router.post('/:id/update', upload.single('image'), async (req, res) => {
+  try {
+    const { title, price } = req.body;
+    const updateData = { title, price };
+
+    if (req.file) {
+      updateData.imagePath = req.file.filename;
+    }
+
+    await Book.findByIdAndUpdate(req.params.id, updateData);
+    res.redirect('/booksmanaging');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
   }
 });
 
