@@ -1,4 +1,5 @@
 async function revealRecipe(cardElement) {
+    cardElement.classList.add("flipped");
     if (cardElement.classList.contains("flipped")) return;
 
     try {
@@ -6,30 +7,19 @@ async function revealRecipe(cardElement) {
         const recipe = await response.json();
 
         const back = cardElement.querySelector(".card-back");
-
-        // Remove any existing background image
         back.style.backgroundImage = 'none';
 
-        // Create a preview of the recipe card
-        back.innerHTML = `
-            <div class="recipe-content">
-                <img src="${recipe.imagePath}" alt="${recipe.title}" class="recipe-image">
-                <h3>${recipe.title}</h3>
-                <span class="recipe-type">${recipe.type}</span>
-                ${recipe.description ? `<p class="description">${recipe.description}</p>` : ''}
-                <div class="preview-text">Redirecting to full recipe...</div>
-            </div>
-        `;
+        // Only show the title (no extra HTML)
+        back.innerHTML = `<h3 class="flipped-title">${recipe.title}</h3>`; // 👈 Key change
 
-        cardElement.classList.add("flipped");
-        
-        // Wait for the flip animation to complete (0.8s) and a little extra time to show the preview
-        setTimeout(() => {
-            window.location.href = `/recipes/${recipe._id}`;
-        }, 1500);
+
+
+
+        window.location.href = `/recipes/${recipe._id}`;
+
     } catch (error) {
         console.error("Failed to load recipe:", error);
-        cardElement.querySelector(".card-back").innerHTML = `
+        back.innerHTML = `
             <div class="error">
                 <p>Failed to reveal recipe</p>
                 <button onclick="retryRecipe(this)">Try Again</button>
@@ -38,6 +28,7 @@ async function revealRecipe(cardElement) {
     }
 }
 
+// Retry function (unchanged)
 function retryRecipe(button) {
     const card = button.closest('.card');
     card.classList.remove("flipped");
