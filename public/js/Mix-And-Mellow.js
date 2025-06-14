@@ -74,19 +74,44 @@ async function savePlan() {
     document.querySelectorAll('.meal-slot').forEach(slot => {
         const meal = slot.querySelector('.planned-meal');
         if (meal) {
-            plan[slot.id] = {
+            const dayType = `${slot.closest('.day-column').dataset.day}-${slot.dataset.mealType}`;
+            plan[dayType] = {
                 mealId: meal.dataset.mealId,
-                content: meal.innerHTML
+                mealName: meal.querySelector('h5').textContent,
+                mealEmoji: meal.querySelector('.meal-emoji').textContent,
+                mealTime: meal.querySelector('.meal-time').textContent.replace('⏱️ ', '')
             };
         }
     });
 
     try {
-        localStorage.setItem('mealPlan', JSON.stringify(plan));
-        alert('Meal plan saved!');
+        const response = await fetch('/mix-and-mellow/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                plan,
+                name: `Meal Plan ${new Date().toLocaleDateString()}`
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Meal plan saved successfully to your account!');
+        } else {
+            throw new Error(data.error || 'Failed to save meal plan');
+        }
     } catch (error) {
-        console.error('Failed to save meal plan:', error);
-        alert('Failed to save meal plan');
+        console.error('Error saving meal plan:', error);
+        if (error.message.includes('log in')) {
+            if (confirm('Please log in to save your meal plan. Would you like to log in now?')) {
+                window.location.href = '/login?redirect=/mix-and-mellow';
+            }
+        } else {
+            alert(error.message || 'Failed to save meal plan. Please try again.');
+        }
     }
 }
 
