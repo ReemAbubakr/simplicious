@@ -124,5 +124,12 @@
     <%- include('../partials/footer') %>
     <script src="/js/recipeSort.js"></script>
     <script src="/js/sidebar.js"></script>
+    <script src="/js/HomeSearchBar.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        setupCategorySearch('homeCategorySearch', 'homeSearchResults');
+    });
+    </script>
+
 </body>
 </html>

@@ -11,7 +11,7 @@ const settingsController = require('./controllers/settingsController');
 const recipeController = require('./controllers/recipeController');
 const usersController = require('./controllers/usersController');
 const authController = require('./controllers/authController');
-const { searchRecipes } = require('./controllers/SearchController');
+const searchRoutes = require('./routes/searchroutes');
 const generateRecipe = require('./recipeGenerator');
 const bookRouter = require('./routes/books');
 const Book = require('./models/book');
@@ -92,6 +92,8 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Routes
 //app.post('/api/auth/signup', authController.signup);
@@ -249,10 +251,12 @@ app.get('/Settings', settingsController.getSettingsPage);
 app.post('/save-settings', upload.single('logo'), settingsController.saveSettings);
 
 // Users Routes
+app.get('/users/:id/edit-user', usersController.getEditUser);  // Render edit page
 app.get('/users', usersController.getUsers);
 app.post('/users/:id/ban', usersController.banUser);
 app.post('/users/:id/unban', usersController.unbanUser);
 app.post('/users/:id/edit', usersController.editUser);
+
 
 //auth pages
 // Page routes (for rendering forms)
@@ -269,6 +273,26 @@ app.get('/signup', (req, res) => {
     currentPage: 'signup'
   });
 });
+
+// manage books also
+app.use('/books', bookRouter);
+
+// book managing routes
+app.get('/booksmanaging', async (req, res) => {
+  try {
+    const books = await Book.find();
+    res.render('pages/booksmanaging', { 
+      books,
+      title: 'Manage Books',
+      currentPage: 'booksmanaging'
+    });
+  } catch (error) {
+    console.error('Error loading books:', error);
+    req.flash('error', 'Failed to load books');
+    res.redirect('/');
+  }
+});
+
 // Error Handlers
 app.use((req, res) => {
   res.status(404).render('pages/404', {
@@ -285,7 +309,7 @@ app.use((err, req, res, next) => {
     errorDetails: err.message
   });
 });
-
+ 
 // Start Server
 const PORT = process.env.PORT || 4000;
 const server = app.listen(PORT, () => {
