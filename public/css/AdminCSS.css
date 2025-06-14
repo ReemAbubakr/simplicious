@@ -1,0 +1,296 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Base styles */
+body {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+header {
+  height: 100px; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 50px;
+  background-color: #ffbf33;
+  border-radius: 0 0 20px 20px;
+  transition: background-color 0.3s ease-in-out;
+
+}
+
+header:hover {
+  background-color: #ff6600;
+}
+
+.logo-img img {
+  max-height: 130px;
+  width: auto;
+}
+
+.logo:hover {
+  color: #fff;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  background-color:  #ecef92; 
+  border-top: 1px solid #ddd; 
+}
+
+footer p {
+  margin: 0;
+  color: #666; 
+}
+
+/* Navigation Bar */
+nav {
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  transition: background-color 0.3s ease;
+}
+
+
+
+/* Logo */
+nav .logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Navigation styles */
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    background-color: #fff;
+    padding: 10px 20px;
+    border-radius: 25px; /* Rounded corners */
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2); /* 3D effect */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+nav ul li:hover {
+    transform: translateY(-3px); /* Lift effect */
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #ff6600;
+}
+
+/* Auth Buttons */
+.auth-buttons button {
+  padding: 8px 15px;
+  margin-left: 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.auth-buttons button:hover {
+  background-color: #219150;
+  transform: scale(1.1);
+}
+
+/* Main Content */
+.main-content {
+  padding: 30px;
+  overflow-y: auto;
+}
+
+/* Dashboard Cards */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* Card Styling */
+.card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.card p {
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.card button {
+  background-color: #27ae60;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.card button:hover {
+  background-color: #219150;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Settings Form */
+.settings-form {
+  background-color: white;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 600px;
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.settings-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="file"],
+.form-group input[type="color"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Buttons */
+button {
+  background-color: #27ae60;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Edit Button*/
+button.edit {
+  background: linear-gradient(135deg, #f39c12, #f1c40f); /* Bright gradient background */
+  color: white;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+button.edit:hover {
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Save Button*/
+button.save {
+  background-color: #27ae60;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-weight: 600;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+button.save:hover {
+  background-color: #219150;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Delete Button */
+button.delete {
+  background-color: #e74c3c;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-weight: 600;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+button.delete:hover {
+  background-color: #c0392b;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 10px;
+}
+
+th, td {
+  padding: 20px 25px;
+  text-align: center;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+th {
+  font-size: 18px;
+  background-color: #f19437;
+  color: white;
+}
+
+td {
+  font-size: 16px;
+  color: #333;
+}
+
+th, td:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+table tr:hover {
+  background-color: #f1f1f1;
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef It Up</title>
+    <link rel="stylesheet" href="/css/ChefItUp.css">
+</head>
+
+<body>
+    <%- include('../partials/header', { currentPage: 'features' }) %>
+
+        <div class="container">
+            <h1>Chef It Up</h1>
+            <p>Select your ingredients and we'll find recipes for you!</p>
+
+            <div class="ingredients-section">
+                <div class="ingredients-grid">
+                    <% ingredients.forEach(function(ingredient) { %>
+                        <div class="ingredient-item">
+                            <input type="checkbox" id="<%= ingredient.name %>" name="ingredient" value="<%= ingredient.name %>">
+                            <label for="<%= ingredient.name %>">
+                            <%= ingredient.emoji %> <%= ingredient.name %>
+                        </label>
+                        </div>
+                        <% }); %>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress" id="ingredientProgress"></div>
+                    </div>
+                    <p class="progress-text">Select at least 3 ingredients</p>
+                </div>
+
+                <div class="button-section">
+                    <button id="findRecipes" disabled>Find Recipes</button>
+                    <button id="resetIngredients">Reset</button>
+                </div>
+            </div>
+
+            <div id="results" class="results-section">
+                <!-- Results will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <script src="/js/ChefItUp.js"></script>
+</body>
+
+</html>

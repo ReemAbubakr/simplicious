@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, shrink-to-fit=no, viewport-fit=cover">
+  <title>Edit User | Admin</title>
+  <link rel="icon" type="image/png" href="/images/panlog.png" />
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="navbar">
+      <a href="/" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo" /></a>
+      <h1 class="logo">Edit Book | Admin</h1>
+      <nav>
+        <ul>
+          <li><a href="/AdminDashboard">Dashboard</a></li>
+          <li><a href="/manage-recipes">Manage Recipes</a></li>
+          <li><a href="/Users">Users</a></li>
+          <li><a href="/booksmanaging">Books</a></li>
+          <li><a href="/Settings">Settings</a></li>
+          <li><a href="/">Log Out</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main class="main-content">
+
+  <div class="add-book-form">
+        <form action="/users/<%= user?._id %>/edit" method="POST">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="<%= user?.username %>" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="<%= user?.email %>" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="isAdmin">Role</label>
+            <select id="isAdmin" name="isAdmin">
+              <option value="false" <%= !user?.isAdmin ? 'selected' : '' %>>User</option>
+              <option value="true" <%= user?.isAdmin ? 'selected' : '' %>>Admin</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Status</label>
+            <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 4px;">
+              <%= user?.active ? 'Active' : 'Banned' %>
+            </div>
+          </div>
+          
+          <div class="add-book-form">
+            <button type="submit" class="save">Save Changes</button>
+            <a href="/Users" class="delete">Cancel</a>
+          </div>
+        </form>
+        
+        <% if (user?.active) { %>
+          <form action="/users/<%= user?._id %>/ban" method="POST">
+            <button type="submit" class="delete">
+              Ban User
+            </button>
+          </form>
+        <% } else { %>
+          <form action="/users/<%= user?._id %>/unban" method="POST">
+            <button type="submit" class="save">
+              Unban User
+            </button>
+          </form>
+        <% } %>
+      </div>
+    </main>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+
+</body>
+</html>

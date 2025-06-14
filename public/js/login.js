@@ -9,7 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   
   if (token && user) {
-    window.location.replace('/');
+    if (user.isAdmin) {
+      window.location.replace('/AdminDashboard');
+    } else {
+      window.location.replace('/');
+    }
     return;
   }
 
@@ -42,8 +46,12 @@ document.addEventListener("DOMContentLoaded", function () {
           // Store user data
           localStorage.setItem('user', JSON.stringify(data.user));
           
-          // Redirect to home page
-          window.location.replace('/');
+          // Redirect based on user role
+          if (data.user.isAdmin) {
+            window.location.replace('/AdminDashboard');
+          } else {
+            window.location.replace('/');
+          }
         } else {
           errorMessage.textContent = data.message || 'Login failed';
           errorMessage.style.display = 'block';

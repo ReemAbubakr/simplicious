@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mix&Mellow – Meal Planner</title>
+    <link rel="stylesheet" href="/css/Mix-And-Mellow.css">
+</head>
+
+<body>
+    <%- include('../partials/header', {currentPage: 'features'}) %>
+        <h1>Mix&Mellow – Weekly Meal Planner 🍳</h1>
+
+        <% const meals = [
+        { id: 'meal1', name: 'Pasta Primavera', emoji: '🍝', type: 'Veggie', time: '30 mins' },
+        { id: 'meal2', name: 'Curry Rice Bowl', emoji: '🌶️', type: 'Spicy', time: '40 mins' },
+        { id: 'meal3', name: 'Egg Sandwich', emoji: '🥚', type: 'Breakfast', time: '10 mins' },
+        { id: 'meal4', name: 'Grilled Salad', emoji: '🥗', type: 'Healthy', time: '20 mins' },
+        { id: 'meal5', name: 'Chicken Tacos', emoji: '🌮', type: 'Tasty', time: '30 mins' },
+        { id: 'meal6', name: 'Avocado Toast', emoji: '🥑', type: 'Quick', time: '15 mins' },
+        { id: 'meal7', name: 'Mushroom Risotto', emoji: '🍄', type: 'Hearty', time: '45 mins' }
+    ]; %>
+
+            <div class="meal-selection">
+                <% for(let i = 0; i < 3; i++) { %>
+                    <% meals.forEach(meal => { %>
+                        <div class="meal-card" id="<%= meal.id %>-<%= i %>" draggable="true" ondragstart="drag(event)">
+                            <h4>
+                                <%= meal.name %>
+                            </h4>
+                            <p>
+                                <%= meal.emoji %>
+                                    <%= meal.type %> | ⏱️
+                                        <%= meal.time %>
+                            </p>
+                        </div>
+                        <% }); %>
+                            <% } %>
+            </div>
+            <div class="button-group">
+                <button onclick="resetPlanner()" class="reset-button">Wipe the Board</button>
+                <button onclick="savePlan()" class="save-button">Save Meal Plan</button>
+            </div>
+
+            <% const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; %>
+                <% const mealTypes = ['Breakfast', 'Lunch', 'Dinner']; %>
+                    <div class="meal-planner">
+                        <% days.forEach(day => { %>
+                            <div class="day-column">
+                                <h3>
+                                    <%= day %>
+                                </h3>
+                                <% mealTypes.forEach(mealType => { %>
+                                    <div class="meal-slot" id="<%= day.toLowerCase() %>-<%= mealType.toLowerCase() %>" ondrop="drop(event)" ondragover="allowDrop(event)" data-day="<%= day %>" data-meal-type="<%= mealType %>">
+                                        <h4>
+                                            <%= mealType %>
+                                        </h4>
+                                    </div>
+                                    <% }); %>
+                            </div>
+                            <% }); %>
+                    </div>
+
+                    <script src="/js/Mix-And-Mellow.js"></script>
+</body>
+
+</html>

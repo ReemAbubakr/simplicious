@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Manage Users | Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, shrink-to-fit=no, viewport-fit=cover">
   <link rel="icon" type="image/png" href="/images/panlog.png" />
-  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/AdminCSS.css">
 </head>
 <body>
   <div class="admin-container">
@@ -17,13 +16,22 @@
           <li><a href="/AdminDashboard">Dashboard</a></li>
           <li><a href="/manage-recipes">Manage Recipes</a></li>
           <li><a href="/Users" class="active">Users</a></li>
-          <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings">Settings</a></li>
           <li><a href="/" id="logout">Log Out</a></li>
         </ul>
       </nav>
     </header>
-
+    <!-- Flash Messages -->
+    <% if (flashMessages.error) { %>
+      <div class="alert alert-danger">
+        <%= flashMessages.error %>
+      </div>
+    <% } %>
+    <% if (flashMessages.success) { %>
+      <div class="alert alert-success">
+        <%= flashMessages.success %>
+      </div>
+    <% } %>
     <!-- Main Content -->
     <main class="main-content">
       <section class="table-section">
@@ -41,41 +49,39 @@
           <tbody>
             <% users.forEach(user => { %>
               <tr>
-                <td>#<%= user?._id %></td>
+                <td>#<%= user?._id.toString().slice(-6) %></td>
                 <td><%= user?.username %></td>
                 <td><%= user?.email %></td>
                 <td>
-                  <span class="badge <%= user?.isAdmin? 'true' : 'false' %>">
-                    <%= user?.isAdmin %>
-                    <form action="/users/<%= user._id %>/edit" method="POST" style="display: inline;">
-                      <select name="role" style="padding: 3px;">
-                        <option value="User" <%= user?.isAdmin === 'false' ? 'selected' : '' %>>User</option>
-                        <option value="Admin" <%= user?.isAdmin === 'true' ? 'selected' : '' %>>Admin</option>
-                      </select>
-                      <!-- You could include a submit button instead of auto-submit if preferred -->
-                    </form>
+                  <span class="badge <%= user?.isAdmin ? 'true' : 'false' %>">
+                    <%= user?.isAdmin ? 'Admin' : 'User' %>
                   </span>
+                  <form action="/users/<%= user?._id %>/edit" method="POST" class="add-book-form">
+                    <select name="isAdmin">
+                      <option value="false" <%= !user?.isAdmin ? 'selected' : '' %>>User</option>
+                      <option value="true" <%= user?.isAdmin ? 'selected' : '' %>>Admin</option>
+                    </select>
+                    <button type="submit" class="edit">Save</button>
+                  </form>
                 </td>
                 <td>
-                  <span class="badge <%= user?.active ? 'active' : 'banned' %>">
-                    <%= user?.active ? 'Active' : 'Banned' %>
+                  <span class="badge <%= (user.status || 'inactive').toLowerCase() %>">
+                    <%= user.status || 'Inactive' %>
                   </span>
                 </td>
-                <td>
-                <form action="/users/<%= user?._id %>/edit" method="POST" >
-                  <button type="submit" class="edit">Save</button>
-                </form>
+                <td class="action-buttons">
+                  <!-- Edit button as a link -->
+                  <a href="/users/<%= user?._id %>/edit-user"><button class="edit">Edit</button></a>
 
                   <% if (user?.active) { %>
-                    <form action="/users/<%= user._id %>/ban" method="POST">
+                    <form action="/users/<%= user?._id %>/ban" method="POST">
                       <button type="submit" class="delete">Ban</button>
                     </form>
                   <% } else { %>
-                    <form action="/users/<%= user._id %>/unban" method="POST">
-                      <button type="submit" class="approve">Unban</button>
+                    <form action="/users/<%= user?._id %>/unban" method="POST">
+                      <button type="submit" class="save">Unban</button>
                     </form>
-
-                <% } %>
+                  <% } %>
               </td>
               </tr>
             <% }) %>
@@ -87,5 +93,6 @@
 
   <%- include('../partials/footer') %>
 
+  <script src="/admin.js"></script>
 </body>
 </html>
