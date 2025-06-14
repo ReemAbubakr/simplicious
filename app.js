@@ -12,6 +12,7 @@ const recipeController = require('./controllers/recipeController');
 const usersController = require('./controllers/usersController');
 const authController = require('./controllers/authController');
 const searchRoutes = require('./routes/searchroutes');
+const searchRecipes  = require('./controllers/SearchController');
 const generateRecipe = require('./recipeGenerator');
 const bookRouter = require('./routes/books');
 const Book = require('./models/book');
@@ -225,7 +226,7 @@ app.get('/recipes', async (req, res) => {
   }
 });
 
-app.get('/search', searchRecipes);
+//app.get('/search', searchRecipes);
 
 // Admin Dashboard
 app.get('/AdminDashboard', async (req, res) => {
