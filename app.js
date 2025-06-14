@@ -16,7 +16,7 @@ const feelinRiskycontroller = require('./controllers/Feelin-RiskyController');
 const ChefItUpcontroller = require('./controllers/ChefItUpcontroller');
 const mixmellowcontroller = require('./controllers/Mix-And-MellowController');
 const preplabcontroller = require('./controllers/ThePrepLabController');
-const { searchRecipes } = require('./controllers/SearchController');
+const searchRoutes = require('./routes/searchroutes');
 const generateRecipe = require('./recipeGenerator');
 
 // Import models
@@ -31,6 +31,7 @@ const feelinRiskyRoutes = require('./routes/FeelinRiskyRoute');
 const chefItUpRoutes = require('./routes/ChefItUpRoute');
 const mixmellowroutes = require('./routes/Mix-And-MellowRoute');
 const preplabRoutes = require('./routes/ThePrepLabRoute');
+const cartRoutes = require('./routes/cart');
 
 const app = express();
 
@@ -96,7 +97,12 @@ app.use((req, res, next) => {
 // Static files and view engine
 app.use(express.static(path.join(__dirname, 'public'), {
     maxAge: '1y',
-    immutable: true
+    immutable: true,
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+        }
+    }
 }));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -117,7 +123,12 @@ app.use('/mix-and-mellow', mixmellowroutes);
 // Book Routes
 app.use('/books', bookRouter);
 
+// Cart Routes
+app.use('/cart', cartRoutes);
+
 // API Endpoints
+app.post('/api/auth/signup', authController.signup);
+app.post('/api/auth/login', authController.login);
 app.post('/api/recipes', authController.protect, recipeController.saveRecipe);
 app.patch('/api/recipes/:id/favorite', authController.protect, recipeController.toggleFavorite);
 app.get('/api/recipes/favorites', authController.protect, recipeController.getFavoriteRecipes);
@@ -245,8 +256,8 @@ app.get('/recipes', async (req, res) => {
     }
 });
 
-// Search route
-app.get('/search', searchRecipes);
+// Search routes
+app.use('/search', searchRoutes);
 
 // Admin Dashboard
 app.get('/AdminDashboard', async (req, res) => {
@@ -339,7 +350,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 7000;
 const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
