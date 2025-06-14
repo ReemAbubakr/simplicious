@@ -81,7 +81,7 @@
 
   <!-- Book Actions -->
 <div class="book-actions">
-    <button id="add-to-cart-btn" class="btn btn-primary" data-id="<%= book._id %>" aria-label="Add <%= book.title %> to cart">
+    <button id="add-to-cart-btn" class="btn btn-primary" data-id="<%= book._id %>" data-price="<%= book.price %>" data-image="<%= book.imagePath %>" aria-label="Add <%= book.title %> to cart">
         <i class="fas fa-cart-plus"></i> Add to Cart
     </button>
 
@@ -106,57 +106,51 @@
                     <p><%= book.description %></p>
                 </div>
 
-                <!-- Comments Section with AJAX functionality -->
+     <!-- Comments Section -->
                 <div class="comments-section" id="comments">
-                    <h3>Customer Reviews <span class="review-count" id="review-count">(<%= book.comments ? book.comments.length : 0 %>)</span></h3>
-                    
-                    <div class="comments-list" id="comments-list">
-                        <% if (book.comments && book.comments.length > 0) { %>
-                            <% book.comments.forEach(comment => { %>
-                                <div class="comment">
-                                    <div class="comment-header">
-                                        <span class="comment-user"><%= comment.user || 'Anonymous' %></span>
-                                        <% if (comment.createdAt) { %>
-                                            <span class="comment-date">
-                                                <%= comment.createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                            </span>
-                                        <% } %>
-                                    </div>
-                                    <p class="comment-text">"<%= comment.text %>"</p>
-                                </div>
-                            <% }); %>
-                        <% } else { %>
-                            <div class="no-comments" id="no-comments">
-                                <i class="far fa-comment-dots"></i>
-                                <p>No reviews yet. Be the first to review!</p>
-                            </div>
-                        <% } %>
+    <h3>Customer Reviews <span class="review-count" id="review-count">(<%= book.comments ? book.comments.length : 0 %>)</span></h3>
+    
+    <div class="comments-list" id="comments-list">
+        <% if (book.comments && book.comments.length > 0) { %>
+            <% book.comments.forEach(comment => { %>
+                <div class="comment">
+                    <div class="comment-header">
+                        <span class="comment-user"><%= comment.user || 'Guest' %></span>
+                        <span class="comment-date">
+                            <%= new Date(comment.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                        </span>
                     </div>
-
-                    <!-- Comment Form with AJAX submission -->
-                    <form class="comment-form" id="comment-form" method="POST" action="/books/<%= book._id %>/comments">
-                        <h4>Add Your Review</h4>
-                        <div id="comment-error" class="error-message" style="display: none;"></div>
-                        <div class="form-group">
-                            <label for="comment-user">Your Name (optional):</label>
-                            <input type="text" id="comment-user" name="user" placeholder="Anonymous" maxlength="50" />
-                        </div>
-                        <div class="form-group">
-                            <label for="comment-text">Your Review:</label>
-                            <textarea id="comment-text" name="text" placeholder="Share your thoughts about this book..." required maxlength="500"></textarea>
-                        </div>
-                        <button type="submit" class="submit-btn">
-                            <i class="fas fa-paper-plane"></i> Submit Review
-                        </button>
-                    </form>
+                    <p class="comment-text">"<%= comment.text %>"</p>
                 </div>
+            <% }); %>
+        <% } else { %>
+            <div class="no-comments" id="no-comments">
+                <i class="far fa-comment-dots"></i>
+                <p>No reviews yet. Be the first to review!</p>
             </div>
+        <% } %>
+    </div>
+
+    <!-- Comment Form -->
+    <form class="comment-form" id="comment-form" method="POST" action="/books/<%= book._id %>/comments">
+        <h4>Add Your Review</h4>
+        <div id="comment-error" class="error-message" style="display: none;"></div>
+        <div class="form-group">
+            <label for="comment-user">Your Name (optional):</label>
+            <input type="text" id="comment-user" name="user" placeholder="Anonymous" maxlength="50" />
         </div>
-    </main>
+        <div class="form-group">
+            <label for="comment-text">Your Review:</label>
+            <textarea id="comment-text" name="text" placeholder="Share your thoughts about this book..." required maxlength="500"></textarea>
+        </div>
+        <button type="submit" class="submit-btn">
+            <i class="fas fa-paper-plane"></i> Submit Review
+        </button>
+    </form>
+</div>
 
     <%- include('../../partials/footer') %>
 
     <script src="/js/book-details.js"></script>
-
 </body>
 </html>
