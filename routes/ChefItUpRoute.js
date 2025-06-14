@@ -1,12 +1,12 @@
 const express = require('express');
 const {
-    getChefItUpPage,
+    getChefItUp,
     findRecipes
 } = require('../controllers/ChefItUpcontroller');
 const router = express.Router();
 
 // Display ingredient selection page
-router.get('/', getChefItUpPage);
+router.get('/', getChefItUp);
 
 // Handle recipe search (used by frontend JS)
 router.post('/find', findRecipes);
