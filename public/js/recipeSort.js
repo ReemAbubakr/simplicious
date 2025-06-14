@@ -1,7 +1,17 @@
-// Recipe sorting functionality
 document.addEventListener('DOMContentLoaded', () => {
     const sortDropdown = document.getElementById('sort-dropdown');
     const recipeContainer = document.querySelector('.featured-right');
+
+    // Add null checks
+    if (!sortDropdown) {
+        console.warn('Sort dropdown not found on this page');
+        return;
+    }
+    
+    if (!recipeContainer) {
+        console.warn('Recipe container not found on this page');
+        return;
+    }
 
     function sortRecipes(criteria) {
         const recipeCards = Array.from(document.querySelectorAll('.recipe-card2'));

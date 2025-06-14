@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, shrink-to-fit=no, viewport-fit=cover">
   <link rel="icon" type="image/png" href="/images/panlog.png" />
-  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/AdminCSS.css">
 </head>
 <body>
   <div class="admin-container">
@@ -13,10 +13,9 @@
       <h1>Manage Users</h1>
       <nav>
         <ul>
-          <li><a href="/AdminDashboard">Dashboard</a></li>
+          <li><a href="/admin-dashboard">Dashboard</a></li>
           <li><a href="/manage-recipes">Manage Recipes</a></li>
           <li><a href="/Users" class="active">Users</a></li>
-          <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings">Settings</a></li>
           <li><a href="/" id="logout">Log Out</a></li>
         </ul>
@@ -66,8 +65,8 @@
                   </form>
                 </td>
                 <td>
-                  <span class="badge <%= user?.active ? 'active' : 'banned' %>">
-                    <%= user?.active ? 'Active' : 'Banned' %>
+                  <span class="badge <%= user.status.toLowerCase() %>">
+                    <%= user.status %>
                   </span>
                 </td>
                 <td class="action-buttons">
@@ -94,5 +93,6 @@
 
   <%- include('../partials/footer') %>
 
+  <script src="/admin.js"></script>
 </body>
 </html>

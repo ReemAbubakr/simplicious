@@ -5,21 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, shrink-to-fit=no, viewport-fit=cover">
   <title>Edit Recipe | Admin</title>
   <link rel="icon" type="image/png" href="/images/panlog.png" />
-  <link rel="stylesheet" href="/css/admin.css" >
+  <link rel="stylesheet" href="/AdminCSS.css" />
 </head>
 <body>
   <div class="admin-container">
     <header class="navbar">
-      <a href="/" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo" /></a>
-      <h1>Edit Recipe | Admin</h1>
+      <a href="/Home" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo" /></a>
+      <h1>Edit Recipe</h1>
       <nav>
         <ul>
-          <li><a href="/AdminDashboard">Dashboard</a></li>
+          <li><a href="/admin-dashboard">Dashboard</a></li>
           <li><a href="/manage-recipes">Manage Recipes</a></li>
           <li><a href="/Users">Users</a></li>
-          <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings">Settings</a></li>
-          <li><a href="/">Log Out</a></li>
+          <li><a href="/Home">Log Out</a></li>
         </ul>
       </nav>
     </header>
@@ -55,5 +54,6 @@
 
   <%- include('../partials/footer') %>
 
+  <script src="/admin.js"></script>
 </body>
 </html>

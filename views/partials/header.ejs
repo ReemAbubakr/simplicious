@@ -4,12 +4,13 @@
         <link rel="stylesheet" href="/css/style.css">
     </a>
     <nav>
-        <ul>
+        <ul id="mainNav">
            <li><a href="/" class="<%= currentPage === 'home' ? 'active' : '' %>">Home</a></li>
             <li><a href="/recipes" class="<%= currentPage === 'recipes' ? 'active' : '' %>">Recipes</a></li>
             <li><a href="/features" class="<%= currentPage === 'features' ? 'active' : '' %>">Features</a></li>
             <li><a href="/about" class="<%= currentPage === 'about' ? 'active' : '' %>">About Us</a></li>
             <li><a href="/books" class="<%= currentPage === 'books' ? 'active' : '' %>">Shop</a></li>
+
         </ul>
     </nav>
     <div class="auth-buttons" id="authButtons">
@@ -20,16 +21,19 @@
 
 <script>
 // Check authentication status on page load
+
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
     const authButtons = document.getElementById('authButtons');
+    const mainNav = document.getElementById('mainNav');
     
     if (token && user) {
         authButtons.innerHTML = `
             <span class="welcome-text">Welcome, ${user.username}</span>
             <button class="logout" onclick="logout()">Logout</button>
         `;
+
     }
 });
 
