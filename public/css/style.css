@@ -379,8 +379,39 @@ nav ul li a:hover {
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: 12px;
+
+.improved-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+  padding: 28px 36px;
+  width: 100%;
+  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
+.featured-flex {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+}
+
+.featured-img-wrap {
+  min-width: 120px;
+  max-width: 180px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.featured-img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  display: block;
 .featured-img {
   width: 100%;
   height: auto;
@@ -394,8 +425,31 @@ nav ul li a:hover {
   display: flex;
   flex-direction: column;
   gap: 8px;
+.featured-content {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
+.recipe-badge {
+  display: inline-block;
+  background: #ffc34d;
+  color: #222;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 5px 16px;
+  border-radius: 16px;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.featured-title {
+  margin: 0 0 6px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #222;
 .recipe-badge {
   display: inline-block;
   background: #ffc34d;
@@ -436,7 +490,6 @@ nav ul li a:hover {
     align-items: flex-end;
     margin-left: -20px;
 }
-
 /* Featured Right Section */
 .featured-right-section {
     display: flex;

@@ -13,5 +13,8 @@ router.post('/api/remove', cartController.removeFromCart);
 router.post('/clear', cartController.clearCart);
 
 
+router.post('/clear', cartController.clearCart);
+
+
 
 module.exports = router;

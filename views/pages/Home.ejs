@@ -72,6 +72,38 @@
             <% } %>
 
             <!-- Right Recipes (static as per your code) -->
+            <!-- Left: Featured Recipe Card (from DB) -->
+            <% if (recipes && recipes.length > 0) { %>
+                <div class="featured-left">
+    <div id="results"></div>
+    <a href="<%= recipes[0].pageLink || ('/recipe/' + recipes[0]._id) %>" class="recipe-link" aria-label="<%= recipes[0].title %> Recipe">
+        <article class="recipe-card-featured">
+            <div class="recipe-image-container">
+                <img src="<%= recipes[0].imagePath || '/images/fruit-spinach-salad.jpg' %>" 
+                    alt="<%= recipes[0].title %>" 
+                    class="recipe-image"
+                    loading="lazy">
+            </div>
+            <div class="recipe-content">
+                <div class="recipe-badge"><%= recipes[0].type || '' %></div>
+                <header>
+                    <h2 class="recipe-title"><%= recipes[0].title %></h2>
+                    <p class="recipe-description"><%= recipes[0].description %></p>
+                </header>
+                <div class="recipe-meta">
+                    <!-- You could add more info here, e.g. ingredients count or something else from your schema -->
+                </div>
+            </div>
+        </article>
+    </a>
+</div>
+            <% } else { %>
+                <div class="featured-left">
+                    <p>No featured recipe available.</p>
+                </div>
+            <% } %>
+
+            <!-- Right Recipes (static as per your code) -->
             <div class="featured-right">
                 <!-- First Recipe Card -->
                 <a href="/spaghetti-bolognese">
@@ -87,6 +119,7 @@
                         </div>
                     </div>
                 </a>
+
 
                 <!-- Second Recipe Card -->
                 <a href="/brownies">
@@ -104,6 +137,7 @@
                 </a>
             </div>
         </div>
+    </div> <!-- <-- This closes .parent-container -->
     </div> <!-- <-- This closes .parent-container -->
 
     <%- include('../partials/footer') %>
