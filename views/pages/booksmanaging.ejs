@@ -41,12 +41,13 @@
     <main class="main-content">
       <section class="table-section">
         <h2>Add New Book</h2>
-        <form action="/books" method="POST" class="add-book-form">
+        <form id="add-book-form" class="add-book-form">
           <input type="text" name="title" placeholder="Book Title" required>
           <input type="text" name="imagePath" placeholder="Image Path" required>
           <input type="text" name="altText" placeholder="Alt Text">
           <input type="text" name="price" placeholder="Price" required>
           <textarea name="description" placeholder="Description" rows="4"></textarea>
+          <div id="book-message" class="form-message"></div>
           <button type="submit" class="save">Add Book</button>
         </form>
 
@@ -70,10 +71,7 @@
                   <!-- Edit link -->
                   <a href="/books/<%= book?._id %>/edit"><button class="edit">Edit</button></a>
 
-                  <!-- Delete form -->
-                  <form action="/books/<%= book?._id %>/delete" method="POST" style="display:inline;">
-                    <button class="delete" type="submit" onclick="return confirm('Delete this book?');">Delete</button>
-                  </form>
+                  <button class="delete" onclick="deleteBook('<%= book?._id %>')">Delete</button>
                 </td>
               </tr>
             <% }); %>
@@ -84,6 +82,85 @@
   </div>
 
    <%- include('../partials/footer') %>
+
+<script>
+  // Add Book AJAX
+  document.getElementById('add-book-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitBtn = form.querySelector('.save');
+    const messageDiv = document.getElementById('book-message');
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
+    messageDiv.textContent = '';
+    messageDiv.className = 'form-message';
+    messageDiv.style.display = 'none';
+
+    try {
+      const bookData = {
+        title: form.title.value,
+        imagePath: form.imagePath.value,
+        altText: form.altText.value,
+        price: parseFloat(form.price.value),
+        description: form.description.value
+      };
+
+      const response = await fetch('/books', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) throw new Error(result.message || 'Failed to save book');
+
+      messageDiv.textContent = 'Book saved successfully!';
+      messageDiv.style.display = 'block';
+      messageDiv.style.color = 'green';
+      form.reset();
+
+      // Refresh after delay
+      setTimeout(() => window.location.reload(), 1500);
+
+    } catch (error) {
+      messageDiv.textContent = error.message;
+      messageDiv.style.display = 'block';
+      messageDiv.style.color = 'red';
+      console.error('Error:', error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Add Book';
+    }
+  });
+
+  // Delete Book AJAX
+  async function deleteBook(bookId) {
+    if (!confirm('Are you sure you want to delete this book?')) return;
+    
+    try {
+      const response = await fetch(`/books/${bookId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) throw new Error(result.message);
+      
+      window.location.reload();
+    } catch (error) {
+      alert('Error deleting book: ' + error.message);
+      console.error('Delete error:', error);
+    }
+  }
+</script>
 
 </body>
 </html>

@@ -188,15 +188,38 @@ addRating :async (req, res) => {
     try {
       const book = await Book.create(req.body);
       res.status(201).json({
-        status: 'success',
-        data: {
-          book
-        }
+      success: true,
+      message: 'Book created successfully',
+      book
       });
     } catch (err) {
       res.status(400).json({
-        status: 'error',
-        message: err.message
+      success: false,
+      message: 'Error creating book',
+      error: err.message
+      });
+    }
+  },
+
+  // Delete book 
+  deleteBook: async (req, res) => {
+    try {
+      const book = await Book.findByIdAndDelete(req.params.id);
+      if (!book) {
+        return res.status(404).json({
+          success: false,
+          message: 'Book not found'
+        });
+      }
+      res.json({
+        success: true,
+        message: 'Book deleted successfully'
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: 'Error deleting book',
+        error: err.message
       });
     }
   }
