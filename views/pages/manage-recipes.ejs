@@ -42,7 +42,7 @@
     <main class="main-content">
       <section class="table-section">
         <h2>Add New Recipe</h2>
-        <form action="/recipes" method="POST" class="add-book-form">
+        <form id="add-recipe-form" class="add-book-form">
           <input type="text" name="title" placeholder="Recipe Title" required>
           <input type="text" name="imagePath" placeholder="Image Path" required>
           <input type="text" name="altText" placeholder="Alt Text">
@@ -76,9 +76,8 @@
                   <a href="/recipes/<%= recipe?._id %>/edit-recipe"><button class="edit">Edit</button></a>
 
                   <!-- Delete form -->
-                  <form action="/recipes/<%= recipe?._id %>/delete" method="POST" style="display:inline;">
-                      <button class="delete" type="submit" onclick="return confirm('Delete this recipe?');">Delete</button>
-                  </form>
+                      <button class="delete" onclick="deleteRecipe('<%= recipe?._id %>')">Delete</button>
+
                 </td>
               </tr>
             <% }); %>
@@ -144,6 +143,26 @@
       submitBtn.textContent = 'Add Recipe';
     }
   });
+</script>
+<script>
+  async function deleteRecipe(recipeId) {
+    if (!confirm('Delete this recipe?')) return;
+    
+    try {
+      const response = await fetch(`/recipes/${recipeId}/delete`, {
+        method: 'POST'
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) throw new Error(result.message);
+      
+      // Refresh the page to show changes
+      window.location.reload();
+    } catch (error) {
+      alert('Error deleting recipe: ' + error.message);
+    }
+  }
 </script>
 
 </body>

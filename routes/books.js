@@ -11,6 +11,9 @@ router.get('/', BookController.getAllBooks);
 // Get single book details
 router.get('/:id', BookController.getBookDetails);
 
+// add / delete
+router.post('/', BookController.createBook);
+router.delete('/:id', BookController.deleteBook);
 
 
 // POST /books/:id/comments - Add a new comment
