@@ -10,7 +10,11 @@ router.post('/api/add', cartController.addToCart);
 router.get('/', cartController.getCartContents);
 router.post('/api/remove', cartController.removeFromCart);
 
-// View Endpoint
-// router.get('/cart', cartController.viewCart);
+router.post('/clear', cartController.clearCart);
+
+
+router.post('/clear', cartController.clearCart);
+
+
 
 module.exports = router;
