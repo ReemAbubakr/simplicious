@@ -166,40 +166,6 @@ nav ul li a:hover {
   box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Settings Form */
-.settings-form {
-  background-color: white;
-  padding: 25px;
-  border-radius: 12px;
-  max-width: 600px;
-  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.settings-form form {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="file"],
-.form-group input[type="color"] {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
 /* Buttons */
 button {
   background-color: #27ae60;

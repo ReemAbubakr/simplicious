@@ -19,8 +19,23 @@
           <li><a href="/Users">Users</a></li>
           <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings">Settings</a></li>
-          <li><a href="/">Log Out</a></li>
-        </ul>
+          <span>Welcome, <span id="admin-username"></span></span>
+          <li onclick="logout()"style="color: #000;">Logout</li>
+          <script>
+              function logout() {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/';
+              }
+          </script>
+          <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                  const user = JSON.parse(localStorage.getItem('user'));
+                  if (user) {
+                      document.getElementById('admin-username').textContent = user.username;
+                  }
+              });
+          </script>        </ul>
       </nav>
     </header>
 
@@ -39,6 +54,7 @@
 
           <button type="submit" class="save">Add Recipe</button>
         </form>
+        <h2>All Recipes</h2>
         <table>
           <thead>
             <tr>

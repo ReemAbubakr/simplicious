@@ -98,20 +98,35 @@ exports.showRecipeDetails = async (req, res) => {
 // Create recipe
 exports.saveRecipe = async (req, res) => {
   try {
-    // Use only req.body for recipe data
-    const recipeData = req.body;
-    // Create new recipe
-    const recipe = await Recipe.create(recipeData);
+    
+    const newRecipe = new Recipe({
+      title: req.body.title,
+      imagePath: req.body.imagePath,
+      description: req.body.description,
+      type: req.body.type,
+      // Validating the input as a string to safely apply the split() function and avoid errors.
+      ingredients: typeof req.body.ingredients === 'string'
+        ? req.body.ingredients.split(',').map(i => i.trim()).filter(i => i)
+        : req.body.ingredients,
+      instructions: typeof req.body.instructions === 'string'
+        ? req.body.instructions.split(',').map(s => s.trim()).filter(s => s)
+        : req.body.instructions,
+    });
+
+    await newRecipe.save();
+    
     // Send response
     res.status(201).json({
       status: 'success',
       message: 'Recipe saved successfully',
-      recipe
     });
+
+    res.redirect('/manage-recipes');
   } catch (err) {
     res.status(400).json({
       status: 'error',
-      message: 'Error saving recipe'
+      message: 'Error saving recipe',
+      error: err.message
     });
   }
 };
