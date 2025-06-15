@@ -125,4 +125,3 @@ bookSchema.index({ averageRating: -1 });
 bookSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Book', bookSchema);
-

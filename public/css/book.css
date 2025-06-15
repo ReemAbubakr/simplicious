@@ -64,6 +64,47 @@
     display: flex;
     flex-direction: column;
 }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 28px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  background: #eee;
+  color: #222;
+  margin: 0 8px 8px 0;
+}
+
+.btn i {
+  font-size: 1.1em;
+}
+
+.btn-cart {
+  background: #fd7905;
+  color: #fff;
+  box-shadow: 0 2px 8px 0 rgba(253, 121, 5, 0.10);
+}
+
+.btn-cart:hover {
+  background: #ff9800;
+  color: #fff;
+}
+
+.btn-view-cart {
+  background: #17c964;
+  color: #fff;
+  box-shadow: 0 2px 8px 0 rgba(23, 201, 100, 0.10);
+}
+
+.btn-view-cart:hover {
+  background: #13a74b;
+  color: #fff;
+}
 
 .book-title {
     font-size: 1.2rem;

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    
+    <link rel="stylesheet" href="/css/cart.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <main class="container">
+      <h1><%= pageTitle %></h1>
+      <p><%= message %></p>
+      <% if (order) { %>
+        <h2>Order Details:</h2>
+        <ul>
+          <% order.books.forEach(bookItem => { %>
+            <li>
+              <%= bookItem.quantity %> x <%= bookItem.book %> at $<%= bookItem.price %> each
+            </li>
+          <% }); %>
+        </ul>
+        <p><strong>Name:</strong> <%= order.name %></p>
+        <p><strong>Email:</strong> <%= order.email %></p>
+        <p><strong>Address:</strong> <%= order.address %></p>
+        <p><strong>Payment:</strong> <%= order.payment %></p>
+        <p><strong>Order Date:</strong> <%= order.createdAt.toLocaleString() %></p>
+      <% } %>
+      <a href="/books" class="btn">Continue Shopping</a>
+    </main>
+    <%- include('../partials/footer') %>
+</body>
+</html>

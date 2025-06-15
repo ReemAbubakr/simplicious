@@ -25,7 +25,7 @@ const Recipe = require('./models/recipe');
 const User = require('./models/user');
 
 // Import routes
-const authRoutes = require('./routes/auth.routes');
+const authRoutes = require('./routes/auth.routes');;
 const bookRouter = require('./routes/books');
 const feelinRiskyRoutes = require('./routes/FeelinRiskyRoute');
 const chefItUpRoutes = require('./routes/ChefItUpRoute');
@@ -125,6 +125,10 @@ app.use('/books', bookRouter);
 
 // Cart Routes
 app.use('/cart', cartRoutes);
+const cartController = require('./controllers/cartController');
+const orderController = require('./controllers/orderController');
+app.post('/checkout', cartController.checkout);
+app.get('/order/confirmation', orderController.confirmation);
 
 // API Endpoints
 app.post('/api/auth/signup', authController.signup);
@@ -152,20 +156,24 @@ app.get('/db-status', async (req, res) => {
     }
 });
 
-// Main Page Routes
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+  try {
+    const recipes = await Recipe.aggregate([{ $sample: { size: 1 } }]);
     res.render('pages/Home', {
-        title: 'Home Page',
-        currentPage: 'home',
-        recipe: generateRecipe(),
-        flashMessages: req.flash()
+      title: 'Home Page',
+      currentPage: 'home',
+      recipes, // send the array of recipes (can use recipes[0] in EJS)
+      flashMessages: req.flash()
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
 });
 
 app.get('/random-recipe', (req, res) => {
-    res.json(generateRecipe());
+  res.json(generateRecipe());
 });
-
 app.get('/About', (req, res) => {
     res.render('pages/About', {
         title: 'About Us',
@@ -175,14 +183,8 @@ app.get('/About', (req, res) => {
     });
 });
 
-// Cart route
-app.get('/cart', (req, res) => {
-    res.render('pages/cart', {
-        title: 'Your Cart',
-        currentPage: 'cart',
-        cart: req.session.cart || []
-    });
-});
+app.use('/books', bookRouter); 
+
 
 // Recipes main page
 app.get('/recipes', async (req, res) => {

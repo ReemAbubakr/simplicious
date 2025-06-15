@@ -30,8 +30,9 @@ const updateCartButtons = async () => {
   if (!bookId) return;
 
   try {
-    const res = await fetch(`/cart/api/status/${bookId}`)
-    const inCart = await res.json();
+    const res = await fetch(`/cart/api/status/${bookId}`);
+    const data = await res.json();
+    const inCart = data.inCart;
     console.log('Cart status:', inCart);
 
     if (inCart) {
@@ -54,7 +55,7 @@ if (addToCartBtn) {
     try {
       const res = await fetch('/cart/api/add', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type':'application/json' },
         body: JSON.stringify({ 
           bookId,
           // Include any other necessary book data if not populating
@@ -66,7 +67,8 @@ if (addToCartBtn) {
       
       if (res.ok) {
         const cartData = await res.json();
-        showNotification('Added to cart!');
+        // showNotification('Added to cart!');
+        console.log('ana dakhel');
         await updateCartButtons();
         
         // Dispatch event with full cart data
@@ -103,7 +105,7 @@ if (removeFromCartBtn) {
         
         if (res.ok) {
             const cartData = await res.json();
-            showNotification('Removed from cart!');
+           
             await updateCartButtons();
             
             // Dispatch event with full cart data
@@ -115,7 +117,7 @@ if (removeFromCartBtn) {
             }));
         } else {
             const err = await res.json();
-            showNotification(err.error || 'Error removing from cart');
+           
             throw new Error(err.error || 'Failed to remove from cart');
         }
     } catch (error) {

@@ -6,7 +6,6 @@
     <title><%= title %></title>
     <link rel="icon" type="image/png" href="/images/panlog.png">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/book.css">
 </head>
 <body>
     <%- include('../partials/header') %>
@@ -20,12 +19,11 @@
 
     <!-- Search Bar & Sort Options -->
     <div class="search-wrapper">
-        <div class="search-container" style="position: relative;">
+        <div class="search-container">
             <i class="fa fa-search"></i>
-        <input type="text" id="homeCategorySearch" class="search-input" placeholder="Search categories (e.g. breakfast, lunch)">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search recipes and more...">
+            <button type="button" id="searchBtn">Search</button>
         </div>
-        <div id="homeSearchResults" class="search-results-container"></div>
-
     </div>
 
     <div class="sort-container">
@@ -42,51 +40,38 @@
         <%- include('../partials/sidebar') %>
         
         <div class="recipe-grid">
-            <!-- Left: Featured Recipe Card -->
-            <div class="featured-left">
-                <div id="results"></div>
-                <a href="/chickpea-salad" class="recipe-link" aria-label="<%= recipe.title %> Recipe">
-                    <article class="recipe-card-featured">
-                        <div class="recipe-image-container">
-                            <img src="/images/fruit-spinach-salad.jpg" 
-                                alt="<%= recipe.title %>" 
-                                class="recipe-image"
-                                loading="lazy">
-                            <div class="recipe-badge"><%= recipe.tag %></div>
-                        </div>
-                        
-                        <div class="recipe-content">
-                            <header>
-                                <h2 class="recipe-title"><%= recipe.heading %></h2>
-                                <p class="recipe-description"><%= recipe.description %></p>
-                            </header>
-                            
-                            <div class="recipe-meta">
-                                <div class="meta-item">
-                                    <i class="fas fa-users" aria-hidden="true"></i>
-                                    <span>Serves: <strong><%= recipe.serves %></strong></span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="fas fa-clock" aria-hidden="true"></i>
-                                    <span>Prep: <strong><%= recipe.prep %></strong></span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="fas fa-fire" aria-hidden="true"></i>
-                                    <span>Total: <strong><%= recipe.total %></strong></span>
-                                </div>
-                            </div>
-                            
-                            <div class="recipe-tags">
-                                <% recipe.tags.forEach(tag => { %>
-                                    <span class="tag <%= tag.toLowerCase().replace(' ', '-') %>"><%= tag %></span>
-                                <% }); %>
-                            </div>
-                        </div>
-                    </article>
-                </a>
+            <!-- Left: Featured Recipe Card (from DB) -->
+            <% if (recipes && recipes.length > 0) { %>
+                <div class="featured-left">
+    <div id="results"></div>
+    <a href="<%= recipes[0].pageLink || ('/recipe/' + recipes[0]._id) %>" class="recipe-link" aria-label="<%= recipes[0].title %> Recipe">
+        <article class="recipe-card-featured">
+            <div class="recipe-image-container">
+                <img src="<%= recipes[0].imagePath || '/images/fruit-spinach-salad.jpg' %>" 
+                    alt="<%= recipes[0].title %>" 
+                    class="recipe-image"
+                    loading="lazy">
             </div>
-            
-            <!-- Right Recipes -->
+            <div class="recipe-content">
+                <div class="recipe-badge"><%= recipes[0].type || '' %></div>
+                <header>
+                    <h2 class="recipe-title"><%= recipes[0].title %></h2>
+                    <p class="recipe-description"><%= recipes[0].description %></p>
+                </header>
+                <div class="recipe-meta">
+                    <!-- You could add more info here, e.g. ingredients count or something else from your schema -->
+                </div>
+            </div>
+        </article>
+    </a>
+</div>
+            <% } else { %>
+                <div class="featured-left">
+                    <p>No featured recipe available.</p>
+                </div>
+            <% } %>
+
+            <!-- Right Recipes (static as per your code) -->
             <div class="featured-right">
                 <!-- First Recipe Card -->
                 <a href="/spaghetti-bolognese">
@@ -102,7 +87,7 @@
                         </div>
                     </div>
                 </a>
-        
+
                 <!-- Second Recipe Card -->
                 <a href="/brownies">
                     <div class="recipe-card2" data-preptime="45" data-popularity="10">
@@ -119,17 +104,10 @@
                 </a>
             </div>
         </div>
-    </div>
+    </div> <!-- <-- This closes .parent-container -->
 
     <%- include('../partials/footer') %>
     <script src="/js/recipeSort.js"></script>
     <script src="/js/sidebar.js"></script>
-    <script src="/js/HomeSearchBar.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        setupCategorySearch('homeCategorySearch', 'homeSearchResults');
-    });
-    </script>
-
 </body>
 </html>
