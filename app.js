@@ -143,20 +143,13 @@ app.get('/', async (req, res) => {
     res.render('pages/Home', {
       title: 'Home Page',
       currentPage: 'home',
-      recipes, // send the array of recipes (can use recipes[0] in EJS)
+      recipes, // use recipes[0] in EJS
       flashMessages: req.flash()
     });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
   }
-app.get('/', (req, res) => {
-    res.render('pages/Home', {
-        title: 'Home Page',
-        currentPage: 'home',
-        recipe: generateRecipe(),
-        flashMessages: req.flash()
-    });
 });
 
 
@@ -266,16 +259,9 @@ process.on('SIGTERM', () => {
             process.exit(0);
         });
     });
-}); ===
-===
-=
-require('dotenv').config();
-const express = require('express');
-const path = require('path');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const flash = require('connect-flash');
-const MongoStore = require('connect-mongo');
+}); 
+
+
 
 const upload = require('./middleware/SettingsMiddleware');
 const settingsController = require('./controllers/settingsController');
@@ -291,7 +277,7 @@ const Recipe = require('./models/recipe');
 const User = require('./models/user');
 
 
-const app = express();
+
 
 // 1. MIDDLEWARE FIRST (before any routes)
 app.use(express.json({ limit: '10mb' }));
@@ -545,22 +531,5 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start Server
-const PORT = process.env.PORT || 7000;
-const server = app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔗 DB Status: http://localhost:${PORT}/db-status`);
-});
-
-// Graceful Shutdown
-process.on('SIGTERM', () => {
-    server.close(() => {
-        mongoose.connection.close(false, () => {
-            console.log('Server and MongoDB connection closed');
-            process.exit(0);
-        });
-    });
-});
 
 module.exports = app;

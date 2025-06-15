@@ -379,6 +379,7 @@ nav ul li a:hover {
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: 12px;
+}
 
 .improved-card {
   background: #fff;
@@ -412,6 +413,7 @@ nav ul li a:hover {
   border-radius: 12px;
   object-fit: cover;
   display: block;
+}
 .featured-img {
   width: 100%;
   height: auto;
@@ -425,6 +427,7 @@ nav ul li a:hover {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
 .featured-content {
   flex: 1 1 0;
   display: flex;
@@ -450,6 +453,7 @@ nav ul li a:hover {
   font-size: 1.5rem;
   font-weight: 700;
   color: #222;
+}
 .recipe-badge {
   display: inline-block;
   background: #ffc34d;
