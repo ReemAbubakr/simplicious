@@ -11,7 +11,7 @@
   <div class="admin-container">
     <header class="navbar">
       <a href="/" class="logo-img"><img src="/images/panlog.png" alt="Simplicious logo" /></a>
-      <h1>Edit Recipe</h1>
+      <h1>Edit Recipe | Admin</h1>
       <nav>
         <ul>
           <li><a href="/AdminDashboard">Dashboard</a></li>
@@ -19,14 +19,29 @@
           <li><a href="/Users">Users</a></li>
           <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings">Settings</a></li>
-          <li><a href="/">Log Out</a></li>
-        </ul>
+          <span>Welcome, <span id="admin-username"></span></span>
+          <li onclick="logout()"style="color: #000;">Logout</li>
+          <script>
+              function logout() {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/';
+              }
+          </script>
+          <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                  const user = JSON.parse(localStorage.getItem('user'));
+                  if (user) {
+                      document.getElementById('admin-username').textContent = user.username;
+                  }
+              });
+          </script>        </ul>
       </nav>
     </header>
 
     <main class="main-content">
       <section class="form-section">
-        <form action="/recipes/<%= recipe?._id %>/edit" method="POST" class="admin-form">
+        <form action="/recipes/<%= recipe?._id%>/edit-recipe" method="POST" class="add-book-form">
           <div class="form-group">
             <label for="title">Recipe Name:</label>
             <input type="text" id="title" name="title" value="<%= recipe?.title %>" required />
@@ -44,10 +59,12 @@
 
           <div class="form-group">
             <label for="steps">Steps (comma separated):</label>
-            <input type="text" id="steps" name="steps" value="<%= recipe?.steps.join(', ') %>" required />
+            <input type="text" id="steps" name="steps" value="<%= recipe?.instructions.join(', ') %>" required />
           </div>
-
+          <div>
           <button class="save" type="submit">Save Changes</button>
+          <a href="/manage-recipes" class="delete">Cancel</a>
+          </div>
         </form>
       </section>
     </main>

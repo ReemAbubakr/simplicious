@@ -1,23 +1,24 @@
 
 const Recipe = require('../models/recipe');
 
-// Get all recipes (for manage-recipes page)
-exports.getAllRecipes = async (req, res) => {
+exports.getRandomRecipe = async (req, res) => {
   try {
-    const recipes = await Recipe.find();
-    res.render('pages/manage-recipes', { recipes });
+    const recipes = await Recipe.aggregate([{ $sample: { size: 1 } }]);
+    if (!recipes.length) {
+      return res.status(404).send('No recipes found.');
+    }
+    res.render('pages/Home', { recipe });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
   }
 };
 
-// Approve a recipe
-exports.approveRecipe = async (req, res) => {
+// Get all recipes (for manage-recipes page)
+exports.getAllRecipes = async (req, res) => {
   try {
-    const recipeId = req.params.id;
-    await Recipe.findByIdAndUpdate(recipeId, { status: 'Approved' });
-    res.redirect('/manage-recipes');
+    const recipes = await Recipe.find();
+    res.render('pages/manage-recipes', { recipes });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
@@ -110,20 +111,35 @@ exports.showRecipeDetails = async (req, res) => {
 // Create recipe
 exports.saveRecipe = async (req, res) => {
   try {
-    // Use only req.body for recipe data
-    const recipeData = req.body;
-    // Create new recipe
-    const recipe = await Recipe.create(recipeData);
+    
+    const newRecipe = new Recipe({
+      title: req.body.title,
+      imagePath: req.body.imagePath,
+      description: req.body.description,
+      type: req.body.type,
+      // Validating the input as a string to safely apply the split() function and avoid errors.
+      ingredients: typeof req.body.ingredients === 'string'
+        ? req.body.ingredients.split(',').map(i => i.trim()).filter(i => i)
+        : req.body.ingredients,
+      instructions: typeof req.body.instructions === 'string'
+        ? req.body.instructions.split(',').map(s => s.trim()).filter(s => s)
+        : req.body.instructions,
+    });
+
+    await newRecipe.save();
+    
     // Send response
     res.status(201).json({
       status: 'success',
       message: 'Recipe saved successfully',
-      recipe
     });
+
+    res.redirect('/manage-recipes');
   } catch (err) {
     res.status(400).json({
       status: 'error',
-      message: 'Error saving recipe'
+      message: 'Error saving recipe',
+      error: err.message
     });
   }
 };

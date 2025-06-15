@@ -19,18 +19,34 @@
           <li><a href="/Users">Users</a></li>
           <li><a href="/booksmanaging">Books</a></li>
           <li><a href="/Settings" class="active">Settings</a></li>
-          <li><a href="/">Log Out</a></li>
+          <span>Welcome, <span id="admin-username"></span></span>
+          <li onclick="logout()"style="color: #000;">Logout</li>
+          <script>
+              function logout() {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/';
+              }
+          </script>
+          <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                  const user = JSON.parse(localStorage.getItem('user'));
+                  if (user) {
+                      document.getElementById('admin-username').textContent = user.username;
+                  }
+              });
+          </script>        
         </ul>
       </nav>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-      <section class="settings-form">
-        <form action="/save-settings" method="POST" enctype="multipart/form-data">
+      <section class="add-book-form">
+        <form id="add-book-form" action="/save-settings" method="POST" enctype="multipart/form-data">
           <div class="form-group">
             <label for="site-title">Site Title</label>
-            <input type="text" id="site-title" name="title" placeholder="My Cooking Recipes" value="<%= settings.title %>" />
+            <input type="text" id="site-title" name="title" placeholder="My Cooking Recipes"" />
           </div>
 
           <div class="form-group">
@@ -40,21 +56,62 @@
 
           <div class="form-group">
             <label for="contact-email">Contact Email</label>
-            <input type="email" id="contact-email" name="email" placeholder="admin@example.com" value="<%= settings.email %>" />
+            <input type="email" id="contact-email" name="email" placeholder="admin@example.com"" />
           </div>
 
           <div class="form-group">
             <label for="theme-color">Theme Color</label>
-            <input type="color" id="theme-color" name="themeColor" value="<%= settings.themeColor %>" />
+            <input type="color" id="theme-color" name="themeColor" />
           </div>
 
-          <button type="submit" class="save">Save Settings</button>
+          <button id="save-message" type="submit" class="save">Save Settings</button>
         </form>
       </section>
     </main>
   </div>
 
     <%- include('../partials/footer') %>
+    <script>
+    // AJAX Form Submission
+      const form = document.getElementById('add-book-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const saveButton = form.querySelector('.save');
+        const messageDiv = document.getElementById('save-message');
 
+        saveButton.disabled = true;
+        saveButton.textContent = 'Saving...';
+        messageDiv.textContent = '';
+        messageDiv.style.color = '';
+
+        try {
+          const response = await fetch('/save-settings', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            messageDiv.textContent = 'Settings saved successfully!';
+
+            // Reset form fields to show placeholders
+            document.getElementById('site-title').value = '';
+            document.getElementById('contact-email').value = '';
+          } else {
+            throw new Error(result.message || 'Failed to save settings');
+          }
+        } catch (error) {
+          messageDiv.textContent = error.message;
+          messageDiv.style.color = 'red';
+        } finally {
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save Settings';
+        }
+      });
+
+    </script>
 </body>
 </html>

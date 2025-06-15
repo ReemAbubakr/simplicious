@@ -80,12 +80,6 @@ router.get('/:id/edit', async (req, res) => {
 });
 
 // POST Update Book
-router.post('/:id/update', async (req, res) => {
-  const { title, price } = req.body;
-  await Book.findByIdAndUpdate(req.params.id, { title, price });
-  res.redirect('/booksmanaging');
-});
-
 router.post('/:id/update', upload.single('image'), async (req, res) => {
   try {
     const { title, price } = req.body;
@@ -103,7 +97,6 @@ router.post('/:id/update', upload.single('image'), async (req, res) => {
   }
 });
 
-module.exports = router;
 router.post('/:id/rating', BookController.addRating);
 
 

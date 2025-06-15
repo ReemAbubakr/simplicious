@@ -1,5 +1,6 @@
 const Cart = require('../models/cart');
 const Book = require('../models/book');
+const Order = require('../models/order');
 const mongoose = require('mongoose');
 const { CurrencyCodes } = require('validator/lib/isISO4217');
 
@@ -7,8 +8,11 @@ const { CurrencyCodes } = require('validator/lib/isISO4217');
 exports.getCartStatus = async (req, res) => {
   const bookId = req.params.bookId;
   const cart = await Cart.findOne({ sessionId: req.sessionID });
-  console.log("cart:", cart);
-  const inCart = cart.books.findIndex(item => item.book=== bookId);
+ console.log("crat:",cart.books)
+
+  const inCart = cart.books.findIndex(item => String(item.book) === String(bookId));
+
+
   console.log("inCart:", inCart);
   if (inCart>=0) {
     res.status(200).json({ inCart: true });
@@ -55,7 +59,7 @@ exports.addToCart = async (req, res) => {
       cart.books[existingBook].quantity += 1;
       
      } else {
-       cart.books.push({book:book,imagePath:imagePath,quantity:1,price:price});
+       cart.books.push({book:bookId,imagePath:imagePath,quantity:1,price:price});
      }
 
     }
@@ -139,6 +143,28 @@ exports.removeFromCart = async (req, res) => {
     });
   }
 };
+
+exports.clearCart = async (req, res) => {
+  try {
+    // Use sessionId or userId depending on your authentication
+    const sessionId = req.sessionID;
+    // If you use userId: const userId = req.user._id;
+
+    await Cart.findOneAndUpdate(
+      { sessionId }, // or { userId }
+      { $set: { books: [], totalPrice: 0, totalItems: 0 } }
+    );
+
+    // For API endpoint:
+    // res.json({ success: true, cart: { books: [], totalPrice: 0, totalItems: 0 } });
+
+    // For classic form POST:
+    res.redirect('/cart');
+  } catch (err) {
+    console.error('Clear cart error:', err);
+    res.status(500).send('Failed to clear cart');
+  }
+};
 // Update cart item quantity
 // exports.updateCartItem = async (req, res) => {
 //   try {
@@ -209,7 +235,35 @@ exports.removeFromCart = async (req, res) => {
 //   }
 // };
 
+exports.checkout = async (req, res) => {
+  try {
+    const sessionId = req.sessionID;
+    const cart = await Cart.findOne({ sessionId });
+    if (!cart || cart.books.length === 0) {
+      return res.status(400).send("Your cart is empty.");
+    }
 
+    // Save order (no userId)
+    await Order.create({
+      sessionId, // <-- just sessionId, no userId!
+      books: cart.books,
+      name: req.body.name,
+      email: req.body.email,
+      address: req.body.address,
+      payment: req.body.payment
+    });
+
+    // Clear the cart
+    cart.books = [];
+    await cart.save();
+
+    // Redirect to confirmation page
+    res.redirect('/order/confirmation');
+  } catch (err) {
+    console.error('Checkout error:', err);
+    res.status(500).send('Checkout failed. Please try again.');
+  }
+};
 
 exports.getCartContents = async (req, res) => {
   try {
@@ -222,26 +276,16 @@ exports.getCartContents = async (req, res) => {
         select: 'title price imagePath stock altText'
       });
       console.log("cart:", cart);
-    if (!cart || cart.books.length === 0) {
-      return res.status(200).json({
-        message: 'Cart is not found or empty',
-
-      })
-      
+if (!cart || cart.books.length === 0) {
+      return res.status(200).render('pages/Cart', {
+        books: [],
+        totalItems: 0,
+        totalPrice: 0,
+        currentPage: 'cart',
+        pageTitle: 'Your Shopping Cart'
+      });
     }
-    
 
-  //  const formattedBooks = cart.books.map(bookItem => ({
-  //     book: {
-  //       _id: bookItem.book._id,
-  //       title: bookItem.book.title,
-  //       price: parseFloat(bookItem.book.price),
-  //       imagePath: bookItem.book.imagePath,
-  //       altText: bookItem.book.altText
-  //     },
-  //     quantity: bookItem.quantity,
-  //     subtotal: parseFloat(bookItem.book.price) * bookItem.quantity
-  //   }));
 
    res.status(200).render('pages/Cart', {books: cart.books,
       totalItems: cart.totalItems,
