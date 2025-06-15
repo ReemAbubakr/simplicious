@@ -111,7 +111,7 @@ exports.removeFromCart = async (req, res) => {
       return res.status(404).json({ error: 'Book not in cart' });
     }
 
-    // Remove the item or decrement quantity
+    
     if (cart.books[bookIndex].quantity > 1) {
       // Decrement quantity if more than 1
       cart.books[bookIndex].quantity -= 1;
