@@ -41,24 +41,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
 document.addEventListener('DOMContentLoaded', () => {
     // Elements
     const addToCartBtn = document.getElementById('add-to-cart-btn');
     const removeFromCartBtn = document.getElementById('remove-from-cart-btn');
     const gotoCartBtn = document.getElementById('goto-cart-btn');
     const wishlistBtn = document.querySelector('.wishlist-btn');
-    const bookId = addToCartBtn?.getAttribute('data-id');
+    
+    // Create and insert notification container
+    let notification = document.createElement('div');
+    notification.id = 'cart-notification';
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.right = '10px';
+    notification.style.padding = '10px 20px';
+    notification.style.backgroundColor = '#333';
+    notification.style.color = 'white';
+    notification.style.borderRadius = '5px';
+    notification.style.display = 'none';
+    notification.style.zIndex = '1000';
+    document.body.appendChild(notification);
 
-    const switchToViewCart = async () => {
-        if (!bookId) return;
 
+
+
+
+document.querySelectorAll('.add-to-cart-btn').forEach(addToCartBtn => {
+    const bookId = addToCartBtn.getAttribute('data-id');
+    const bookItem = addToCartBtn.closest('.book-item');
+    const gotoCartBtn = bookItem.querySelector('.goto-cart-btn');
+
+    // Function to switch button views for this book
+    const switchCartButtons = async () => {
         try {
             const res = await fetch(`/cart/api/status/${bookId}`);
             const data = await res.json();
             const inCart = data.inCart;
-            console.log('Cart status:', inCart);
-
             if (inCart) {
                 addToCartBtn.style.display = 'none';
                 gotoCartBtn.style.display = 'inline-block';
@@ -71,43 +89,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    if (addToCartBtn) {
-        addToCartBtn.addEventListener('click', async () => {
-            console.log(addToCartBtn.dataset.image);
-            try {
-                const res = await fetch('/cart/api/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        bookId,
-                        price: addToCartBtn.dataset.price,
-                        imagePath: addToCartBtn.dataset.image
-                    })
-                });
+    // Set initial state
+    switchCartButtons();
 
-                if (res.ok) {
-                    const cartData = await res.json();
-                    // showNotification('Added to cart!');
-                    console.log('ana dakhel');
-                    await switchToViewCart();
-
-                    // Dispatch event with full cart data
-                    document.dispatchEvent(new CustomEvent('cartUpdated', { 
-                        detail: { 
-                            bookId,
-                            cart: cartData  // Pass the updated cart data
-                        } 
-                    }));
-                } else {
-                    const err = await res.json();
-                    showNotification(err.error || 'Error adding to cart');
-                    throw new Error(err.error || 'Failed to add to cart');
-                }
-            } catch (err) {
-                console.error('Add to cart error:', err);
-                showNotification('Failed to add to cart');
+    // Add to Cart event
+    addToCartBtn.addEventListener('click', async () => {
+        try {
+            const res = await fetch('/cart/api/add', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ 
+                    bookId,
+                    price: addToCartBtn.dataset.price,
+                    imagePath: addToCartBtn.dataset.image
+                })
+            });
+            if (res.ok) {
+                await switchCartButtons();
+            } else {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to add to cart');
             }
-        });
-    }
-
-}); 
+        } catch (err) {
+            console.error('Add to cart error:', err);
+        }
+           });
+    });
+});
