@@ -28,9 +28,9 @@ exports.saveSettings = async (req, res) => {
     }
 
     await settings.save();
-    res.redirect('/Settings');
+    res.json({ success: true, message: 'Settings saved successfully' });
   } catch (error) {
     console.error('Error saving settings:', error);
-    res.status(500).send('Server Error');
+    res.status(500).json({ success: false, message: 'Failed to save settings' });
   }
 };
