@@ -1,147 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title>
+        <%= title %>
+    </title>
     <link rel="icon" type="image/png" href="/images/panlog.png">
     <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
     <%- include('../partials/header') %>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <a href="/recipes">
-            <button class="explore-btn">Explore Recipes</button>
-        </a>
-    </section>
+        <!-- Hero Section -->
+        <section class="hero">
+            <a href="/recipes">
+                <button class="explore-btn">Explore Recipes</button>
+            </a>
+        </section>
 
-    <!-- Search Bar & Sort Options -->
-    <div class="search-wrapper">
-        <div class="search-container">
-            <i class="fa fa-search"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search recipes and more...">
-            <button type="button" id="searchBtn">Search</button>
+        <!-- Search Bar & Sort Options -->
+        <div class="search-wrapper">
+            <div class="search-container">
+                <i class="fa fa-search"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search recipes and more...">
+                <button type="button" id="searchBtn">Search</button>
+            </div>
         </div>
-    </div>
 
-    <div class="sort-container">
-        <label for="sort-dropdown">Sort by:</label>
-        <select id="sort-dropdown" name="sort-options">
+        <div class="sort-container">
+            <label for="sort-dropdown">Sort by:</label>
+            <select id="sort-dropdown" name="sort-options">
             <option value="newest">Newest</option>
             <option value="most-popular">Most Popular</option>
             <option value="prep-time">Prep Time</option>
         </select>
-    </div>
-
-    <!-- Main Content Container -->
-    <div class="parent-container">
-        <%- include('../partials/sidebar') %>
-        
-        <div class="recipe-grid">
-            <!-- Left: Featured Recipe Card (from DB) -->
-            <% if (recipes && recipes.length > 0) { %>
-                <div class="featured-left">
-    <div id="results"></div>
-    <a href="<%= recipes[0].pageLink || ('/recipe/' + recipes[0]._id) %>" class="recipe-link" aria-label="<%= recipes[0].title %> Recipe">
-        <article class="recipe-card-featured">
-            <div class="recipe-image-container">
-                <img src="<%= recipes[0].imagePath || '/images/fruit-spinach-salad.jpg' %>" 
-                    alt="<%= recipes[0].title %>" 
-                    class="recipe-image"
-                    loading="lazy">
-            </div>
-            <div class="recipe-content">
-                <div class="recipe-badge"><%= recipes[0].type || '' %></div>
-                <header>
-                    <h2 class="recipe-title"><%= recipes[0].title %></h2>
-                    <p class="recipe-description"><%= recipes[0].description %></p>
-                </header>
-                <div class="recipe-meta">
-                    <!-- You could add more info here, e.g. ingredients count or something else from your schema -->
-                </div>
-            </div>
-        </article>
-    </a>
-</div>
-            <% } else { %>
-                <div class="featured-left">
-                    <p>No featured recipe available.</p>
-                </div>
-            <% } %>
-
-            <!-- Right Recipes (static as per your code) -->
-            <!-- Left: Featured Recipe Card (from DB) -->
-            <% if (recipes && recipes.length > 0) { %>
-                <div class="featured-left">
-    <div id="results"></div>
-    <a href="<%= recipes[0].pageLink || ('/recipe/' + recipes[0]._id) %>" class="recipe-link" aria-label="<%= recipes[0].title %> Recipe">
-        <article class="recipe-card-featured">
-            <div class="recipe-image-container">
-                <img src="<%= recipes[0].imagePath || '/images/fruit-spinach-salad.jpg' %>" 
-                    alt="<%= recipes[0].title %>" 
-                    class="recipe-image"
-                    loading="lazy">
-            </div>
-            <div class="recipe-content">
-                <div class="recipe-badge"><%= recipes[0].type || '' %></div>
-                <header>
-                    <h2 class="recipe-title"><%= recipes[0].title %></h2>
-                    <p class="recipe-description"><%= recipes[0].description %></p>
-                </header>
-                <div class="recipe-meta">
-                    <!-- You could add more info here, e.g. ingredients count or something else from your schema -->
-                </div>
-            </div>
-        </article>
-    </a>
-</div>
-            <% } else { %>
-                <div class="featured-left">
-                    <p>No featured recipe available.</p>
-                </div>
-            <% } %>
-
-            <!-- Right Recipes (static as per your code) -->
-            <div class="featured-right">
-                <!-- First Recipe Card -->
-                <a href="/spaghetti-bolognese">
-                    <div class="recipe-card2 black" data-preptime="30" data-popularity="7">
-                        <img src="./images/Spaghetti.jpg" alt="Spaghetti Bolognese">
-                        <div class="recipe-content">
-                            <h2>Spaghetti Bolognese</h2>
-                            <p>Quick and easy pasta with rich tomato sauce. Perfect for a weekday dinner.</p>
-                            <div class="recipe-info">
-                                <div class="info-item"><i class="fa fa-users"></i> 2 Servings</div>
-                                <div class="info-item"><i class="fa fa-clock"></i> 30 min</div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-
-
-                <!-- Second Recipe Card -->
-                <a href="/brownies">
-                    <div class="recipe-card2" data-preptime="45" data-popularity="10">
-                        <img src="./images/brownies.jpg" alt="Brownies">
-                        <div class="recipe-content">
-                            <h2>Brownies</h2>
-                            <p>Rich, moist and absolutely decadent — your go-to chocolate dessert!</p>
-                            <div class="recipe-info">
-                                <div class="info-item"><i class="fa fa-users"></i> 4 Servings</div>
-                                <div class="info-item"><i class="fa fa-clock"></i> 45 min</div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
         </div>
-    </div> <!-- <-- This closes .parent-container -->
-    </div> <!-- <-- This closes .parent-container -->
 
-    <%- include('../partials/footer') %>
-    <script src="/js/recipeSort.js"></script>
-    <script src="/js/sidebar.js"></script>
+        <!-- Main Content Container -->
+        <div class="parent-container">
+            <%- include('../partials/sidebar') %>
+
+                <div class="recipe-grid">
+                    <!-- Left: Featured Recipe Card (from DB) -->
+                    <% if (recipes && recipes.length > 0) { %>
+                        <div class="featured-left">
+                            <div id="results"></div>
+                            <a href="<%= recipes[0].pageLink || ('/recipe/' + recipes[0]._id) %>" class="recipe-link" aria-label="<%= recipes[0].title %> Recipe">
+                                <article class="recipe-card-featured">
+                                    <div class="recipe-image-container">
+                                        <img src="<%= recipes[0].imagePath || '/images/fruit-spinach-salad.jpg' %>" alt="<%= recipes[0].title %>" class="recipe-image" loading="lazy">
+                                    </div>
+                                    <div class="recipe-content">
+                                        <div class="recipe-badge">
+                                            <%= recipes[0].type || '' %>
+                                        </div>
+                                        <header>
+                                            <h2 class="recipe-title">
+                                                <%= recipes[0].title %>
+                                            </h2>
+                                            <p class="recipe-description">
+                                                <%= recipes[0].description %>
+                                            </p>
+                                        </header>
+                                        <div class="recipe-meta">
+                                            <!-- You could add more info here, e.g. ingredients count or something else from your schema -->
+                                        </div>
+                                    </div>
+                                </article>
+                            </a>
+                        </div>
+                        <% } else { %>
+                            <div class="featured-left">
+                                <p>No featured recipe available.</p>
+                            </div>
+                            <% } %>
+
+                                <!-- Right Recipes (static as per your code) -->
+                                <!-- Left: Featured Recipe Card (from DB) -->
+                                <% if (recipes && recipes.length > 0) { %>
+                                    <div class="featured-left">
+                                        <div id="results"></div>
+                                        <a href="<%= recipes[0].pageLink || ('/recipe/' + recipes[0]._id) %>" class="recipe-link" aria-label="<%= recipes[0].title %> Recipe">
+                                            <article class="recipe-card-featured">
+                                                <div class="recipe-image-container">
+                                                    <img src="<%= recipes[0].imagePath || '/images/fruit-spinach-salad.jpg' %>" alt="<%= recipes[0].title %>" class="recipe-image" loading="lazy">
+                                                </div>
+                                                <div class="recipe-content">
+                                                    <div class="recipe-badge">
+                                                        <%= recipes[0].type || '' %>
+                                                    </div>
+                                                    <header>
+                                                        <h2 class="recipe-title">
+                                                            <%= recipes[0].title %>
+                                                        </h2>
+                                                        <p class="recipe-description">
+                                                            <%= recipes[0].description %>
+                                                        </p>
+                                                    </header>
+                                                    <div class="recipe-meta">
+                                                        <!-- You could add more info here, e.g. ingredients count or something else from your schema -->
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </a>
+                                    </div>
+                                    <% } else { %>
+                                        <div class="featured-left">
+                                            <p>No featured recipe available.</p>
+                                        </div>
+                                        <% } %>
+
+                                            <!-- Right Recipes (static as per your code) -->
+                                            <div class="featured-right">
+                                                <!-- First Recipe Card -->
+                                                <a href="/spaghetti-bolognese">
+                                                    <div class="recipe-card2 black" data-preptime="30" data-popularity="7">
+                                                        <img src="./images/Spaghetti.jpg" alt="Spaghetti Bolognese">
+                                                        <div class="recipe-content">
+                                                            <h2>Spaghetti Bolognese</h2>
+                                                            <p>Quick and easy pasta with rich tomato sauce. Perfect for a weekday dinner.</p>
+                                                            <div class="recipe-info">
+                                                                <div class="info-item"><i class="fa fa-users"></i> 2 Servings</div>
+                                                                <div class="info-item"><i class="fa fa-clock"></i> 30 min</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+
+
+                                                <!-- Second Recipe Card -->
+                                                <a href="/brownies">
+                                                    <div class="recipe-card2" data-preptime="45" data-popularity="10">
+                                                        <img src="./images/brownies.jpg" alt="Brownies">
+                                                        <div class="recipe-content">
+                                                            <h2>Brownies</h2>
+                                                            <p>Rich, moist and absolutely decadent — your go-to chocolate dessert!</p>
+                                                            <div class="recipe-info">
+                                                                <div class="info-item"><i class="fa fa-users"></i> 4 Servings</div>
+                                                                <div class="info-item"><i class="fa fa-clock"></i> 45 min</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                </div>
+        </div>
+        <!-- <-- This closes .parent-container -->
+        </div>
+        <!-- <-- This closes .parent-container -->
+
+        <%- include('../partials/footer') %>
+            <script src="/js/recipeSort.js"></script>
+            <script src="/js/sidebar.js"></script>
 </body>
+
 </html>
