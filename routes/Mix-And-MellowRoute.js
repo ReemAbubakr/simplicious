@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const {
+    getRecipes,
+    generateMealPlan
+} = require('../controllers/Mix-And-MellowController');
 
 // Display planner
 router.get('/', async(req, res) => {
@@ -11,23 +15,18 @@ router.get('/', async(req, res) => {
         ]);
         res.render('pages/Mix-And-Mellow', {
             title: 'Mix & Mellow',
-            meals,
-            days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-            mealTypes: ['Breakfast', 'Lunch', 'Dinner']
+            meals
         });
-    } catch (err) {
-        res.status(500).render('error');
+    } catch (error) {
+        res.status(500).render('pages/500', {
+            title: 'Server Error',
+            errorDetails: error.message
+        });
     }
 });
 
-// Save plan
-router.post('/save', async(req, res) => {
-    try {
-        // Implement your save logic here
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to save plan' });
-    }
-});
+// API Routes
+router.get('/recipes', getRecipes);
+router.post('/generate-plan', generateMealPlan);
 
 module.exports = router;

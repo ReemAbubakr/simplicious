@@ -25,18 +25,6 @@ exports.getAllRecipes = async (req, res) => {
   }
 };
 
-// Approve a recipe
-exports.approveRecipe = async (req, res) => {
-  try {
-    const recipeId = req.params.id;
-    await Recipe.findByIdAndUpdate(recipeId, { status: 'Approved' });
-    res.redirect('/manage-recipes');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
-};
-
 // Delete a recipe
 exports.deleteRecipe = async (req, res) => {
   try {

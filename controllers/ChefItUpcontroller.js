@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const Recipe = require('../models/recipe');
 
 exports.getChefItUp = async(req, res) => {
     try {
@@ -32,43 +32,51 @@ exports.getChefItUp = async(req, res) => {
 exports.findRecipes = async(req, res) => {
     try {
         const selectedIngredients = req.body.ingredients;
-        // Import your recipes data here
-        const recipes = require('../public/js/RecipesData');
 
-        const matchingRecipes = recipes.filter(recipe => {
-            const matchCount = recipe.ingredients.filter(ingredient =>
+        // Find all recipes
+        const recipes = await Recipe.find({}).select('title ingredients imagePath type _id');
+
+        // Calculate matching ingredients for each recipe
+        const recipesWithMatches = recipes.map(recipe => {
+            const matchingIngredients = recipe.ingredients.filter(ingredient =>
                 selectedIngredients.some(selected =>
                     ingredient.toLowerCase().includes(selected.toLowerCase())
                 )
-            ).length;
-            return matchCount > 0;
+            );
+            return {
+                recipe,
+                matchCount: matchingIngredients.length,
+                matchingIngredients
+            };
         });
 
-        if (matchingRecipes.length === 0) {
+        // Filter recipes with 2 or more matching ingredients
+        const goodMatches = recipesWithMatches.filter(item => item.matchCount >= 2);
+
+        if (goodMatches.length === 0) {
             return res.json({
                 success: false,
-                message: 'No recipes found with these ingredients.'
+                message: 'No recipes found with at least 2 matching ingredients. Try different ingredients!'
             });
         }
 
-        // Sort recipes by number of matching ingredients
-        matchingRecipes.sort((a, b) => {
-            const aMatches = a.ingredients.filter(ingredient =>
-                selectedIngredients.some(selected =>
-                    ingredient.toLowerCase().includes(selected.toLowerCase())
-                )
-            ).length;
-            const bMatches = b.ingredients.filter(ingredient =>
-                selectedIngredients.some(selected =>
-                    ingredient.toLowerCase().includes(selected.toLowerCase())
-                )
-            ).length;
-            return bMatches - aMatches;
-        });
+        // Sort by number of matching ingredients (highest first)
+        goodMatches.sort((a, b) => b.matchCount - a.matchCount);
+
+        // Get the best matching recipe
+        const bestMatch = goodMatches[0];
 
         res.json({
             success: true,
-            recipes: matchingRecipes.slice(0, 3) // Return top 3 matches
+            matchCount: bestMatch.matchCount,
+            redirect: `/recipes/${bestMatch.recipe._id}`,
+            recipe: {
+                title: bestMatch.recipe.title,
+                type: bestMatch.recipe.type,
+                ingredients: bestMatch.recipe.ingredients,
+                imagePath: bestMatch.recipe.imagePath,
+                matchingIngredients: bestMatch.matchingIngredients
+            }
         });
     } catch (error) {
         console.error('Error:', error);

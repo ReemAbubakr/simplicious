@@ -1,4 +1,5 @@
 async function revealRecipe(cardElement) {
+    cardElement.classList.add("flipped");
     if (cardElement.classList.contains("flipped")) return;
 
     try {
@@ -6,20 +7,30 @@ async function revealRecipe(cardElement) {
         const recipe = await response.json();
 
         const back = cardElement.querySelector(".card-back");
-        back.style.backgroundImage = `url('${recipe.imagePath}')`;
-        back.innerHTML = `
-        <h3>${recipe.title}</h3>
-        <p>${recipe.ingredients.join(' • ')}</p>
-      `;
+        back.style.backgroundImage = 'none';
 
-        cardElement.classList.add("flipped");
-        setTimeout(() => {
-            window.location.href = recipe.pageLink || `/recipes/${recipe._id}`;
-        }, 2000);
+        // Only show the title (no extra HTML)
+        back.innerHTML = `<h3 class="flipped-title">${recipe.title}</h3>`; // 👈 Key change
+
+
+
+
+        window.location.href = `/recipes/${recipe._id}`;
+
     } catch (error) {
         console.error("Failed to load recipe:", error);
-        cardElement.querySelector(".card-back").innerHTML = `
-        <p class="error">Failed to reveal recipe</p>
-      `;
+        back.innerHTML = `
+            <div class="error">
+                <p>Failed to reveal recipe</p>
+                <button onclick="retryRecipe(this)">Try Again</button>
+            </div>
+        `;
     }
+}
+
+// Retry function (unchanged)
+function retryRecipe(button) {
+    const card = button.closest('.card');
+    card.classList.remove("flipped");
+    setTimeout(() => revealRecipe(card), 500);
 }

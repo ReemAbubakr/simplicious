@@ -13,27 +13,30 @@ exports.getRecipes = async(req, res) => {
     }
 };
 
-exports.saveMealPlan = async(req, res) => {
+exports.generateMealPlan = async(req, res) => {
     try {
-        const { plan } = req.body; // Format: { "monday-lunch": "recipeId123", ... }
+        const { plan } = req.body;
 
-        // Validate recipe IDs
-        const recipeIds = Object.values(plan);
-        const validRecipes = await Recipe.countDocuments({
-            _id: { $in: recipeIds }
-        });
-
-        if (validRecipes !== recipeIds.length) {
-            return res.status(400).json({ error: "Invalid recipe IDs" });
+        // Validate and format the plan
+        const formattedPlan = {};
+        for (const [dayMeal, mealData] of Object.entries(plan)) {
+            if (mealData.mealId) {
+                formattedPlan[dayMeal] = {
+                    mealId: mealData.mealId,
+                    mealName: mealData.mealName,
+                    mealEmoji: mealData.mealEmoji,
+                    mealTime: mealData.mealTime
+                };
+            }
         }
 
-        // Save to database (example using session)
-        req.session.mealPlan = plan;
-
-        res.json({ success: true });
+        res.json({
+            success: true,
+            plan: formattedPlan
+        });
     } catch (error) {
         res.status(500).json({
-            error: "Failed to save plan",
+            error: "Failed to generate plan",
             details: process.env.NODE_ENV === 'development' ? error.message : null
         });
     }

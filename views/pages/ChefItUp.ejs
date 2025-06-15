@@ -26,17 +26,13 @@
                         </div>
                         <% }); %>
                 </div>
-
-                <div class="progress-section">
-                    <div class="progress-bar">
-                        <div class="progress" id="ingredientProgress"></div>
-                    </div>
-                    <p class="progress-text">Select at least 3 ingredients</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    <p id="progressText" class="progress-text">Select at least 3 ingredients</p>
                 </div>
-
                 <div class="button-section">
-                    <button id="findRecipes" disabled>Find Recipes</button>
-                    <button id="resetIngredients">Reset</button>
+                    <button id="submitBtn" disabled>Find Recipes</button>
+                    <button id="resetBtn">Reset</button>
                 </div>
             </div>
 

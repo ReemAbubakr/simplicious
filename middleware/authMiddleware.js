@@ -2,16 +2,16 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 // Protect routes
-exports.protect = async (req, res, next) => {
+exports.protect = async(req, res, next) => {
     try {
         // 1) Get token from header
         const authHeader = req.headers.authorization;
         let token;
-        
+
         if (authHeader && authHeader.startsWith('Bearer ')) {
             token = authHeader.split(' ')[1];
         }
-        
+
         if (!token) {
             return res.status(401).json({
                 status: 'fail',
@@ -44,13 +44,13 @@ exports.protect = async (req, res, next) => {
 
 // Restrict to admin users
 exports.restrictToAdmin = (req, res, next) => {
-  if (!req.user.isAdmin) {
-    // For API requests, return JSON response
-    if (req.path.startsWith('/api/')) {
-      return res.status(403).json({ message: 'Not authorized to access this route' });
+    if (!req.user.isAdmin) {
+        // For API requests, return JSON response
+        if (req.path.startsWith('/api/')) {
+            return res.status(403).json({ message: 'Not authorized to access this route' });
+        }
+        // For page requests, redirect to login
+        return res.redirect('/login');
     }
-    // For page requests, redirect to login
-    return res.redirect('/login');
-  }
-  next();
-}; 
+    next();
+};
