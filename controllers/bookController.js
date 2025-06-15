@@ -121,7 +121,7 @@ addRating :async (req, res) => {
     res.redirect(`/books/${req.params.id}#ratings`);
   }
 },
-  // Get single book details with enhanced data processing
+ 
   getBookDetails: async (req, res) => {
     try {
       const book = await Book.findById(req.params.id).lean();
