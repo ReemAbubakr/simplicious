@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= type.charAt(0).toUpperCase() + type.slice(1) %> Recipes | Simplicious</title>
+    <link rel="icon" type="image/png" href="/images/panlog.png" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><%= type.charAt(0).toUpperCase() + type.slice(1) %> Recipes</h1>
+                <p>Discover delicious <%= type %> recipes perfect for any occasion</p>
+            </div>
+
+            <div class="recipes-grid">
+                <% if (recipes && recipes.length > 0) { %>
+                    <% recipes.forEach(recipe => { %>
+                        <div class="recipe-card">
+                            <a href="/recipes/<%= recipe._id %>" class="recipe-link">
+                                <div class="recipe-image">
+                                    <img src="/images/<%= recipe.imagePath || 'CoverIMG.png' %>" alt="<%= recipe.title %>">
+                                </div>
+                                <div class="recipe-content">
+                                    <h3 class="recipe-title"><%= recipe.title %></h3>
+                                    <p class="recipe-description">
+                                        <%= recipe.description ? recipe.description.substring(0, 100) + '...' : 'A delicious ' + type + ' recipe' %>
+                                    </p>
+                                    <div class="recipe-meta">
+                                        <span class="recipe-type">
+                                            <i class="fas fa-tag"></i> <%= type.charAt(0).toUpperCase() + type.slice(1) %>
+                                        </span>
+                                        <% if (recipe.ingredients && recipe.ingredients.length) { %>
+                                            <span class="ingredient-count">
+                                                <i class="fas fa-list"></i> <%= recipe.ingredients.length %> ingredients
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="no-recipes">
+                        <div class="no-recipes-content">
+                            <i class="fas fa-utensils"></i>
+                            <h3>No <%= type %> recipes found</h3>
+                            <p>Check back soon for new recipes!</p>
+                            <a href="/recipes" class="btn btn-primary">Browse All Categories</a>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="category-actions">
+                <a href="/recipes" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to All Categories
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer') %>
+
+    <style>
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem 0;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+        
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .recipe-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .recipe-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .recipe-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .recipe-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .recipe-content {
+            padding: 1.5rem;
+        }
+        
+        .recipe-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .recipe-description {
+            color: #7f8c8d;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+        
+        .recipe-type, .ingredient-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .no-recipes {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem 0;
+        }
+        
+        .no-recipes-content {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .no-recipes-content i {
+            font-size: 3rem;
+            color: #95a5a6;
+            margin-bottom: 1rem;
+        }
+        
+        .no-recipes-content h3 {
+            font-size: 1.5rem;
+            color: #7f8c8d;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-actions {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+    </style>
+</body>
+</html> 

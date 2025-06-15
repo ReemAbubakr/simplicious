@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Prep Lab | Simplicious</title>
+    <link rel="stylesheet" href="/css/ThePrepLab.css">
+</head>
+
+<body>
+    <%- include('../partials/header', {currentPage: 'features'}) %>
+        <h1 class="page-title">The Prep Lab</h1>
+        <div class="features-container">
+            <% features.forEach(feature => { %>
+                <a href="<%= feature.path %>" class="feature-card">
+                    <h2 class="feature-title">
+                        <%= feature.title %>
+                    </h2>
+                </a>
+                <% }); %>
+        </div>
+</body>
+
+</html>

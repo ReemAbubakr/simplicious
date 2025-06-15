@@ -1,0 +1,72 @@
+body {
+    margin: 0;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fdf3c1, #fdf3c1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #050504;
+}
+
+.page-title {
+    text-align: center;
+    color: #333;
+    margin: 40px 0 120px 0;
+    /* Increased bottom margin to 120px */
+    font-size: 2.5rem;
+}
+
+.features-container {
+    display: flex;
+    justify-content: space-around;
+    /* Changed to space-around for more spacing */
+    gap: 100px;
+    /* Increased gap to 100px */
+    margin: 40px auto;
+    padding: 20px 60px;
+    /* Added horizontal padding */
+    max-width: 1200px;
+    /* Increased max-width */
+}
+
+.feature-card {
+    flex: 1;
+    padding: 30px 50px;
+    /* Increased horizontal padding */
+    background: #fff;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    background: #f8f9fa;
+}
+
+.feature-title {
+    margin: 0;
+    font-size: 1.8rem;
+    /* Increased font size */
+    font-weight: 600;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .features-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 40px;
+        /* Adjusted gap for mobile */
+    }
+    .feature-card {
+        margin: 10px 20px;
+    }
+}
