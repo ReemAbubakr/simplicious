@@ -1,6 +1,19 @@
 
 const Recipe = require('../models/recipe');
 
+exports.getRandomRecipe = async (req, res) => {
+  try {
+    const recipes = await Recipe.aggregate([{ $sample: { size: 1 } }]);
+    if (!recipes.length) {
+      return res.status(404).send('No recipes found.');
+    }
+    res.render('pages/Home', { recipe });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+};
+
 // Get all recipes (for manage-recipes page)
 exports.getAllRecipes = async (req, res) => {
   try {

@@ -137,13 +137,21 @@ app.get('/db-status', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.render('pages/Home', {
-    title: 'Home Page',
-    currentPage: 'home',
-    recipe: generateRecipe(),
-    flashMessages: req.flash()
-  });
+
+
+app.get('/', async (req, res) => {
+  try {
+    const recipes = await Recipe.aggregate([{ $sample: { size: 1 } }]);
+    res.render('pages/Home', {
+      title: 'Home Page',
+      currentPage: 'home',
+      recipes, // send the array of recipes (can use recipes[0] in EJS)
+      flashMessages: req.flash()
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
 });
 
 app.get('/random-recipe', (req, res) => {
@@ -163,7 +171,10 @@ app.get('/About', (req, res) => {
 app.use('/books', bookRouter); 
 const cartRoutes = require('./routes/cart');
 app.use('/cart', cartRoutes);
-
+const cartController = require('./controllers/cartController');
+const orderController = require('./controllers/orderController');
+app.post('/checkout', cartController.checkout);
+app.get('/order/confirmation', orderController.confirmation);
 
 
 
@@ -239,7 +250,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 800;
 ;
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

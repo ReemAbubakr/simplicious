@@ -1,24 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize buttons based on cart
-    const updateCartButtons = () => {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-            const bookId = btn.getAttribute('data-id');
-            const cartActionContainer = btn.closest('.cart-actions') || btn.parentNode;
-            const gotoCartBtn = cartActionContainer.querySelector('.goto-cart-btn');
-            const removeFromCartBtn = cartActionContainer.querySelector('.remove-from-cart-btn');
-            
-            if (cart.includes(bookId)) {
-                btn.style.display = 'none';
-                if (gotoCartBtn) gotoCartBtn.style.display = 'inline-flex';
-                if (removeFromCartBtn) removeFromCartBtn.style.display = 'inline-flex';
-            } else {
-                btn.style.display = 'inline-flex';
-                if (gotoCartBtn) gotoCartBtn.style.display = 'none';
-                if (removeFromCartBtn) removeFromCartBtn.style.display = 'none';
-            }
-        });
-    };
+   
 
     // Initialize wishlist buttons
     const updateWishlistButtons = () => {
@@ -36,34 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize buttons on load
-    updateCartButtons();
+  
     updateWishlistButtons();
 
-    // Add to cart functionality
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const bookId = this.getAttribute('data-id');
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            
-            if (!cart.includes(bookId)) {
-                cart.push(bookId);
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartButtons();
-            }
-        });
-    });
-
-    // Remove from cart functionality
-    document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const bookId = this.getAttribute('data-id');
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            
-            cart = cart.filter(id => id !== bookId);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartButtons();
-        });
-    });
+ 
 
     // Wishlist functionality
     document.querySelectorAll('.wishlist-btn').forEach(button => {
@@ -82,3 +40,74 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Elements
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const removeFromCartBtn = document.getElementById('remove-from-cart-btn');
+    const gotoCartBtn = document.getElementById('goto-cart-btn');
+    const wishlistBtn = document.querySelector('.wishlist-btn');
+    const bookId = addToCartBtn?.getAttribute('data-id');
+
+    const switchToViewCart = async () => {
+        if (!bookId) return;
+
+        try {
+            const res = await fetch(`/cart/api/status/${bookId}`);
+            const data = await res.json();
+            const inCart = data.inCart;
+            console.log('Cart status:', inCart);
+
+            if (inCart) {
+                addToCartBtn.style.display = 'none';
+                gotoCartBtn.style.display = 'inline-block';
+            } else {
+                addToCartBtn.style.display = 'inline-block';
+                gotoCartBtn.style.display = 'none';
+            }
+        } catch (err) {
+            console.error('Failed to update cart buttons', err);
+        }
+    };
+
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', async () => {
+            console.log(addToCartBtn.dataset.image);
+            try {
+                const res = await fetch('/cart/api/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        bookId,
+                        price: addToCartBtn.dataset.price,
+                        imagePath: addToCartBtn.dataset.image
+                    })
+                });
+
+                if (res.ok) {
+                    const cartData = await res.json();
+                    // showNotification('Added to cart!');
+                    console.log('ana dakhel');
+                    await switchToViewCart();
+
+                    // Dispatch event with full cart data
+                    document.dispatchEvent(new CustomEvent('cartUpdated', { 
+                        detail: { 
+                            bookId,
+                            cart: cartData  // Pass the updated cart data
+                        } 
+                    }));
+                } else {
+                    const err = await res.json();
+                    showNotification(err.error || 'Error adding to cart');
+                    throw new Error(err.error || 'Failed to add to cart');
+                }
+            } catch (err) {
+                console.error('Add to cart error:', err);
+                showNotification('Failed to add to cart');
+            }
+        });
+    }
+
+}); 
