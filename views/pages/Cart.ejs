@@ -7,161 +7,161 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/cart.css">
     <style>
- /* Checkout Form Styles */
-#checkoutForm {
-  display: none;
-  margin: 2rem auto 0;
-  padding: 2rem;
-  max-width: 600px;
-  border: 1px solid #e1e5eb;
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  animation: fadeIn 0.3s ease-out forwards;
-  transform-origin: top;
-}
+        /* Checkout Form Styles */
+        #checkoutForm {
+            display: none;
+            margin: 2rem auto 0;
+            padding: 2rem;
+            max-width: 600px;
+            border: 1px solid #e1e5eb;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.3s ease-out forwards;
+            transform-origin: top;
+        }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.checkout-form-group {
-  margin-bottom: 1.5rem;
-  position: relative;
-}
+        .checkout-form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
 
-.checkout-form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #2d3748;
-  font-size: 0.95rem;
-}
+        .checkout-form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
 
-.checkout-form-group input,
-.checkout-form-group select,
-.checkout-form-group textarea {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  background-color: #f8fafc;
-}
+        .checkout-form-group input,
+        .checkout-form-group select,
+        .checkout-form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background-color: #f8fafc;
+        }
 
-.checkout-form-group input:focus,
-.checkout-form-group select:focus,
-.checkout-form-group textarea:focus {
-  outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-  background-color: #ffffff;
-}
+        .checkout-form-group input:focus,
+        .checkout-form-group select:focus,
+        .checkout-form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+            background-color: #ffffff;
+        }
 
-.checkout-form-group input::placeholder {
-  color: #a0aec0;
-  opacity: 1;
-}
+        .checkout-form-group input::placeholder {
+            color: #a0aec0;
+            opacity: 1;
+        }
 
-/* Enhanced Button Styles */
-.btn-checkout {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #38a169;
-  color: white;
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-top: 1rem;
-  transition: all 0.2s ease;
-  width: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+        /* Enhanced Button Styles */
+        .btn-checkout {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #38a169;
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-.btn-checkout:hover {
-  background-color: #2f855a;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+        .btn-checkout:hover {
+            background-color: #2f855a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-.btn-checkout:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-}
+        .btn-checkout:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
 
-/* Back to Cart Button */
-#backToCartBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #e2e8f0;
-  color: #4a5568;
-  padding: 0.75rem 1.25rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-top: 1rem;
-  transition: all 0.2s ease;
-  width: 100%;
-}
+        /* Back to Cart Button */
+        #backToCartBtn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e2e8f0;
+            color: #4a5568;
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
 
-#backToCartBtn:hover {
-  background-color: #cbd5e0;
-}
+        #backToCartBtn:hover {
+            background-color: #cbd5e0;
+        }
 
-/* Error States */
-.checkout-form-group.error input,
-.checkout-form-group.error select,
-.checkout-form-group.error textarea {
-  border-color: #e53e3e;
-}
+        /* Error States */
+        .checkout-form-group.error input,
+        .checkout-form-group.error select,
+        .checkout-form-group.error textarea {
+            border-color: #e53e3e;
+        }
 
-.checkout-form-group .error-message {
-  color: #e53e3e;
-  font-size: 0.8rem;
-  margin-top: 0.25rem;
-  display: none;
-}
+        .checkout-form-group .error-message {
+            color: #e53e3e;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
 
-.checkout-form-group.error .error-message {
-  display: block;
-}
+        .checkout-form-group.error .error-message {
+            display: block;
+        }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  #checkoutForm {
-    padding: 1.5rem;
-    margin-top: 1rem;
-  }
-  
-  .checkout-form-group input,
-  .checkout-form-group select {
-    padding: 0.65rem 0.9rem;
-  }
-}
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #checkoutForm {
+                padding: 1.5rem;
+                margin-top: 1rem;
+            }
+        
+            .checkout-form-group input,
+            .checkout-form-group select {
+                padding: 0.65rem 0.9rem;
+            }
+        }
 
-/* Hidden Utility Class */
-.hidden {
-  display: none !important;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-</style>
+        /* Hidden Utility Class */
+        .hidden {
+            display: none !important;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -170,27 +170,27 @@
     <main class="container">
         <h1>Your Shopping Cart</h1>
 
-        <% if (!books || books.length === 0) { %>
-            <div class="empty-cart">
-                <p>Your cart is currently empty.</p>
-                <a href="/books/" class="btn">Continue Shopping</a>
-            </div>
-        <% } else { %>
-            <div class="cart-items">
-                <% books.forEach(bookItem => { %>
+        <!-- Empty cart section (always present, toggled by JS/EJS) -->
+       <div
+              id="emptyCart"
+             class="empty-cart"
+             <% if (books && books.length > 0) { %>style="display:none;"<% } %>
+>               
+    <p>Your cart is currently empty.</p>
+    <a href="/books/" class="btn">Continue Shopping</a>
+</div>
+
+        <% if (books && books.length > 0) { %>
+            <!-- Cart items section -->
+            <div id="cartItems" class="cart-items">
+                <% books.forEach(function(bookItem) { %>
                     <div class="cart-item">
                         <img src="<%= bookItem.imagePath %>" alt="<%= bookItem.altText || bookItem.title %>">
                         <div class="item-details">
                             <h3><%= bookItem.title %></h3>
                             <p class="price">$<%= (parseFloat(bookItem.price) * bookItem.quantity).toFixed(2) %></p>
                             <p>$<%= parseFloat(bookItem.price).toFixed(2) %> each</p>
-                            
-                            <form action="/cart/update/<%= bookItem._id %>" method="POST" class="quantity-form">
-                                <input type="number" name="quantity" value="<%= bookItem.quantity %>" min="1">
-                                <button type="submit" class="btn">Update</button>
-                            </form>
-                            
-                            <form action="/cart/remove/<%= bookItem._id %>" method="POST">
+                            <form action="/cart/remove/<%= bookItem._id %>" method="POST" class="remove-from-cart-form" data-id="<%= bookItem._id %>">
                                 <button type="submit" class="btn remove">Remove</button>
                             </form>
                         </div>
@@ -198,6 +198,7 @@
                 <% }); %>
             </div>
 
+            <!-- Order Summary and Clear Cart -->
             <div class="cart-summary">
                 <h3>Order Summary</h3>
                 <div class="summary-row">
@@ -214,14 +215,12 @@
                 </div>
 
                 <button id="showCheckoutBtn" class="btn btn-primary">Proceed to Checkout</button>
-
-
-                <form action="/cart/clear" method="POST">
-                    <button id="submit" class="btn clear">Clear Cart</button>
+                <form action="/cart/clear" method="POST" id="clearCartForm">
+                    <button type="submit" class="btn clear">Clear Cart</button>
                 </form>
-
             </div>
-             <!-- Checkout Form (hidden by default) -->
+
+            <!-- Checkout Form (hidden by default) -->
             <div id="checkoutForm">
                 <h2>Checkout Information</h2>
                 <form id="checkoutFormElement" action="/checkout" method="POST">
@@ -229,38 +228,32 @@
                         <label for="name">Full Name</label>
                         <input type="text" id="name" name="name" required>
                     </div>
-                    
                     <div class="checkout-form-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" required>
                     </div>
-                    
                     <div class="checkout-form-group">
                         <label for="address">Shipping Address</label>
                         <textarea id="address" name="address" rows="3" required></textarea>
                     </div>
-                    
                     <div class="checkout-form-group">
                         <label for="payment">Payment Method</label>
                         <select id="payment" name="payment" required>
                             <option value="">Select payment method</option>
-                            <option value="credit">Credit Card</option>
+                            <option value="credit">Cash</option>
                             <option value="paypal">PayPal</option>
                         </select>
                     </div>
-                    
                     <div class="checkout-form-group">
                         <label>
                             <input type="checkbox" name="terms" required> I agree to the terms and conditions
                         </label>
                     </div>
-                    
                     <button type="submit" class="btn-checkout">Complete Purchase</button>
                     <button type="button" id="backToCartBtn" class="btn">Back to Cart</button>
                 </form>
             </div>
-            
-            <% } %>
+        <% } %>
     </main>
 
     <%- include('../partials/footer') %>

@@ -6,7 +6,8 @@ const router = express.Router();
 
 // Remove protection for all recipe routes
 // router.use(authController.protect);
-
+// Home page
+router.get('/random-recipe', recipeController.getRandomRecipe);
 // Recipe routes
 router.get('/', recipeController.getAllRecipes);
 router.get('/random', recipeController.getRandomRecipe);

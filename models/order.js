@@ -1,20 +1,20 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  items: [{
-    book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
-    title: String,
-    quantity: Number,
-    price: Number,
-    subtotal: Number
-  }],
-  subtotal: Number,
-  shippingAddress: Object,
-  paymentMethod: String,
-  status: { type: String, default: 'processing' },
+  sessionId: { type: String, required: true }, // session-based!
+  books: [
+    {
+      book: String,
+      imagePath: String,
+      quantity: Number,
+      price: String
+    }
+  ],
+  name: String,
+  email: String,
+  address: String,
+  payment: String,
   createdAt: { type: Date, default: Date.now }
 });
 
-// Prevent model overwrite error
-module.exports = mongoose.models.Order || mongoose.model('Order', orderSchema);
+module.exports = mongoose.model('Order', orderSchema);
