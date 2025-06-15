@@ -44,27 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
     // Elements
     const addToCartBtn = document.getElementById('add-to-cart-btn');
-    const removeFromCartBtn = document.getElementById('remove-from-cart-btn');
+   
     const gotoCartBtn = document.getElementById('goto-cart-btn');
-    const wishlistBtn = document.querySelector('.wishlist-btn');
     
-    // Create and insert notification container
-    let notification = document.createElement('div');
-    notification.id = 'cart-notification';
-    notification.style.position = 'fixed';
-    notification.style.top = '10px';
-    notification.style.right = '10px';
-    notification.style.padding = '10px 20px';
-    notification.style.backgroundColor = '#333';
-    notification.style.color = 'white';
-    notification.style.borderRadius = '5px';
-    notification.style.display = 'none';
-    notification.style.zIndex = '1000';
-    document.body.appendChild(notification);
-
-
-
-
+ 
 
 document.querySelectorAll('.add-to-cart-btn').forEach(addToCartBtn => {
     const bookId = addToCartBtn.getAttribute('data-id');

@@ -155,85 +155,13 @@ exports.clearCart = async (req, res) => {
       { $set: { books: [], totalPrice: 0, totalItems: 0 } }
     );
 
-    // For API endpoint:
-    // res.json({ success: true, cart: { books: [], totalPrice: 0, totalItems: 0 } });
-
-    // For classic form POST:
+   
     res.redirect('/cart');
   } catch (err) {
     console.error('Clear cart error:', err);
     res.status(500).send('Failed to clear cart');
   }
 };
-// Update cart item quantity
-// exports.updateCartItem = async (req, res) => {
-//   try {
-//     const { bookId } = req.params;
-//     let { quantity } = req.body;
-
-//     // Validate inputs
-//     quantity = parseInt(quantity);
-//     if (isNaN(quantity) || quantity < 1) {
-//       return res.status(400).json({ 
-//         success: false, 
-//         message: 'Quantity must be a number at least 1' 
-//       });
-//     }
-
-//     // Check book availability
-//     const book = await Book.findById(bookId);
-//     if (!book || !book.available) {
-//       return res.status(404).json({ 
-//         success: false, 
-//         message: 'Book not available' 
-//       });
-//     }
-
-//     // Check stock if applicable
-//     if (book.stockQuantity && quantity > book.stockQuantity) {
-//       return res.status(400).json({ 
-//         success: false, 
-//         message: `Only ${book.stockQuantity} items available` 
-//       });
-//     }
-
-//     // Find and update item
-//     const itemIndex = req.cart.items.findIndex(
-//       item => item.bookId.toString() === bookId
-//     );
-
-//     if (itemIndex === -1) {
-//       return res.status(404).json({ 
-//         success: false, 
-//         message: 'Item not found in cart' 
-//       });
-//     }
-
-//     req.cart.items[itemIndex].quantity = quantity;
-//     await req.cart.save();
-
-//     // Get fresh cart data
-//     const updatedCart = await Cart.findById(req.cart._id)
-//       .populate('items.bookId')
-//       .lean();
-
-//     res.json({ 
-//       success: true, 
-//       cart: updatedCart,
-//       totalItems: updatedCart.items.reduce((sum, item) => sum + item.quantity, 0),
-//       totalPrice: updatedCart.items.reduce(
-//         (sum, item) => sum + (item.bookId.price * item.quantity), 0
-//       )
-//     });
-//   } catch (err) {
-//     console.error('Error updating cart:', err);
-//     res.status(500).json({ 
-//       success: false, 
-//       message: 'Error updating cart',
-//       error: process.env.NODE_ENV === 'development' ? err.message : undefined
-//     });
-//   }
-// };
 
 exports.checkout = async (req, res) => {
   try {
