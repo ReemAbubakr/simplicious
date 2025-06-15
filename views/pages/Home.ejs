@@ -26,9 +26,7 @@
     <div class="search-wrapper">
         <div class="search-container" style="position: relative;">
             <i class="fa fa-search"></i>
-         <button type="button" id="searchBtn" class="search-btn">
-                        <i class="fas fa-search"></i> Search
-                    </button>
+         <input type="text" id="searchInput" class="search-input" placeholder="Search for recipes and more..." aria-label="Search for recipes and more..." />
         </div>
         <div id="homeSearchResults" class="search-results-container"></div>
 
@@ -52,15 +50,13 @@
             <% if (recipes && recipes.length > 0) { %>
                 <div class="featured-left">
     <div id="results"></div>
-    <a href="/recipe/<%= recipes[0]._id %>" class="recipe-link" aria-label="<%= recipes[0].title %> Recipe">
+    <a href="/recipes/<%= recipes[0]._id %>" class="recipe-link" aria-label="<%= recipes[0].title %> Recipe">
         <article class="recipe-card-featured">
             <div class="recipe-image-container">
                 <img src="/images/<%=recipes[0].imagePath %>"  
-                    alt="<%= recipes[0].title %>" 
-                    class="recipe-image"
-                    loading="lazy">
+                    alt="<%= recipes[0].title %>" class="recipe-image"loading="lazy">
             </div>
-            <div class="recipe-content">
+            <div class="recipe-image">
                 <div class="recipe-badge"><%= recipes[0].type || '' %></div>
                 <header>
                     <h2 class="recipe-title"><%= recipes[0].title %></h2>
@@ -123,11 +119,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Search functionality
             const searchInput = document.getElementById('searchInput');
-            const searchBtn = document.getElementById('searchBtn');
+           
             
-            searchBtn.addEventListener('click', performSearch);
+           
             searchInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent form submission
                     performSearch();
                 }
             });

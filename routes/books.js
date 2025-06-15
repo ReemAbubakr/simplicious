@@ -100,6 +100,7 @@ router.post('/:id/update', upload.single('image'), async (req, res) => {
   }
 });
 
+
 router.post('/:id/rating', BookController.addRating);
 
 

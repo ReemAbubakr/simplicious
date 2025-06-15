@@ -187,30 +187,45 @@ if (removeFromCartBtn) {
 
 
 
-    // Wishlist toggle button handler
-    if (wishlistBtn) {
-        wishlistBtn.addEventListener('click', () => {
-            // Toggle aria-pressed attribute and icon style
-            const pressed = wishlistBtn.getAttribute('aria-pressed') === 'true';
-            wishlistBtn.setAttribute('aria-pressed', !pressed);
+    wishlistBtn.addEventListener('click', async () => {
+        console.log('Wishlist button clicked', wishlistBtn);
+        const pressed = wishlistBtn.getAttribute('aria-pressed') === 'true';
+        const bookId = wishlistBtn.getAttribute('data-id');
+         console.log('BookId being sent:', bookId); 
+        
 
-            const icon = wishlistBtn.querySelector('i');
-            if (!pressed) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                wishlistBtn.setAttribute('aria-label', 'Remove from wishlist');
-                showNotification('Added to wishlist!');
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                wishlistBtn.setAttribute('aria-label', 'Add to wishlist');
-                showNotification('Removed from wishlist!');
+
+        wishlistBtn.setAttribute('aria-pressed', !pressed);
+        const icon = wishlistBtn.querySelector('i');
+        if (!pressed) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            wishlistBtn.setAttribute('aria-label', 'Remove from wishlist');
+            showNotification('Added to wishlist!');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            wishlistBtn.setAttribute('aria-label', 'Add to wishlist');
+            showNotification('Removed from wishlist!');
+        }
+
+        try {
+            const response = await fetch(`/wishlist/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ bookId }),
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || 'Failed to update wishlist');
             }
-        });
-    }
-
-    // Initial setup
-    updateCartButtons();
+        } catch (err) {
+            showNotification('Error updating wishlist!');
+        }
+    });
 });
 // Initialize comment form
 function initCommentForm() {

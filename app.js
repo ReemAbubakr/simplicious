@@ -47,11 +47,9 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: DB,
-        dbName: 'codebookDB',
-        ttl: 24 * 60 * 60 // 1 day
-    }),
+   store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI // or paste your string here
+  }),
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000, // 1 day
@@ -59,6 +57,21 @@ app.use(session({
         sameSite: 'lax'
     }
 }));
+
+app.post('/wishlist/toggle', (req, res) => {
+     console.log('BODY:', req.body); // Check if bookId arrives
+
+  // Check current session data
+  console.log('SESSION BEFORE:', req.session);
+  const { bookId } = req.body;
+  if (!req.session.wishlist) req.session.wishlist = [];
+  const idx = req.session.wishlist.indexOf(bookId);
+  if (idx === -1) req.session.wishlist.push(bookId);
+  else req.session.wishlist.splice(idx, 1);
+  req.session.save(() => { // optional, but helps ensure save
+    res.json({ wishlist: req.session.wishlist });
+  });
+});
 
 // Middleware Setup
 app.use(express.json({ limit: '10mb' }));
