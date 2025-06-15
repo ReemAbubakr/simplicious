@@ -1,135 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title>
+        <%= title %>
+    </title>
     <link rel="icon" type="image/png" href="/images/panlog.png">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/book.css">
 </head>
+
 <body>
     <%- include('../partials/header') %>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <a href="/recipes">
-            <button class="explore-btn">Explore Recipes</button>
-        </a>
-    </section>
+        <!-- Hero Section -->
+        <section class="hero">
+            <a href="/recipes">
+                <button class="explore-btn">Explore Recipes</button>
+            </a>
+        </section>
 
-    <!-- Search Bar & Sort Options -->
-    <div class="search-wrapper">
-        <div class="search-container" style="position: relative;">
-            <i class="fa fa-search"></i>
-        <input type="text" id="homeCategorySearch" class="search-input" placeholder="Search categories (e.g. breakfast, lunch)">
+        <!-- Search Bar & Sort Options -->
+        <div class="search-wrapper">
+            <div class="search-container" style="position: relative;">
+                <i class="fa fa-search"></i>
+                <input type="text" id="homeCategorySearch" class="search-input" placeholder="Search categories (e.g. breakfast, lunch)">
+            </div>
+            <div id="homeSearchResults" class="search-results-container"></div>
+
         </div>
-        <div id="homeSearchResults" class="search-results-container"></div>
 
-    </div>
-
-    <div class="sort-container">
-        <label for="sort-dropdown">Sort by:</label>
-        <select id="sort-dropdown" name="sort-options">
+        <div class="sort-container">
+            <label for="sort-dropdown">Sort by:</label>
+            <select id="sort-dropdown" name="sort-options">
             <option value="newest">Newest</option>
             <option value="most-popular">Most Popular</option>
             <option value="prep-time">Prep Time</option>
         </select>
-    </div>
-
-    <!-- Main Content Container -->
-    <div class="parent-container">
-        <%- include('../partials/sidebar') %>
-        
-        <div class="recipe-grid">
-            <!-- Left: Featured Recipe Card -->
-            <div class="featured-left">
-                <div id="results"></div>
-                <a href="/chickpea-salad" class="recipe-link" aria-label="<%= recipe.title %> Recipe">
-                    <article class="recipe-card-featured">
-                        <div class="recipe-image-container">
-                            <img src="/images/fruit-spinach-salad.jpg" 
-                                alt="<%= recipe.title %>" 
-                                class="recipe-image"
-                                loading="lazy">
-                            <div class="recipe-badge"><%= recipe.tag %></div>
-                        </div>
-                        
-                        <div class="recipe-content">
-                            <header>
-                                <h2 class="recipe-title"><%= recipe.heading %></h2>
-                                <p class="recipe-description"><%= recipe.description %></p>
-                            </header>
-                            
-                            <div class="recipe-meta">
-                                <div class="meta-item">
-                                    <i class="fas fa-users" aria-hidden="true"></i>
-                                    <span>Serves: <strong><%= recipe.serves %></strong></span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="fas fa-clock" aria-hidden="true"></i>
-                                    <span>Prep: <strong><%= recipe.prep %></strong></span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="fas fa-fire" aria-hidden="true"></i>
-                                    <span>Total: <strong><%= recipe.total %></strong></span>
-                                </div>
-                            </div>
-                            
-                            <div class="recipe-tags">
-                                <% recipe.tags.forEach(tag => { %>
-                                    <span class="tag <%= tag.toLowerCase().replace(' ', '-') %>"><%= tag %></span>
-                                <% }); %>
-                            </div>
-                        </div>
-                    </article>
-                </a>
-            </div>
-            
-            <!-- Right Recipes -->
-            <div class="featured-right">
-                <!-- First Recipe Card -->
-                <a href="/spaghetti-bolognese">
-                    <div class="recipe-card2 black" data-preptime="30" data-popularity="7">
-                        <img src="./images/Spaghetti.jpg" alt="Spaghetti Bolognese">
-                        <div class="recipe-content">
-                            <h2>Spaghetti Bolognese</h2>
-                            <p>Quick and easy pasta with rich tomato sauce. Perfect for a weekday dinner.</p>
-                            <div class="recipe-info">
-                                <div class="info-item"><i class="fa fa-users"></i> 2 Servings</div>
-                                <div class="info-item"><i class="fa fa-clock"></i> 30 min</div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-        
-                <!-- Second Recipe Card -->
-                <a href="/brownies">
-                    <div class="recipe-card2" data-preptime="45" data-popularity="10">
-                        <img src="./images/brownies.jpg" alt="Brownies">
-                        <div class="recipe-content">
-                            <h2>Brownies</h2>
-                            <p>Rich, moist and absolutely decadent — your go-to chocolate dessert!</p>
-                            <div class="recipe-info">
-                                <div class="info-item"><i class="fa fa-users"></i> 4 Servings</div>
-                                <div class="info-item"><i class="fa fa-clock"></i> 45 min</div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
         </div>
-    </div>
 
-    <%- include('../partials/footer') %>
-    <script src="/js/recipeSort.js"></script>
-    <script src="/js/sidebar.js"></script>
-    <script src="/js/HomeSearchBar.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        setupCategorySearch('homeCategorySearch', 'homeSearchResults');
-    });
-    </script>
+        <!-- Main Content Container -->
+        <div class="parent-container">
+            <%- include('../partials/sidebar') %>
+
+                <div class="recipe-grid">
+                    <!-- Left: Featured Recipe Card -->
+                    <div class="featured-left">
+                        <div id="results"></div>
+                        <a href="/chickpea-salad" class="recipe-link" aria-label="<%= recipe.title %> Recipe">
+                            <article class="recipe-card-featured">
+                                <div class="recipe-image-container">
+                                    <img src="/images/fruit-spinach-salad.jpg" alt="<%= recipe.title %>" class="recipe-image" loading="lazy">
+                                    <div class="recipe-badge">
+                                        <%= recipe.tag %>
+                                    </div>
+                                </div>
+
+                                <div class="recipe-content">
+                                    <header>
+                                        <h2 class="recipe-title">
+                                            <%= recipe.heading %>
+                                        </h2>
+                                        <p class="recipe-description">
+                                            <%= recipe.description %>
+                                        </p>
+                                    </header>
+
+                                    <div class="recipe-meta">
+                                        <div class="meta-item">
+                                            <i class="fas fa-users" aria-hidden="true"></i>
+                                            <span>Serves: <strong><%= recipe.serves %></strong></span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-clock" aria-hidden="true"></i>
+                                            <span>Prep: <strong><%= recipe.prep %></strong></span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-fire" aria-hidden="true"></i>
+                                            <span>Total: <strong><%= recipe.total %></strong></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="recipe-tags">
+                                        <% recipe.tags.forEach(tag => { %>
+                                            <span class="tag <%= tag.toLowerCase().replace(' ', '-') %>"><%= tag %></span>
+                                            <% }); %>
+                                    </div>
+                                </div>
+                            </article>
+                        </a>
+                    </div>
+
+                    <!-- Right Recipes -->
+                    <div class="featured-right">
+                        <!-- First Recipe Card -->
+                        <a href="/spaghetti-bolognese">
+                            <div class="recipe-card2 black" data-preptime="30" data-popularity="7">
+                                <img src="./images/Spaghetti.jpg" alt="Spaghetti Bolognese">
+                                <div class="recipe-content">
+                                    <h2>Spaghetti Bolognese</h2>
+                                    <p>Quick and easy pasta with rich tomato sauce. Perfect for a weekday dinner.</p>
+                                    <div class="recipe-info">
+                                        <div class="info-item"><i class="fa fa-users"></i> 2 Servings</div>
+                                        <div class="info-item"><i class="fa fa-clock"></i> 30 min</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Second Recipe Card -->
+                        <a href="/brownies">
+                            <div class="recipe-card2" data-preptime="45" data-popularity="10">
+                                <img src="./images/brownies.jpg" alt="Brownies">
+                                <div class="recipe-content">
+                                    <h2>Brownies</h2>
+                                    <p>Rich, moist and absolutely decadent — your go-to chocolate dessert!</p>
+                                    <div class="recipe-info">
+                                        <div class="info-item"><i class="fa fa-users"></i> 4 Servings</div>
+                                        <div class="info-item"><i class="fa fa-clock"></i> 45 min</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+            <script src="/js/recipeSort.js"></script>
+            <script src="/js/sidebar.js"></script>
+            <script src="/js/HomeSearchBar.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    setupCategorySearch('homeCategorySearch', 'homeSearchResults');
+                });
+            </script>
 
 </body>
+
 </html>

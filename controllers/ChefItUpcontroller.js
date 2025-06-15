@@ -3,13 +3,13 @@ const Recipe = require('../models/recipe');
 exports.getChefItUp = async(req, res) => {
     try {
         const ingredients = [
-            { name: 'Chicken', emoji: '🍗' },
-            { name: 'Tomatoes', emoji: '🍅' },
-            { name: 'Onions', emoji: '🧅' },
-            { name: 'Garlic', emoji: '🧄' },
-            { name: 'Rice', emoji: '🍚' },
+            { name: 'flour', emoji: '🍗' },
+            { name: 'eggs', emoji: '🍅' },
+            { name: 'milk', emoji: '🧅' },
+            { name: 'sugar', emoji: '🧄' },
+            { name: 'ice', emoji: '🍚' },
             { name: 'Pasta', emoji: '🍝' },
-            { name: 'Bell Peppers', emoji: '🫑' },
+            { name: 'parmesan', emoji: '🫑' },
             { name: 'Cheese', emoji: '🧀' },
             { name: 'Beef', emoji: '🥩' },
             { name: 'Eggs', emoji: '🥚' },
@@ -32,17 +32,29 @@ exports.getChefItUp = async(req, res) => {
 exports.findRecipes = async(req, res) => {
     try {
         const selectedIngredients = req.body.ingredients;
+        console.log('Selected ingredients:', selectedIngredients);
 
         // Find all recipes
         const recipes = await Recipe.find({}).select('title ingredients imagePath type _id');
+        console.log('Total recipes found:', recipes.length);
 
         // Calculate matching ingredients for each recipe
         const recipesWithMatches = recipes.map(recipe => {
-            const matchingIngredients = recipe.ingredients.filter(ingredient =>
-                selectedIngredients.some(selected =>
-                    ingredient.toLowerCase().includes(selected.toLowerCase())
+            // Normalize ingredients for comparison
+            const recipeIngredients = recipe.ingredients.map(ing => ing.toLowerCase().trim());
+            const selectedNormalized = selectedIngredients.map(ing => ing.toLowerCase().trim());
+
+            console.log('Recipe:', recipe.title);
+            console.log('Recipe ingredients:', recipeIngredients);
+
+            const matchingIngredients = recipeIngredients.filter(ingredient =>
+                selectedNormalized.some(selected =>
+                    ingredient.includes(selected) || selected.includes(ingredient)
                 )
             );
+
+            console.log('Matching ingredients:', matchingIngredients);
+
             return {
                 recipe,
                 matchCount: matchingIngredients.length,
@@ -52,11 +64,12 @@ exports.findRecipes = async(req, res) => {
 
         // Filter recipes with 2 or more matching ingredients
         const goodMatches = recipesWithMatches.filter(item => item.matchCount >= 2);
+        console.log('Good matches found:', goodMatches.length);
 
         if (goodMatches.length === 0) {
             return res.json({
                 success: false,
-                message: 'No recipes found with at least 2 matching ingredients. Try different ingredients!'
+                message: 'No recipes found with these ingredients.\n\nTry selecting different ingredients!'
             });
         }
 
@@ -65,6 +78,11 @@ exports.findRecipes = async(req, res) => {
 
         // Get the best matching recipe
         const bestMatch = goodMatches[0];
+        console.log('Best match:', {
+            title: bestMatch.recipe.title,
+            matchCount: bestMatch.matchCount,
+            matchingIngredients: bestMatch.matchingIngredients
+        });
 
         res.json({
             success: true,
