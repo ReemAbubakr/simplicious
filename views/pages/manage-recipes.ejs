@@ -53,6 +53,7 @@
           <input type="text" name="instructions" placeholder="Instructions (Separate by commas)" required>
 
           <button type="submit" class="save">Add Recipe</button>
+          <div id="form-message" class="form-message"></div>
         </form>
         <h2>All Recipes</h2>
         <table>
@@ -88,6 +89,62 @@
   </div>
 
    <%- include('../partials/footer') %>
+
+   <script>
+  document.getElementById('add-recipe-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitBtn = form.querySelector('.save');
+    const messageDiv = document.getElementById('form-message');
+    
+    // Disable button during submission
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
+    messageDiv.textContent = '';
+    messageDiv.className = 'form-message';
+
+    try {
+      const formData = new FormData(form);
+      
+      // Convert ingredients/instructions to arrays if needed
+      if (typeof formData.get('ingredients') === 'string') {
+        formData.set('ingredients', formData.get('ingredients').split(',').map(i => i.trim()));
+      }
+      if (typeof formData.get('instructions') === 'string') {
+        formData.set('instructions', formData.get('instructions').split(',').map(i => i.trim()));
+      }
+
+      const response = await fetch('/recipes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) throw new Error(result.message || 'Failed to save recipe');
+
+      // Success handling
+      messageDiv.textContent = 'Recipe saved successfully!';
+      messageDiv.classList.add('success');
+      form.reset();
+
+      // Optional: Refresh the recipe list
+      setTimeout(() => window.location.reload(), 1500); // Or use DOM manipulation
+
+    } catch (error) {
+      messageDiv.textContent = error.message;
+      messageDiv.classList.add('error');
+      console.error('Error:', error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Add Recipe';
+    }
+  });
+</script>
 
 </body>
 </html>
