@@ -25,15 +25,21 @@ exports.getAllRecipes = async (req, res) => {
   }
 };
 
-// Delete a recipe
+// Delete recipe (AJAX version)
 exports.deleteRecipe = async (req, res) => {
   try {
     const recipeId = req.params.id;
     await Recipe.findByIdAndDelete(recipeId);
-    res.redirect('/manage-recipes');
+    res.json({
+      success: true,
+      message: 'Recipe deleted successfully'
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
+    res.status(400).json({
+      success: false,
+      message: 'Error deleting recipe',
+      error: err.message
+    });
   }
 };
 
@@ -50,6 +56,9 @@ exports.showEditForm = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
+
+
 
 // Handle recipe update from edit form
 exports.updateRecipe = async (req, res) => {
@@ -134,7 +143,6 @@ exports.saveRecipe = async (req, res) => {
       message: 'Recipe saved successfully',
     });
 
-    res.redirect('/manage-recipes');
   } catch (err) {
     res.status(400).json({
       status: 'error',

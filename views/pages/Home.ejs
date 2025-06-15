@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title>
+        <%= title %>
+    </title>
     <link rel="icon" type="image/png" href="/images/panlog.png">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/book.css">
 </head>
+
 <body>
     <%- include('../partials/header') %>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <a href="/recipes">
-            <button class="explore-btn">Explore Recipes</button>
-        </a>
-    </section>
+        <!-- Hero Section -->
+        <section class="hero">
+            <a href="/recipes">
+                <button class="explore-btn">Explore Recipes</button>
+            </a>
+        </section>
 
     <!-- Search Bar & Sort Options -->
     <div class="search-wrapper">
@@ -30,14 +34,14 @@
 
     </div>
 
-    <div class="sort-container">
-        <label for="sort-dropdown">Sort by:</label>
-        <select id="sort-dropdown" name="sort-options">
+        <div class="sort-container">
+            <label for="sort-dropdown">Sort by:</label>
+            <select id="sort-dropdown" name="sort-options">
             <option value="newest">Newest</option>
             <option value="most-popular">Most Popular</option>
             <option value="prep-time">Prep Time</option>
         </select>
-    </div>
+        </div>
 
     <!-- Main Content Container -->
     <div class="parent-container">
@@ -139,4 +143,5 @@
     </script>
 
 </body>
+
 </html>

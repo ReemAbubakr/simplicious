@@ -1,5 +1,4 @@
 async function revealRecipe(cardElement) {
-    cardElement.classList.add("flipped");
     if (cardElement.classList.contains("flipped")) return;
 
     try {
@@ -9,13 +8,19 @@ async function revealRecipe(cardElement) {
         const back = cardElement.querySelector(".card-back");
         back.style.backgroundImage = 'none';
 
-        // Only show the title (no extra HTML)
-        back.innerHTML = `<h3 class="flipped-title">${recipe.title}</h3>`; // 👈 Key change
+        // Show only the recipe title in a centered container
+        back.innerHTML = `
+            <div class="recipe-title-only">
+                <h3>${recipe.title}</h3>
+            </div>
+        `;
 
+        cardElement.classList.add("flipped");
 
-
-
-        window.location.href = `/recipes/${recipe._id}`;
+        // Redirect after a short delay to show the title
+        setTimeout(() => {
+            window.location.href = `/recipes/${recipe._id}`;
+        }, 1000);
 
     } catch (error) {
         console.error("Failed to load recipe:", error);

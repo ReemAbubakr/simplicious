@@ -1,3 +1,27 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+
+    searchInput.addEventListener('keypress', async(e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = searchInput.value.trim().toLowerCase();
+
+            if (!query) return;
+
+            try {
+                const response = await fetch(`/search?q=${encodeURIComponent(query)}&isCategory=true`);
+                const data = await response.json();
+
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            } catch (error) {
+                console.error('Search failed:', error);
+            }
+        }
+    });
+});
+
 function setupLiveSearch(inputId, resultContainerId) {
     const input = document.getElementById(inputId);
     const resultContainer = document.getElementById(resultContainerId);
